@@ -41,6 +41,7 @@
                     <div class="settings-dropdown" id="settingsMenu">
                         <a class="dropdown-item" onclick="showModal('Network Settings')"><span>🌐</span> Network Settings</a>
                         <a class="dropdown-item" onclick="showModal('System Settings')"><span>🔧</span> System Settings</a>
+                        <a class="dropdown-item" onclick="showModal('Firmware Update')"><span>⬆️</span> Firmware Update</a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" onclick="showModal('About Device')"><span>ℹ️</span> About</a>
                     </div>
@@ -55,12 +56,12 @@
                 <div class="encoder-grid">
                     
                     <div class="monitor-section">
-                        <div class="preview-window" style="flex:1;">
+                        <div class="preview-window" style="flex:2;">
                             <div class="preview-label">HDMI 4K</div>
                             <span style="color:#444;">[ Camera Source Signal ]</span>
                         </div>
                         
-                        <div class="panel">
+                        <div class="panel" style="flex:1;">
                             <span class="panel-title">Stream Status</span>
                             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
                                 <div>
@@ -81,8 +82,7 @@
                             <div class="ctrl-tabs">
                                 <div class="ctrl-tab active" onclick="switchEncTab('video')">Video</div>
                                 <div class="ctrl-tab" onclick="switchEncTab('audio')">Audio</div>
-                                <div class="ctrl-tab" onclick="switchEncTab('ptz')">PTZ</div>
-                            </div>
+                                </div>
                         </div>
 
                         <div class="panel-content">
@@ -105,8 +105,16 @@
                                 </div>
                             </div>
                             
-                            <div id="enc-tab-audio" style="display:none;"><p style="color:#888;">Audio Settings...</p></div>
-                            <div id="enc-tab-ptz" style="display:none;"><p style="color:#888;">PTZ Control...</p></div>
+                            <div id="enc-tab-audio" style="display:none;">
+                                <div class="form-group">
+                                    <label class="form-label">Audio Source</label>
+                                    <select class="form-select"><option>Embedded</option><option>Line In</option></select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Volume</label>
+                                    <input type="range" style="width:100%;">
+                                </div>
+                            </div>
                         </div>
 
                         <div class="panel-footer">
@@ -136,7 +144,7 @@
                         <div class="decoder-settings-card">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                                 <span class="panel-title" style="margin:0; border:none;">DECODING SETTINGS</span>
-                                <button class="btn btn-outline" style="padding:4px 8px; font-size:11px;">Reset</button>
+                                <button class="btn btn-primary" onclick="togglePTZ()" style="padding:4px 10px; font-size:12px;">🕹️ Open PTZ</button>
                             </div>
                             
                             <div class="settings-scroll-area">
@@ -146,12 +154,8 @@
                                     <div class="form-group">
                                         <label class="form-label">Output Mode</label>
                                         <div class="mode-selector">
-                                            <div class="mode-opt active" onclick="switchOutputMode(1, this)">
-                                                <span style="font-size:16px;">⬜</span> Single
-                                            </div>
-                                            <div class="mode-opt" onclick="switchOutputMode(4, this)">
-                                                <span style="font-size:16px;">田</span> Quad
-                                            </div>
+                                            <div class="mode-opt active" onclick="switchOutputMode(1, this)"><span style="font-size:16px;">⬜</span> Single</div>
+                                            <div class="mode-opt" onclick="switchOutputMode(4, this)"><span style="font-size:16px;">田</span> Quad</div>
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -159,8 +163,6 @@
                                         <select class="form-select">
                                             <option selected>Window 1 (Main)</option>
                                             <option>Window 2</option>
-                                            <option>Window 3</option>
-                                            <option>Window 4</option>
                                         </select>
                                     </div>
                                 </div>
@@ -169,19 +171,11 @@
                                     <div class="settings-group-title">Output Format</div>
                                     <div class="form-group">
                                         <label class="form-label">Resolution</label>
-                                        <select class="form-select">
-                                            <option>Auto (Follow Source)</option>
-                                            <option>3840x2160 (4K)</option>
-                                            <option selected>1920x1080 (FHD)</option>
-                                        </select>
+                                        <select class="form-select"><option>Auto</option><option selected>1080p60</option></select>
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label">Frame Rate</label>
-                                        <select class="form-select">
-                                            <option>Auto</option>
-                                            <option selected>60 fps</option>
-                                            <option>59.94 fps</option>
-                                        </select>
+                                        <select class="form-select"><option>60 fps</option></select>
                                     </div>
                                 </div>
 
@@ -265,6 +259,52 @@
         </div>
     </div>
 
+    <div id="ptz-panel" class="draggable-panel">
+        <div class="panel-header-drag" id="ptz-header">
+            <span>🕹️ PTZ Controller</span>
+            <button class="close-btn" onclick="togglePTZ()">×</button>
+        </div>
+        <div class="ptz-content">
+            <div class="ptz-joystick-area">
+                <div class="joystick-base">
+                    <div class="joystick-stick"></div>
+                </div>
+            </div>
+            
+            <div class="ptz-controls-grid">
+                <div class="control-group">
+                    <span class="control-label">Zoom</span>
+                    <div class="btn-group">
+                        <button class="btn-mini">In</button>
+                        <button class="btn-mini">Out</button>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <span class="control-label">Focus</span>
+                    <div class="btn-group">
+                        <button class="btn-mini">Auto</button>
+                        <button class="btn-mini">Man</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <span class="control-label">Speed</span>
+                <input type="range" style="width:100%;">
+            </div>
+            
+            <div class="control-group">
+                <span class="control-label">Presets</span>
+                <div class="preset-grid">
+                    <button class="preset-btn">1</button><button class="preset-btn">2</button>
+                    <button class="preset-btn">3</button><button class="preset-btn">4</button>
+                    <button class="preset-btn">5</button><button class="preset-btn">6</button>
+                    <button class="preset-btn">7</button><button class="preset-btn">8</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
         <div class="modal-box">
             <h3 id="modalTitle" style="margin-top:0; color:#fff;">Settings</h3>
@@ -276,7 +316,55 @@
     </div>
 
     <script>
-        // --- Drag & Drop Logic ---
+        // --- Drag & Drop Logic (Window) ---
+        dragElement(document.getElementById("ptz-panel"));
+
+        function dragElement(elmnt) {
+            var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            if (document.getElementById(elmnt.id + "-header")) {
+                document.getElementById(elmnt.id + "-header").onmousedown = dragMouseDown;
+            } else {
+                elmnt.onmousedown = dragMouseDown;
+            }
+
+            function dragMouseDown(e) {
+                e = e || window.event;
+                e.preventDefault();
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                document.onmouseup = closeDragElement;
+                document.onmousemove = elementDrag;
+            }
+
+            function elementDrag(e) {
+                e = e || window.event;
+                e.preventDefault();
+                pos1 = pos3 - e.clientX;
+                pos2 = pos4 - e.clientY;
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+                elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+            }
+
+            function closeDragElement() {
+                document.onmouseup = null;
+                document.onmousemove = null;
+            }
+        }
+
+        function togglePTZ() {
+            var panel = document.getElementById("ptz-panel");
+            if (panel.style.display === "flex") {
+                panel.style.display = "none";
+            } else {
+                panel.style.display = "flex";
+                panel.style.top = "100px";
+                panel.style.left = "calc(50% - 160px)";
+            }
+        }
+
+        // --- Drag & Drop Logic (Source List) ---
         function drag(ev) { ev.dataTransfer.setData("text", ev.currentTarget.getAttribute("data-name")); }
         function allowDrop(ev) { ev.preventDefault(); ev.currentTarget.classList.add('drag-over'); }
         function drop(ev) {
@@ -339,7 +427,6 @@
             document.querySelectorAll('.ctrl-tab').forEach(t => t.classList.remove('active'));
             document.getElementById('enc-tab-video').style.display = 'none';
             document.getElementById('enc-tab-audio').style.display = 'none';
-            document.getElementById('enc-tab-ptz').style.display = 'none';
             event.target.classList.add('active');
             document.getElementById('enc-tab-' + tabName).style.display = 'block';
         }
