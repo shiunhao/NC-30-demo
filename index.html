@@ -1,87 +1,359 @@
-<div class="decoder-settings-card">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-        <span class="panel-title" style="margin:0; border:none;">DECODING SETTINGS</span>
-        <button class="btn btn-outline" style="padding:4px 8px; font-size:11px;">Reset</button>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NC30 Pro AV Interface (Final)</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="page-home">
+        <div class="lobby-header">
+            <div class="lobby-logo"><span>NC</span>30</div>
+            <div class="lobby-subtitle">4K NDI Bi-Directional Converter</div>
+        </div>
+        <div class="card-container">
+            <div class="mode-card card-enc" onclick="switchMode('encoder')">
+                <div class="card-icon" style="color:#007AFF;">📡</div>
+                <div class="card-title">ENCODER</div>
+                <div class="card-desc">Transmit HDMI/SDI sources<br>to the NDI network.</div>
+            </div>
+            <div class="mode-card card-dec" onclick="switchMode('decoder')">
+                <div class="card-icon" style="color:#FF9500;">📺</div>
+                <div class="card-title">DECODER</div>
+                <div class="card-desc">Receive and display NDI streams<br>from the network.</div>
+            </div>
+        </div>
     </div>
-    
-    <div class="settings-scroll-area">
+
+    <div id="app-shell" class="app-layout">
         
-        <div>
-            <div class="settings-group-title">Layout & Routing</div>
+        <div class="top-bar">
+            <div class="back-btn" onclick="goHome()"><span>🏠 Mode Select</span></div>
+            <div class="mode-badge" id="current-mode-badge">ENCODER MODE</div>
             
-            <div class="form-group">
-                <label class="form-label">Output Mode</label>
-                <div class="mode-selector">
-                    <div class="mode-opt active" onclick="switchOutputMode(1, this)">
-                        <span style="font-size:16px;">⬜</span> Single
-                    </div>
-                    <div class="mode-opt" onclick="switchOutputMode(4, this)">
-                        <span style="font-size:16px;">田</span> Quad
+            <div style="display:flex; gap:20px; align-items:center;">
+                <div class="tally-indicator">🔴 LIVE</div>
+                
+                <div class="settings-container">
+                    <div class="settings-btn" onclick="toggleSettings()">⚙️</div>
+                    <div class="settings-dropdown" id="settingsMenu">
+                        <a class="dropdown-item" onclick="showModal('Network Settings')"><span>🌐</span> Network Settings</a>
+                        <a class="dropdown-item" onclick="showModal('System Settings')"><span>🔧</span> System Settings</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" onclick="showModal('About Device')"><span>ℹ️</span> About</a>
                     </div>
                 </div>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Audio Follows</label>
-                <select class="form-select">
-                    <option selected>Window 1 (Main)</option>
-                    <option>Window 2</option>
-                    <option>Window 3</option>
-                    <option>Window 4</option>
-                </select>
+                <span style="font-size:20px; cursor:pointer; opacity:0.7;">👤</span>
             </div>
         </div>
 
-        <div>
-            <div class="settings-group-title">Output Format</div>
+        <div class="main-content">
             
-            <div class="form-group">
-                <label class="form-label">Resolution</label>
-                <select class="form-select">
-                    <option>Auto (Follow Source)</option>
-                    <option>3840x2160 (4K)</option>
-                    <option selected>1920x1080 (FHD)</option>
-                    <option>1280x720 (HD)</option>
-                </select>
-            </div>
+            <div id="view-encoder" style="display:none; height:100%;">
+                <div class="encoder-grid">
+                    
+                    <div class="monitor-section">
+                        <div class="preview-window" style="flex:1;">
+                            <div class="preview-label">HDMI 4K</div>
+                            <span style="color:#444;">[ Camera Source Signal ]</span>
+                        </div>
+                        
+                        <div class="panel">
+                            <span class="panel-title">Stream Status</span>
+                            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+                                <div>
+                                    <div class="info-row"><span class="info-label">Status</span><span class="info-val" style="color:#4CAF50;">● Encoding</span></div>
+                                    <div class="info-row"><span class="info-label">Format</span><span class="info-val">NDI HX (H.265)</span></div>
+                                </div>
+                                <div>
+                                    <div class="info-row"><span class="info-label">Resolution</span><span class="info-val">3840x2160 p60</span></div>
+                                    <div class="info-row"><span class="info-label">Bitrate</span><span class="info-val">25.4 Mbps</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-            <div class="form-group">
-                <label class="form-label">Frame Rate</label>
-                <select class="form-select">
-                    <option>Auto</option>
-                    <option selected>60 fps</option>
-                    <option>59.94 fps</option>
-                    <option>50 fps</option>
-                    <option>30 fps</option>
-                    <option>29.97 fps</option>
-                    <option>25 fps</option>
-                </select>
-            </div>
-        </div>
+                    <div class="control-panel">
+                        <div style="padding:20px 20px 0 20px;">
+                            <span class="panel-title">Control Panel</span>
+                            <div class="ctrl-tabs">
+                                <div class="ctrl-tab active" onclick="switchEncTab('video')">Video</div>
+                                <div class="ctrl-tab" onclick="switchEncTab('audio')">Audio</div>
+                                <div class="ctrl-tab" onclick="switchEncTab('ptz')">PTZ</div>
+                            </div>
+                        </div>
 
-        <div>
-            <div class="settings-group-title">Audio Output</div>
+                        <div class="panel-content">
+                            <div id="enc-tab-video">
+                                <div class="sub-tabs">
+                                    <div class="sub-tab active">Main Stream</div>
+                                    <div class="sub-tab">Sub Stream</div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Input Source</label>
+                                    <select class="form-select"><option>HDMI</option><option>SDI</option></select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Codec</label>
+                                    <select class="form-select"><option>NDI HX (H.265)</option></select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Bitrate (Kbps)</label>
+                                    <input type="text" class="form-input" value="25000">
+                                </div>
+                            </div>
+                            
+                            <div id="enc-tab-audio" style="display:none;"><p style="color:#888;">Audio Settings...</p></div>
+                            <div id="enc-tab-ptz" style="display:none;"><p style="color:#888;">PTZ Control...</p></div>
+                        </div>
 
-            <div class="form-group">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                    <label class="form-label" style="margin:0;">HDMI/SDI Embedded</label>
-                    <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+                        <div class="panel-footer">
+                            <button class="btn btn-primary" style="width:100%;">Apply</button>
+                            <button class="btn btn-danger" style="width:100%;">Stop</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="form-group">
-                <div style="display:flex; justify-content:space-between;">
-                    <label class="form-label">Line Out Volume</label>
-                    <span style="font-size:11px; color:#aaa;">80%</span>
-                </div>
-                <input type="range" style="width:100%;" min="0" max="100" value="80">
-            </div>
-        </div>
+            <div id="view-decoder" style="display:none; height:100%;">
+                <div class="decoder-layout">
+                    
+                    <div class="decoder-top-grid">
+                        
+                        <div class="output-container" id="outputContainer">
+                            <div id="outputLayout" class="output-layout-single">
+                                <div class="preview-slot" ondrop="drop(event)" ondragover="allowDrop(event)" id="slot-1">
+                                    <div class="slot-label">Window 1</div>
+                                    <div class="slot-content">
+                                        <div class="slot-name" style="color:#555;">[ Drag Source Here ]</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="decoder-settings-card">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                                <span class="panel-title" style="margin:0; border:none;">DECODING SETTINGS</span>
+                                <button class="btn btn-outline" style="padding:4px 8px; font-size:11px;">Reset</button>
+                            </div>
+                            
+                            <div class="settings-scroll-area">
+                                
+                                <div>
+                                    <div class="settings-group-title">Layout & Routing</div>
+                                    <div class="form-group">
+                                        <label class="form-label">Output Mode</label>
+                                        <div class="mode-selector">
+                                            <div class="mode-opt active" onclick="switchOutputMode(1, this)">
+                                                <span style="font-size:16px;">⬜</span> Single
+                                            </div>
+                                            <div class="mode-opt" onclick="switchOutputMode(4, this)">
+                                                <span style="font-size:16px;">田</span> Quad
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Audio Follows</label>
+                                        <select class="form-select">
+                                            <option selected>Window 1 (Main)</option>
+                                            <option>Window 2</option>
+                                            <option>Window 3</option>
+                                            <option>Window 4</option>
+                                        </select>
+                                    </div>
+                                </div>
 
+                                <div>
+                                    <div class="settings-group-title">Output Format</div>
+                                    <div class="form-group">
+                                        <label class="form-label">Resolution</label>
+                                        <select class="form-select">
+                                            <option>Auto (Follow Source)</option>
+                                            <option>3840x2160 (4K)</option>
+                                            <option selected>1920x1080 (FHD)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Frame Rate</label>
+                                        <select class="form-select">
+                                            <option>Auto</option>
+                                            <option selected>60 fps</option>
+                                            <option>59.94 fps</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="settings-group-title">Audio Output</div>
+                                    <div class="form-group">
+                                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                                            <label class="form-label" style="margin:0;">HDMI Embedded</label>
+                                            <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div style="display:flex; justify-content:space-between;">
+                                            <label class="form-label">Line Out Volume</label>
+                                            <span style="font-size:11px; color:#aaa;">80%</span>
+                                        </div>
+                                        <input type="range" style="width:100%;" min="0" max="100" value="80">
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div style="margin-top:auto; border-top:1px solid #333; padding-top:20px;">
+                                <button class="btn btn-primary" style="width:100%;">Apply Changes</button>
+                                <button class="btn btn-outline" style="width:100%; margin-top:10px; color:#d32f2f; border-color:#d32f2f;">Clear All Windows</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="source-list-panel">
+                        <div class="list-toolbar">
+                            <span style="font-weight:bold; font-size:14px; color:#ddd;">AVAILABLE SOURCES (3)</span>
+                            <div style="display:flex; gap:10px;">
+                                <button class="btn btn-primary" onclick="showModal('Add Manual Source')">➕ Add Source</button>
+                                <button class="btn btn-outline">🔄 Refresh</button>
+                            </div>
+                        </div>
+                        
+                        <div class="source-list-scroll">
+                            <table class="source-list-table">
+                                <thead class="source-list-header">
+                                    <tr>
+                                        <th style="width:50px; text-align:center;">Loop</th>
+                                        <th style="width:100px;">Preview</th>
+                                        <th>Source Info</th>
+                                        <th style="width:60px; text-align:center;">Preset</th>
+                                        <th style="width:120px;">Status</th>
+                                        <th style="width:100px; text-align:right;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="source-row" draggable="true" ondragstart="drag(event)" data-name="Studio Cam 01" data-ip="192.168.1.101">
+                                        <td style="text-align:center;"><input type="checkbox" checked class="loop-chk"></td>
+                                        <td><div class="thumb-box" style="background:#222; color:#fff;">CAM 01</div></td>
+                                        <td><span class="src-name">Studio Cam 01</span><span class="src-detail">192.168.1.101</span></td>
+                                        <td style="text-align:center; font-weight:bold; color:#666;">1</td>
+                                        <td><div class="status-badge status-ok">● Ready</div></td>
+                                        <td style="text-align:right;">
+                                            <button class="btn-icon">✏️</button>
+                                            <button class="btn-icon" style="color:#d32f2f;">🗑️</button>
+                                        </td>
+                                    </tr>
+                                    <tr class="source-row" draggable="true" ondragstart="drag(event)" data-name="PTZ Camera 03" data-ip="192.168.1.52">
+                                        <td style="text-align:center;"><input type="checkbox" class="loop-chk"></td>
+                                        <td><div class="thumb-box">PTZ 03</div></td>
+                                        <td><span class="src-name">PTZ Camera 03</span><span class="src-detail">192.168.1.52</span></td>
+                                        <td style="text-align:center; font-weight:bold; color:#666;">2</td>
+                                        <td><div class="status-badge status-warn">▲ Warning</div></td>
+                                        <td style="text-align:right;">
+                                            <button class="btn-icon">✏️</button>
+                                            <button class="btn-icon" style="color:#d32f2f;">🗑️</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
     </div>
 
-    <div style="margin-top:auto; border-top:1px solid #333; padding-top:20px;">
-        <button class="btn btn-primary" style="width:100%;">Apply Changes</button>
-        <button class="btn btn-outline" style="width:100%; margin-top:10px; color:#d32f2f; border-color:#d32f2f;">Clear All Windows</button>
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+        <div class="modal-box">
+            <h3 id="modalTitle" style="margin-top:0; color:#fff;">Settings</h3>
+            <div style="height:100px; display:flex; align-items:center; justify-content:center; color:#666;">
+                Modal Content Placeholder
+            </div>
+            <button class="btn btn-primary" style="float:right;" onclick="closeModal()">Close</button>
+        </div>
     </div>
-</div>
+
+    <script>
+        // --- Drag & Drop Logic ---
+        function drag(ev) { ev.dataTransfer.setData("text", ev.currentTarget.getAttribute("data-name")); }
+        function allowDrop(ev) { ev.preventDefault(); ev.currentTarget.classList.add('drag-over'); }
+        function drop(ev) {
+            ev.preventDefault(); ev.currentTarget.classList.remove('drag-over');
+            var data = ev.dataTransfer.getData("text");
+            ev.currentTarget.innerHTML = `<div class="slot-label">Active</div><div class="slot-content"><div class="slot-name" style="color:#4CAF50;">${data}</div><div class="slot-meta">Connected</div></div>`;
+            ev.currentTarget.classList.add('active-slot');
+        }
+
+        // --- Output Mode Switcher ---
+        function switchOutputMode(count, btn) {
+            document.querySelectorAll('.mode-opt').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const layout = document.getElementById('outputLayout');
+            layout.innerHTML = '';
+            if(count === 1) {
+                layout.className = 'output-layout-single';
+                layout.innerHTML = createSlot(1);
+            } else {
+                layout.className = 'output-layout-quad';
+                for(let i=1; i<=4; i++) layout.innerHTML += createSlot(i);
+            }
+        }
+        function createSlot(num) {
+            return `<div class="preview-slot" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="this.classList.remove('drag-over')" id="slot-${num}"><div class="slot-label">Window ${num}</div><div class="slot-content"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div></div>`;
+        }
+
+        // --- Basic UI Logic ---
+        function toggleSettings() { document.getElementById('settingsMenu').classList.toggle('show'); }
+        function showModal(title) { document.getElementById('modalTitle').innerText = title; document.getElementById('modalOverlay').style.display = 'flex'; }
+        function closeModal() { document.getElementById('modalOverlay').style.display = 'none'; }
+
+        function switchMode(mode) {
+            const root = document.documentElement;
+            const badge = document.getElementById('current-mode-badge');
+            document.getElementById('page-home').style.display = 'none';
+            document.getElementById('app-shell').style.display = 'grid';
+            document.getElementById('view-encoder').style.display = 'none';
+            document.getElementById('view-decoder').style.display = 'none';
+
+            if (mode === 'encoder') {
+                root.style.setProperty('--theme-color', '#007AFF');
+                document.getElementById('view-encoder').style.display = 'block';
+                badge.innerText = 'ENCODER MODE';
+                badge.style.color = '#007AFF'; badge.style.borderColor = '#007AFF';
+            } else {
+                root.style.setProperty('--theme-color', '#FF9500'); 
+                document.getElementById('view-decoder').style.display = 'block';
+                badge.innerText = 'DECODER MODE';
+                badge.style.color = '#FF9500'; badge.style.borderColor = '#FF9500';
+            }
+        }
+
+        function goHome() {
+            document.getElementById('app-shell').style.display = 'none';
+            document.getElementById('page-home').style.display = 'flex';
+        }
+        
+        function switchEncTab(tabName) {
+            document.querySelectorAll('.ctrl-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('enc-tab-video').style.display = 'none';
+            document.getElementById('enc-tab-audio').style.display = 'none';
+            document.getElementById('enc-tab-ptz').style.display = 'none';
+            event.target.classList.add('active');
+            document.getElementById('enc-tab-' + tabName).style.display = 'block';
+        }
+        
+        window.onclick = function(e) {
+            if (!e.target.matches('.settings-btn')) {
+                var dropdowns = document.getElementsByClassName("settings-dropdown");
+                for (var i = 0; i < dropdowns.length; i++) {
+                    if (dropdowns[i].classList.contains('show')) dropdowns[i].classList.remove('show');
+                }
+            }
+            if (e.target.className === 'modal-overlay') closeModal();
+        }
+    </script>
+
+</body>
+</html>
