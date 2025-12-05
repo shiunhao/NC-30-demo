@@ -105,7 +105,7 @@
                             <div class="ctrl-tabs">
                                 <div class="ctrl-tab active" onclick="switchEncTab('video')">Video</div>
                                 <div class="ctrl-tab" onclick="switchEncTab('audio')">Audio</div>
-                                </div>
+                            </div>
                         </div>
 
                         <div class="panel-content">
@@ -120,7 +120,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Codec</label>
-                                    <select class="form-select"><option>NDI HX (H.265)</option></select>
+                                    <select class="form-select"><option>NDI (High Bandwidth)</option><option>NDI HX (H.264)</option><option selected>NDI HX (H.265)</option></select>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Bitrate (Kbps)</label>
@@ -131,7 +131,7 @@
                             <div id="enc-tab-audio" style="display:none;">
                                 <div class="form-group">
                                     <label class="form-label">Audio Source</label>
-                                    <select class="form-select"><option>Embedded</option><option>Line In</option></select>
+                                    <select class="form-select"><option>Embedded (HDMI/SDI)</option><option>Line In</option><option>Mic In</option></select>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Volume</label>
@@ -284,7 +284,10 @@
 
     <div id="ptz-panel" class="draggable-panel">
         <div class="panel-header-drag" id="ptz-header">
-            <span>🕹️ PTZ Controller</span>
+            <div style="display:flex; flex-direction:column; line-height:1.2;">
+                <span>🕹️ PTZ Controller</span>
+                <span id="ptz-target-display" style="font-size:10px; color:#00e676; font-weight:normal;">Target: Window 1</span>
+            </div>
             <button class="close-btn" onclick="togglePTZ()">×</button>
         </div>
         <div class="ptz-content">
@@ -293,7 +296,6 @@
                     <div class="joystick-stick"></div>
                 </div>
             </div>
-            
             <div class="ptz-controls-grid">
                 <div class="control-group">
                     <span class="control-label">Zoom</span>
@@ -310,12 +312,10 @@
                     </div>
                 </div>
             </div>
-
             <div class="control-group">
                 <span class="control-label">Speed</span>
                 <input type="range" style="width:100%;">
             </div>
-            
             <div class="control-group">
                 <span class="control-label">Presets</span>
                 <div class="preset-grid">
@@ -341,7 +341,6 @@
     <script>
         // --- Login Logic ---
         function doLogin() {
-            // 模擬登入延遲
             const btn = document.querySelector('#page-login .btn-primary');
             btn.innerHTML = "Logging in...";
             setTimeout(() => {
@@ -354,7 +353,7 @@
         }
 
         function doLogout() {
-            location.reload(); // 簡單重整頁面回到登入
+            location.reload(); 
         }
 
         // --- Drag & Drop Logic (Window) ---
@@ -411,8 +410,36 @@
         function drop(ev) {
             ev.preventDefault(); ev.currentTarget.classList.remove('drag-over');
             var data = ev.dataTransfer.getData("text");
-            ev.currentTarget.innerHTML = `<div class="slot-label">Active</div><div class="slot-content"><div class="slot-name" style="color:#4CAF50;">${data}</div><div class="slot-meta">Connected</div></div>`;
+            ev.currentTarget.innerHTML = `<div class="slot-label">Window</div><div class="slot-content"><div class="slot-name" style="color:#4CAF50;">${data}</div><div class="slot-meta">Connected</div></div>`;
             ev.currentTarget.classList.add('active-slot');
+        }
+
+        // --- Slot Selection ---
+        let currentSelectedSlotId = 'slot-1';
+
+        function selectSlot(slotId) {
+            document.querySelectorAll('.preview-slot').forEach(el => {
+                el.classList.remove('selected-slot');
+            });
+
+            const selectedEl = document.getElementById(slotId);
+            if(selectedEl) {
+                selectedEl.classList.add('selected-slot');
+                currentSelectedSlotId = slotId;
+                
+                const windowNum = slotId.split('-')[1];
+                const sourceNameEl = selectedEl.querySelector('.slot-name');
+                const sourceName = sourceNameEl ? sourceNameEl.innerText : "Empty";
+                
+                const targetText = document.getElementById('ptz-target-display');
+                if(sourceName.includes("Drag")) {
+                    targetText.innerText = `Target: Window ${windowNum} (No Source)`;
+                    targetText.style.color = "#888";
+                } else {
+                    targetText.innerText = `Target: Window ${windowNum} (${sourceName})`;
+                    targetText.style.color = "#00e676"; 
+                }
+            }
         }
 
         // --- Output Mode Switcher ---
@@ -421,6 +448,7 @@
             btn.classList.add('active');
             const layout = document.getElementById('outputLayout');
             layout.innerHTML = '';
+            
             if(count === 1) {
                 layout.className = 'output-layout-single';
                 layout.innerHTML = createSlot(1);
@@ -428,9 +456,24 @@
                 layout.className = 'output-layout-quad';
                 for(let i=1; i<=4; i++) layout.innerHTML += createSlot(i);
             }
+            selectSlot('slot-1');
         }
+
         function createSlot(num) {
-            return `<div class="preview-slot" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="this.classList.remove('drag-over')" id="slot-${num}"><div class="slot-label">Window ${num}</div><div class="slot-content"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div></div>`;
+            return `
+                <div class="preview-slot" 
+                     id="slot-${num}"
+                     onclick="selectSlot('slot-${num}')" 
+                     ondrop="drop(event)" 
+                     ondragover="allowDrop(event)" 
+                     ondragleave="this.classList.remove('drag-over')">
+                    
+                    <div class="slot-label">Window ${num}</div>
+                    <div class="slot-content">
+                        <div class="slot-name" style="color:#555;">[ Drag Source Here ]</div>
+                    </div>
+                </div>
+            `;
         }
 
         // --- Basic UI Logic ---
@@ -481,6 +524,13 @@
             }
             if (e.target.className === 'modal-overlay') closeModal();
         }
+
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+             if(document.getElementById('view-decoder').style.display !== 'none') {
+                 selectSlot('slot-1');
+             }
+        });
     </script>
 
 </body>
