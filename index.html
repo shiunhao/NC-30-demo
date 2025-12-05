@@ -8,6 +8,27 @@
 </head>
 <body>
 
+    <div id="page-login">
+        <div class="login-box">
+            <div class="login-logo"><span>NC</span>30</div>
+            <div class="login-subtitle">4K NDI Bi-Directional Converter</div>
+            
+            <div class="form-group" style="text-align: left;">
+                <label class="form-label">Username</label>
+                <input type="text" class="form-input" value="admin">
+            </div>
+            
+            <div class="form-group" style="text-align: left;">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-input" placeholder="••••••••">
+            </div>
+
+            <button class="btn btn-primary" onclick="doLogin()" style="width: 100%; padding: 12px; margin-top: 10px;">LOGIN</button>
+            
+            <div class="login-note">* No password required currently, just click Login to enter.</div>
+        </div>
+    </div>
+
     <div id="page-home">
         <div class="lobby-header">
             <div class="lobby-logo"><span>NC</span>30</div>
@@ -44,6 +65,8 @@
                         <a class="dropdown-item" onclick="showModal('Firmware Update')"><span>⬆️</span> Firmware Update</a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" onclick="showModal('About Device')"><span>ℹ️</span> About</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" onclick="doLogout()" style="color:#FF3B30;"><span>🚪</span> Logout</a>
                     </div>
                 </div>
                 <span style="font-size:20px; cursor:pointer; opacity:0.7;">👤</span>
@@ -316,6 +339,24 @@
     </div>
 
     <script>
+        // --- Login Logic ---
+        function doLogin() {
+            // 模擬登入延遲
+            const btn = document.querySelector('#page-login .btn-primary');
+            btn.innerHTML = "Logging in...";
+            setTimeout(() => {
+                document.getElementById('page-login').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('page-login').style.display = 'none';
+                    document.getElementById('page-home').style.display = 'flex';
+                }, 500);
+            }, 800);
+        }
+
+        function doLogout() {
+            location.reload(); // 簡單重整頁面回到登入
+        }
+
         // --- Drag & Drop Logic (Window) ---
         dragElement(document.getElementById("ptz-panel"));
 
