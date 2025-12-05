@@ -1,0 +1,68 @@
+/* style.css - 更新部分 */
+
+/* ... (其他 CSS 保持不變) ... */
+
+/* === 6.2 Settings Panel (右側設定面板優化) === */
+.decoder-settings-card {
+    background: #1E1E1E; 
+    border: 1px solid #333; 
+    border-radius: 8px; 
+    display: flex; 
+    flex-direction: column; 
+    overflow: hidden;
+    /* [修改] 加大內距，解決靠邊太近的問題 */
+    padding: 30px; 
+    gap: 20px; /* 增加區塊間的垂直距離 */
+}
+
+/* 讓設定內容區塊可以捲動，但保持 padding 舒適 */
+.settings-scroll-area {
+    overflow-y: auto;
+    flex: 1;
+    padding-right: 10px; /* 預留捲軸空間 */
+    display: flex;
+    flex-direction: column;
+    gap: 24px; /* 設定群組之間的間距 */
+}
+
+/* 設定群組標題 (例如 OUTPUT FORMAT, AUDIO) */
+.settings-group-title {
+    font-size: 11px;
+    font-weight: bold;
+    color: var(--theme-color);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #333;
+    padding-bottom: 5px;
+}
+
+/* [修改] 優化 Output Mode 切換器的外觀 */
+.mode-selector {
+    display: flex; 
+    background: #252526; 
+    border-radius: 6px; 
+    padding: 6px; /* 增加內部 padding */
+    margin-bottom: 5px;
+    border: 1px solid #333;
+}
+.mode-opt {
+    flex: 1; 
+    text-align: center; 
+    padding: 10px; /* 加大點擊區域 */
+    cursor: pointer; 
+    color: #888; 
+    border-radius: 4px; 
+    font-size: 13px; 
+    font-weight: 600;
+    transition: all 0.2s;
+}
+.mode-opt:hover { color: #fff; background: rgba(255,255,255,0.05); }
+.mode-opt.active { 
+    background: #3E3E42; 
+    color: #fff; 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
+    border: 1px solid #555;
+}
+
+/* ... (其他 CSS 保持不變) ... */

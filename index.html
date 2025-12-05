@@ -1,0 +1,87 @@
+<div class="decoder-settings-card">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <span class="panel-title" style="margin:0; border:none;">DECODING SETTINGS</span>
+        <button class="btn btn-outline" style="padding:4px 8px; font-size:11px;">Reset</button>
+    </div>
+    
+    <div class="settings-scroll-area">
+        
+        <div>
+            <div class="settings-group-title">Layout & Routing</div>
+            
+            <div class="form-group">
+                <label class="form-label">Output Mode</label>
+                <div class="mode-selector">
+                    <div class="mode-opt active" onclick="switchOutputMode(1, this)">
+                        <span style="font-size:16px;">⬜</span> Single
+                    </div>
+                    <div class="mode-opt" onclick="switchOutputMode(4, this)">
+                        <span style="font-size:16px;">田</span> Quad
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Audio Follows</label>
+                <select class="form-select">
+                    <option selected>Window 1 (Main)</option>
+                    <option>Window 2</option>
+                    <option>Window 3</option>
+                    <option>Window 4</option>
+                </select>
+            </div>
+        </div>
+
+        <div>
+            <div class="settings-group-title">Output Format</div>
+            
+            <div class="form-group">
+                <label class="form-label">Resolution</label>
+                <select class="form-select">
+                    <option>Auto (Follow Source)</option>
+                    <option>3840x2160 (4K)</option>
+                    <option selected>1920x1080 (FHD)</option>
+                    <option>1280x720 (HD)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Frame Rate</label>
+                <select class="form-select">
+                    <option>Auto</option>
+                    <option selected>60 fps</option>
+                    <option>59.94 fps</option>
+                    <option>50 fps</option>
+                    <option>30 fps</option>
+                    <option>29.97 fps</option>
+                    <option>25 fps</option>
+                </select>
+            </div>
+        </div>
+
+        <div>
+            <div class="settings-group-title">Audio Output</div>
+
+            <div class="form-group">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <label class="form-label" style="margin:0;">HDMI/SDI Embedded</label>
+                    <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div style="display:flex; justify-content:space-between;">
+                    <label class="form-label">Line Out Volume</label>
+                    <span style="font-size:11px; color:#aaa;">80%</span>
+                </div>
+                <input type="range" style="width:100%;" min="0" max="100" value="80">
+            </div>
+        </div>
+
+    </div>
+
+    <div style="margin-top:auto; border-top:1px solid #333; padding-top:20px;">
+        <button class="btn btn-primary" style="width:100%;">Apply Changes</button>
+        <button class="btn btn-outline" style="width:100%; margin-top:10px; color:#d32f2f; border-color:#d32f2f;">Clear All Windows</button>
+    </div>
+</div>
