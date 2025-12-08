@@ -8,103 +8,140 @@
 </head>
 <body>
 
-    <div id="view-decoder" style="display:none; height:100%;">
-                <div class="decoder-layout">
-                    
-                    <div class="decoder-top-grid">
-                        <div class="output-container" id="outputContainer">
+    <div id="login-screen" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#111; z-index:2000; align-items:center; justify-content:center; flex-direction:column;">
+        <h2 style="color:#fff; margin-bottom:20px;">NC30 AV INTERFACE</h2>
+        <button class="btn btn-primary" onclick="document.getElementById('login-screen').style.display='none'; document.getElementById('view-decoder').style.display='block';">LOGIN</button>
+    </div>
+
+    <div id="view-decoder" style="display:block; height:100%;">
+        <div class="decoder-layout">
+            
+            <div class="decoder-top-grid">
+                <div class="output-container" id="outputContainer">
+                    <div id="outputLayout" class="output-layout-single">
+                        </div>
+                </div>
+                
+                <div class="decoder-settings-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <span class="panel-title" style="margin:0; border:none;">DECODING SETTINGS</span>
+                        <button class="btn btn-primary" onclick="togglePTZ()" style="padding:4px 10px; font-size:12px;">🕹️ Open PTZ</button>
+                    </div>
+                    <div class="settings-scroll-area">
+                        <div>
+                            <div class="settings-group-title">Layout & Routing</div>
+                            <div class="form-group">
+                                <label class="form-label">Output Mode</label>
+                                <div class="mode-selector">
+                                    <div class="mode-opt active" id="btn-mode-1" onclick="switchOutputMode(1, this)"><span style="font-size:16px;">⬜</span> Single</div>
+                                    <div class="mode-opt" id="btn-mode-4" onclick="switchOutputMode(4, this)"><span style="font-size:16px;">田</span> Quad</div>
+                                </div>
                             </div>
-                        
-                        <div class="decoder-settings-card">
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                                <span class="panel-title" style="margin:0; border:none;">DECODING SETTINGS</span>
-                                <button class="btn btn-primary" onclick="togglePTZ()" style="padding:4px 10px; font-size:12px;">🕹️ Open PTZ</button>
-                            </div>
-                            <div class="settings-scroll-area">
-                                <div>
-                                    <div class="settings-group-title">Layout & Routing</div>
-                                    <div class="form-group">
-                                        <label class="form-label">Output Mode</label>
-                                        <div class="mode-selector">
-                                            <div class="mode-opt active" onclick="switchOutputMode(1, this)"><span style="font-size:16px;">⬜</span> Single</div>
-                                            <div class="mode-opt" onclick="switchOutputMode(4, this)"><span style="font-size:16px;">田</span> Quad</div>
-                                        </div>
-                                    </div>
-                                    </div>
-                            </div>
-                            <div style="margin-top:auto; border-top:1px solid #333; padding-top:20px;">
-                                <button class="btn btn-primary" style="width:100%;">Apply Changes</button>
-                                <button class="btn btn-outline" style="width:100%; margin-top:10px; color:#d32f2f; border-color:#d32f2f;" onclick="clearAllWindows()">Clear All Windows</button>
+                            <div class="form-group">
+                                <label class="form-label">Audio Routing</label>
+                                <select style="background:#333; color:#fff; border:1px solid #555; padding:2px;">
+                                    <option>Follow Video</option>
+                                    <option>Mute All</option>
+                                </select>
                             </div>
                         </div>
                     </div>
-
-                    <div class="source-list-panel">
-                        <div class="list-toolbar">
-                            <span style="font-weight:bold; font-size:14px; color:#ddd;">AVAILABLE SOURCES</span>
-                            <div style="display:flex; gap:10px;">
-                                <button class="btn btn-primary" onclick="showModal('Add Manual Source')">➕ Add Source</button>
-                                <button class="btn btn-outline">🔄 Refresh</button>
-                            </div>
-                        </div>
-                        
-                        <div class="source-list-scroll">
-                            <table class="source-list-table">
-                                <thead class="source-list-header">
-                                    <tr>
-                                        <th style="width:50px; text-align:center;">Loop</th>
-                                        <th style="width:100px;">Preview</th>
-                                        <th>Source Info</th>
-                                        <th style="width:120px;">Status</th>
-                                        <th style="width:100px; text-align:right;">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr class="source-row" draggable="true" ondragstart="drag(event)" data-name="Studio Cam 01" data-status="online">
-                                        <td style="text-align:center;"><input type="checkbox" checked class="loop-chk"></td>
-                                        <td><div class="thumb-box" style="background:#222; color:#fff;">CAM 01</div></td>
-                                        <td><span class="src-name">Studio Cam 01</span><span class="src-detail">192.168.1.101</span></td>
-                                        <td><div class="status-badge status-ok">● Ready</div></td>
-                                        <td style="text-align:right;"><button class="btn-icon">✏️</button></td>
-                                    </tr>
-                                    <tr class="source-row" draggable="true" ondragstart="drag(event)" data-name="PTZ Camera 03" data-status="online">
-                                        <td style="text-align:center;"><input type="checkbox" class="loop-chk"></td>
-                                        <td><div class="thumb-box">PTZ 03</div></td>
-                                        <td><span class="src-name">PTZ Camera 03</span><span class="src-detail">192.168.1.52</span></td>
-                                        <td><div class="status-badge status-warn">▲ Warning</div></td>
-                                        <td style="text-align:right;"><button class="btn-icon">✏️</button></td>
-                                    </tr>
-                                    <tr class="source-row" draggable="true" ondragstart="drag(event)" data-name="vMix Output" data-status="online">
-                                        <td style="text-align:center;"><input type="checkbox" checked class="loop-chk"></td>
-                                        <td><div class="thumb-box" style="background:#111; color:#fff;">VMIX</div></td>
-                                        <td><span class="src-name">vMix Output</span><span class="src-detail">192.168.1.200</span></td>
-                                        <td><div class="status-badge status-ok">● Ready</div></td>
-                                        <td style="text-align:right;"><button class="btn-icon">✏️</button></td>
-                                    </tr>
-                                    <tr class="source-row" draggable="true" ondragstart="drag(event)" data-name="Remote Guest" data-status="offline">
-                                        <td style="text-align:center;"><input type="checkbox" disabled class="loop-chk"></td>
-                                        <td><div class="thumb-box" style="background:#330000; color:#ff5555; border-color:#550000;">OFFLINE</div></td>
-                                        <td><span class="src-name" style="color:#aaa;">Remote Guest</span><span class="src-detail">10.0.0.5</span></td>
-                                        <td><div class="status-badge" style="color:#FF3B30;">❌ Offline</div></td>
-                                        <td style="text-align:right;"><button class="btn-icon">✏️</button></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                    <div style="margin-top:auto; border-top:1px solid #333; padding-top:20px;">
+                        <button class="btn btn-primary" style="width:100%;">Apply Changes</button>
+                        <button class="btn btn-outline" style="width:100%; margin-top:10px; color:#d32f2f; border-color:#d32f2f;" onclick="clearAllWindows()">Clear All Windows</button>
                     </div>
                 </div>
             </div>
 
-    <script>
-        // ... (Login Logic, Drag Panel Logic 保持不變) ...
+            <div class="source-list-panel">
+                <div class="list-toolbar">
+                    <span style="font-weight:bold; font-size:14px; color:#ddd;">AVAILABLE SOURCES</span>
+                    <div style="display:flex; gap:10px;">
+                        <button class="btn btn-primary" onclick="showModal('Add Manual Source')">➕ Add Source</button>
+                        <button class="btn btn-outline" onclick="window.location.reload()">🔄 Refresh</button>
+                    </div>
+                </div>
+                
+                <div class="source-list-scroll">
+                    <table class="source-list-table">
+                        <thead class="source-list-header">
+                            <tr>
+                                <th style="width:50px; text-align:center;">Loop</th>
+                                <th style="width:100px;">Preview</th>
+                                <th>Source Info</th>
+                                <th style="width:120px;">Status</th>
+                                <th style="width:100px; text-align:right;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="source-row" draggable="true" ondragstart="drag(event)" data-name="Studio Cam 01" data-status="online">
+                                <td style="text-align:center;"><input type="checkbox" checked class="loop-chk"></td>
+                                <td><div class="thumb-box" style="background:#222; color:#fff;">CAM 01</div></td>
+                                <td><span class="src-name">Studio Cam 01</span><span class="src-detail">192.168.1.101</span></td>
+                                <td><div class="status-badge status-ok">● Ready</div></td>
+                                <td style="text-align:right;"><button class="btn-icon">✏️</button></td>
+                            </tr>
+                            <tr class="source-row" draggable="true" ondragstart="drag(event)" data-name="PTZ Camera 03" data-status="online">
+                                <td style="text-align:center;"><input type="checkbox" class="loop-chk"></td>
+                                <td><div class="thumb-box">PTZ 03</div></td>
+                                <td><span class="src-name">PTZ Camera 03</span><span class="src-detail">192.168.1.52</span></td>
+                                <td><div class="status-badge status-warn">▲ Warning</div></td>
+                                <td style="text-align:right;"><button class="btn-icon">✏️</button></td>
+                            </tr>
+                            <tr class="source-row" draggable="true" ondragstart="drag(event)" data-name="vMix Output" data-status="online">
+                                <td style="text-align:center;"><input type="checkbox" checked class="loop-chk"></td>
+                                <td><div class="thumb-box" style="background:#111; color:#fff;">VMIX</div></td>
+                                <td><span class="src-name">vMix Output</span><span class="src-detail">192.168.1.200</span></td>
+                                <td><div class="status-badge status-ok">● Ready</div></td>
+                                <td style="text-align:right;"><button class="btn-icon">✏️</button></td>
+                            </tr>
+                            <tr class="source-row" draggable="true" ondragstart="drag(event)" data-name="Remote Guest" data-status="offline">
+                                <td style="text-align:center;"><input type="checkbox" disabled class="loop-chk"></td>
+                                <td><div class="thumb-box" style="background:#330000; color:#ff5555; border-color:#550000;">OFFLINE</div></td>
+                                <td><span class="src-name" style="color:#aaa;">Remote Guest</span><span class="src-detail">10.0.0.5</span></td>
+                                <td><div class="status-badge" style="color:#FF3B30;">❌ Offline</div></td>
+                                <td style="text-align:right;"><button class="btn-icon">✏️</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        // --- Drag & Drop Logic (Updated with Status & Menu) ---
+    <div id="common-modal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header" id="modal-title">Title</div>
+            <div class="modal-body" id="modal-content">
+                Content goes here...
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="closeModal()">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 初始化邏輯 ---
+        window.onload = function() {
+            // 預設載入 Single Mode 並且放入一個訊號源示範
+            switchOutputMode(1, document.getElementById('btn-mode-1'));
+        };
+
+        // --- Drag & Drop Logic ---
         function drag(ev) { 
             ev.dataTransfer.setData("text", ev.currentTarget.getAttribute("data-name")); 
             ev.dataTransfer.setData("status", ev.currentTarget.getAttribute("data-status")); 
         }
         
-        function allowDrop(ev) { ev.preventDefault(); ev.currentTarget.classList.add('drag-over'); }
+        function allowDrop(ev) { 
+            ev.preventDefault(); 
+            // 只在還沒選中的時候加樣式，避免閃爍
+            if(!ev.currentTarget.classList.contains('drag-over')) {
+                ev.currentTarget.classList.add('drag-over'); 
+            }
+        }
         
         function drop(ev) {
             ev.preventDefault(); 
@@ -117,27 +154,45 @@
 
             // 根據狀態渲染不同內容
             if (status === 'offline') {
-                ev.currentTarget.className = 'preview-slot offline-state'; // 加入 offline 樣式
+                ev.currentTarget.className = 'preview-slot offline-state'; 
                 ev.currentTarget.innerHTML = getOfflineSlotHTML(windowNum, name, slotId);
             } else {
-                ev.currentTarget.className = 'preview-slot active-slot'; // 加入 active 樣式
+                ev.currentTarget.className = 'preview-slot active-slot'; 
                 ev.currentTarget.innerHTML = getActiveSlotHTML(windowNum, name, slotId);
             }
             
-            // 拖入後自動選取該格
             selectSlot(slotId);
         }
 
+        // --- Slot Selection Logic (補完的部分) ---
+        let currentSelectedSlotId = null;
+
+        function selectSlot(slotId) {
+            // 移除舊的選取狀態
+            if(currentSelectedSlotId) {
+                const old = document.getElementById(currentSelectedSlotId);
+                if(old) old.classList.remove('selected');
+            }
+            
+            // 加入新的選取狀態
+            const current = document.getElementById(slotId);
+            if(current) {
+                current.classList.add('selected');
+                currentSelectedSlotId = slotId;
+            }
+            
+            // 也可以在這裡更新右側或底部的細節資訊面板
+            console.log("Selected Slot:", slotId);
+        }
+
         // --- HTML Generators for Slots ---
-        
-        // 1. 正常連線的 Slot HTML
         function getActiveSlotHTML(num, name, id) {
             return `
                 <div class="slot-label">Window ${num}</div>
                 <div class="slot-menu-container">
                     <button class="slot-menu-btn" onclick="toggleSlotMenu('${id}', event)">•••</button>
                     <div class="slot-dropdown" id="menu-${id}">
-                        <div class="slot-dropdown-item" onclick="alert('Edit Source: ${name}')">Edit Source</div>
+                        <div class="slot-dropdown-item" onclick="showModal('Edit Source: ${name}')">Edit Source</div>
                         <div class="slot-dropdown-item danger" onclick="removeSource('${id}')">Remove Source</div>
                     </div>
                 </div>
@@ -148,7 +203,6 @@
             `;
         }
 
-        // 2. 離線的 Slot HTML (彩條)
         function getOfflineSlotHTML(num, name, id) {
             return `
                 <div class="slot-label">Window ${num}</div>
@@ -167,7 +221,6 @@
             `;
         }
 
-        // 3. 空 Slot HTML
         function getEmptySlotHTML(num, id) {
             return `
                 <div class="slot-label">Window ${num}</div>
@@ -179,8 +232,7 @@
 
         // --- Slot Menu Actions ---
         function toggleSlotMenu(slotId, event) {
-            event.stopPropagation(); // 防止觸發選取
-            // 關閉其他已開啟的選單
+            event.stopPropagation(); 
             document.querySelectorAll('.slot-dropdown').forEach(el => {
                 if(el.id !== `menu-${slotId}`) el.classList.remove('show');
             });
@@ -189,12 +241,10 @@
         }
 
         function removeSource(slotId) {
-            // 還原為空格子
             const slot = document.getElementById(slotId);
             const num = slotId.split('-')[1];
-            slot.className = 'preview-slot'; // 移除 active/offline class
+            slot.className = 'preview-slot'; 
             slot.innerHTML = getEmptySlotHTML(num, slotId);
-            // 選取它
             selectSlot(slotId);
         }
         
@@ -210,73 +260,92 @@
             }
         }
 
-        // --- Output Mode Switcher (Clean Version) ---
+        // --- Output Mode Switcher ---
         function switchOutputMode(count, btn) {
             document.querySelectorAll('.mode-opt').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+            if(btn) btn.classList.add('active');
+            
             const layout = document.getElementById('outputLayout');
             layout.innerHTML = '';
             
             if(count === 1) {
                 layout.className = 'output-layout-single';
-                // 預設給一個正常訊號做為單畫面演示
-                const slot = document.createElement('div');
-                slot.className = 'preview-slot active-slot';
-                slot.id = 'slot-1';
-                slot.onclick = function(){ selectSlot('slot-1'); };
-                slot.ondrop = function(e){ drop(e); };
-                slot.ondragover = function(e){ allowDrop(e); };
-                slot.innerHTML = getActiveSlotHTML(1, "Studio Cam 01", "slot-1");
-                layout.appendChild(slot);
+                const slotId = 'slot-1';
+                layout.innerHTML = createSlotWrapper(1, slotId, true); // Create with mock content
+                // 預設填入內容
+                setTimeout(() => {
+                   document.getElementById(slotId).innerHTML = getActiveSlotHTML(1, "Studio Cam 01", slotId);
+                   document.getElementById(slotId).classList.add('active-slot');
+                   selectSlot(slotId);
+                }, 0);
             } else {
                 layout.className = 'output-layout-quad';
-                // 產生 4 個格子 (1,2 有訊號，3,4 空白)
-                layout.innerHTML += createSlotElement(1, "Studio Cam 01", "online");
-                layout.innerHTML += createSlotElement(2, "PTZ Camera 03", "online");
-                layout.innerHTML += createSlotElement(3, null, null); // Empty
-                layout.innerHTML += createSlotElement(4, null, null); // Empty
+                // 產生 4 個格子
+                layout.innerHTML += createSlotWrapper(1, 'slot-1');
+                layout.innerHTML += createSlotWrapper(2, 'slot-2');
+                layout.innerHTML += createSlotWrapper(3, 'slot-3');
+                layout.innerHTML += createSlotWrapper(4, 'slot-4');
+                
+                // 模擬預設狀態
+                setTimeout(() => {
+                    // Slot 1: Active
+                    let s1 = document.getElementById('slot-1');
+                    s1.classList.add('active-slot');
+                    s1.innerHTML = getActiveSlotHTML(1, "Studio Cam 01", 'slot-1');
+                    
+                    // Slot 2: Active
+                    let s2 = document.getElementById('slot-2');
+                    s2.classList.add('active-slot');
+                    s2.innerHTML = getActiveSlotHTML(2, "PTZ Camera 03", 'slot-2');
+
+                    // Slot 3 & 4: Empty (Default)
+                    
+                    selectSlot('slot-1');
+                }, 0);
             }
-            selectSlot('slot-1');
         }
 
-        // 輔助函式：產生包含事件綁定的 Slot 字串 (用於 switchOutputMode)
-        function createSlotElement(num, name, status) {
-            let inner = "";
-            let classes = "preview-slot";
-            if(name) {
-                if(status === 'offline') {
-                    classes += " offline-state";
-                    inner = getOfflineSlotHTML(num, name, `slot-${num}`);
-                } else {
-                    classes += " active-slot";
-                    inner = getActiveSlotHTML(num, name, `slot-${num}`);
-                }
-            } else {
-                inner = getEmptySlotHTML(num, `slot-${num}`);
-            }
-
-            return `
-                <div class="${classes}" 
-                     id="slot-${num}"
-                     onclick="selectSlot('slot-${num}')" 
+        function createSlotWrapper(num, id, isEmpty = true) {
+             return `
+                <div class="preview-slot" 
+                     id="${id}"
+                     onclick="selectSlot('${id}')" 
                      ondrop="drop(event)" 
                      ondragover="allowDrop(event)" 
                      ondragleave="this.classList.remove('drag-over')">
-                    ${inner}
+                    ${getEmptySlotHTML(num, id)}
                 </div>
             `;
         }
 
-        // ... (其餘 selectSlot, toggleSettings, Modal 邏輯保持不變) ...
-        
+        // --- PTZ Logic (補完) ---
+        function togglePTZ() {
+            if(currentSelectedSlotId) {
+                showModal("PTZ Control: " + currentSelectedSlotId);
+            } else {
+                alert("Please select a window first.");
+            }
+        }
+
+        // --- Modal Logic (補完) ---
+        function showModal(title) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('common-modal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('common-modal').classList.remove('show');
+        }
+
         // 全域點擊關閉選單
         window.onclick = function(e) {
             if (!e.target.matches('.slot-menu-btn')) {
                 document.querySelectorAll('.slot-dropdown').forEach(el => el.classList.remove('show'));
             }
-            // ... (原本的 settings dropdown 關閉邏輯) ...
+            if (e.target.classList.contains('modal-overlay')) {
+                closeModal();
+            }
         }
-
     </script>
 </body>
 </html>
