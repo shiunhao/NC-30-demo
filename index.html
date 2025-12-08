@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NC30 Pro AV Interface (Layout Optimized)</title>
+    <title>NC30 Pro AV Interface (Final Layout)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -83,22 +83,19 @@
                             </div>
                         </div>
                         
-                        <div class="status-bar-container">
-                            <div class="status-item">
-                                <span class="status-head">Status</span>
-                                <span class="status-value" style="color:#4CAF50;">● Encoding</span>
+                        <div class="enc-status-bar">
+                            <div class="mode-indicator">
+                                <div class="mode-circle"></div>
+                                <span>Current Mode:</span>
+                                <span class="mode-val">Encoder</span>
                             </div>
-                            <div class="status-item">
-                                <span class="status-head">Format</span>
-                                <span class="status-value">NDI HX (H.265)</span>
-                            </div>
-                            <div class="status-item">
-                                <span class="status-head">Resolution</span>
-                                <span class="status-value">3840x2160 p60</span>
-                            </div>
-                            <div class="status-item">
-                                <span class="status-head">Bitrate</span>
-                                <span class="status-value">25.4 Mbps</span>
+                            <div class="status-grid">
+                                <div class="status-cell"><div class="icon-circle"></div>Input Resolution: 3840 X 2160</div>
+                                <div class="status-cell"><div class="icon-circle"></div>Streaming Resolution: 3840 X 2160</div>
+                                <div class="status-cell"><div class="icon-circle"></div>Framerate: 60FPS</div>
+                                <div class="status-cell"><div class="icon-circle"></div>Bitrate: AUTO</div>
+                                <div class="status-cell"><div class="icon-circle"></div>Audio Format: 48kHz</div>
+                                <div class="status-cell"><div class="icon-circle"></div>Audio Source: HDMI</div>
                             </div>
                         </div>
 
