@@ -1,4 +1,4 @@
-/* style.css - Complete Version (Layout + Modal) */
+/* style.css - Complete Version (Auto Search + New Modal Layout) */
 
 /* === 1. 全域變數與基礎設定 === */
 * { box-sizing: border-box; }
@@ -40,7 +40,6 @@ body {
 .btn-danger:hover { background-color: var(--danger-color); color: #fff; }
 .btn-icon { padding: 6px; border: none; background: transparent; color: #888; font-size: 16px; cursor: pointer; }
 .btn-icon:hover { color: #fff; background: rgba(255,255,255,0.1); border-radius: 4px; }
-/* 用於 Add Source 的方形按鈕 */
 .btn-square { width: 36px; padding: 0; font-size: 18px; font-weight: bold; }
 
 /* 面板容器 */
@@ -507,23 +506,26 @@ input:checked + .slider:before { transform: translateX(14px); }
     padding: 5px; display: flex; flex-wrap: wrap; gap: 6px; min-height: 38px;
     align-items: center;
 }
-.tag-chip {
-    background: #007AFF; color: white; font-size: 12px; padding: 2px 8px;
-    border-radius: 4px; display: flex; align-items: center; gap: 5px;
-}
-.tag-close { cursor: pointer; opacity: 0.7; font-weight: bold; }
-.tag-close:hover { opacity: 1; }
 .tag-input-field {
     background: transparent; border: none; color: #fff; flex: 1; min-width: 60px; outline: none; font-size: 13px;
 }
 .input-group-row { display: flex; gap: 10px; width: 100%; }
 .input-with-btn { flex: 1; }
-.address-list-header {
-    display: flex; justify-content: space-between; align-items: center;
-    color: #888; font-size: 12px; margin-bottom: 5px;
+
+/* 搜尋結果選單 */
+.search-results-dropdown {
+    position: absolute; top: 100%; left: 0; right: 0;
+    background: #333; border: 1px solid #444; border-radius: 4px;
+    z-index: 100; margin-top: 5px; max-height: 150px; overflow-y: auto;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
 }
-.clear-icon { cursor: pointer; transition: color 0.2s; }
-.clear-icon:hover { color: #fff; }
+.search-result-item {
+    padding: 8px 12px; cursor: pointer; color: #eee; font-size: 13px;
+    border-bottom: 1px solid #444; display: flex; justify-content: space-between;
+}
+.search-result-item:hover { background-color: var(--theme-color); color: white; }
+.search-result-item:last-child { border-bottom: none; }
+
 .modal-footer {
     display: grid; grid-template-columns: 1fr 1fr; gap: 0; border-top: 1px solid #333;
     margin: 30px -30px -30px -30px;
