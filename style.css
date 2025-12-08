@@ -1,6 +1,6 @@
-/* style.css - Final V6 (No Source Detected + Simple Icons) */
+/* style.css - Final V7 (Grey Circle Icons) */
 
-/* === 1. Global Variables & Base === */
+/* === 1. 全域變數與基礎設定 === */
 * { box-sizing: border-box; }
 
 :root {
@@ -25,7 +25,7 @@ body {
     overflow: hidden;
 }
 
-/* === 2. UI Components === */
+/* === 2. 通用 UI 元件 === */
 .btn {
     padding: 6px 12px; border-radius: 4px; cursor: pointer;
     border: 1px solid transparent; font-weight: 600; font-size: 13px;
@@ -42,7 +42,7 @@ body {
 .btn-icon:hover { color: #fff; background: rgba(255,255,255,0.1); border-radius: 4px; }
 .btn-square { width: 36px; padding: 0; font-size: 18px; font-weight: bold; }
 
-/* Panel Containers */
+/* 面板容器 */
 .panel {
     background: var(--panel-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px;
     display: flex; flex-direction: column;
@@ -52,7 +52,7 @@ body {
     margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; display: block;
 }
 
-/* Forms */
+/* 表單與輸入框 */
 .form-group { margin-bottom: 15px; }
 .form-label { display: block; color: var(--text-sub); font-size: 12px; margin-bottom: 5px; }
 .form-select, .form-input {
@@ -62,14 +62,14 @@ body {
 .form-select:focus, .form-input:focus { border-color: var(--theme-color); outline: none; }
 .form-input[readonly] { background-color: #1a1a1a; color: #777; border-color: #333; cursor: not-allowed; }
 
-/* Error Text */
+/* 錯誤狀態文字 */
 .status-text-error {
     width: 100%; background-color: #1a1a1a; border: 1px solid #333;
     color: #FF3B30; padding: 8px; border-radius: 4px; font-size: 13px;
     display: block; cursor: not-allowed;
 }
 
-/* Switch */
+/* 開關 (Switch) */
 .switch { position: relative; display: inline-block; width: 34px; height: 20px; margin-left: auto; }
 .switch input { opacity: 0; width: 0; height: 0; }
 .slider {
@@ -83,7 +83,7 @@ body {
 input:checked + .slider { background-color: var(--theme-color); }
 input:checked + .slider:before { transform: translateX(14px); }
 
-/* Tabs */
+/* 分頁標籤 (Tabs) */
 .ctrl-tabs { display: flex; background: #252526; border-radius: 6px; padding: 4px; margin-bottom: 20px; gap: 2px; }
 .ctrl-tab {
     flex: 1; text-align: center; padding: 8px; font-size: 12px; font-weight: bold; color: #888;
@@ -96,7 +96,7 @@ input:checked + .slider:before { transform: translateX(14px); }
 .sub-tab { padding-bottom: 5px; font-size: 12px; cursor: pointer; color: #888; border-bottom: 2px solid transparent; }
 .sub-tab.active { color: var(--theme-color); border-bottom-color: var(--theme-color); }
 
-/* === 3. Login Page === */
+/* === 3. 頁面：登入 (Login) === */
 #page-login {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     height: 100%; width: 100%; 
@@ -112,7 +112,7 @@ input:checked + .slider:before { transform: translateX(14px); }
 .login-subtitle { color: #666; font-size: 12px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 40px; }
 .login-note { color: #666; font-size: 13px; margin-top: 20px; font-style: italic; }
 
-/* === 4. Home/Lobby === */
+/* === 4. 頁面：大廳 (Home/Lobby) === */
 #page-home {
     display: none;
     flex-direction: column; align-items: center; justify-content: center;
@@ -132,7 +132,13 @@ input:checked + .slider:before { transform: translateX(14px); }
 .mode-card:hover { transform: translateY(-5px); background-color: #252525; }
 .card-enc:hover { border-color: #007AFF; box-shadow: 0 0 30px rgba(0, 122, 255, 0.2); }
 .card-dec:hover { border-color: #FF9500; box-shadow: 0 0 30px rgba(255, 149, 0, 0.2); }
-.card-icon { font-size: 60px; margin-bottom: 20px; }
+
+/* Home Icon Style (Updated: Grey Circle) */
+.card-icon { 
+    width: 80px; height: 80px; background: #444; border-radius: 50%;
+    margin-bottom: 20px; display: flex; align-items: center; justify-content: center;
+    color: #ccc; font-size: 14px; font-weight: bold;
+}
 .card-title { font-size: 24px; font-weight: bold; margin-bottom: 10px; color: #fff; }
 .card-desc { text-align: center; color: #888; font-size: 13px; line-height: 1.5; }
 
@@ -184,7 +190,7 @@ input:checked + .slider:before { transform: translateX(14px); }
     background-color: #121212; padding: 20px 40px; overflow-y: auto;
 }
 
-/* === 6. View: ENCODER === */
+/* === 6. 視圖：ENCODER === */
 .encoder-grid { 
     display: grid; grid-template-columns: minmax(0, 2fr) minmax(360px, 1fr); 
     gap: 30px; height: calc(100vh - 100px); max-width: 1800px; margin: 0 auto;
@@ -222,8 +228,10 @@ input:checked + .slider:before { transform: translateX(14px); }
 .mode-indicator .mode-val {
     color: var(--theme-color); font-size: 16px; font-weight: bold; margin-top: 4px;
 }
+/* Mode Circle (Updated: Grey Circle) */
 .mode-circle {
-    width: 20px; height: 20px; background: #333; border-radius: 50%; margin-bottom: 5px;
+    width: 28px; height: 28px; background: #444; border-radius: 50%; margin-bottom: 5px;
+    display: flex; align-items: center; justify-content: center; font-size: 9px; color: #ccc;
 }
 .status-grid {
     flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: 1fr 1fr;
@@ -235,9 +243,13 @@ input:checked + .slider:before { transform: translateX(14px); }
 }
 .status-cell:nth-child(n+4) { border-bottom: none; }
 .status-cell:nth-child(3), .status-cell:nth-child(6) { border-right: none; }
-/* Simple Circle Icon */
+
+/* Status Bar Icon (Updated: Grey Circle with Text) */
 .icon-circle {
-    width: 8px; height: 8px; background: #555; border-radius: 50%; margin-right: 10px; flex-shrink: 0;
+    width: 24px; height: 24px; background: #444; border-radius: 50%; 
+    margin-right: 8px; flex-shrink: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 8px; color: #ccc; font-weight: normal;
 }
 
 /* Control Panel (Encoder) */
@@ -258,9 +270,11 @@ input:checked + .slider:before { transform: translateX(14px); }
     font-size: 14px; font-weight: bold; color: #ddd; margin-bottom: 15px;
     display: flex; align-items: center; gap: 8px;
 }
-/* Simple Circle Icon for Headers */
+/* Header Icon (Updated: Grey Circle with Text) */
 .enc-icon-circle {
-    width: 8px; height: 8px; background: var(--theme-color); border-radius: 50%; display: inline-block;
+    width: 24px; height: 24px; background: #444; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 8px; color: #ccc; font-weight: normal;
 }
 .form-section-disabled {
     opacity: 0.4; pointer-events: none; filter: grayscale(100%);
