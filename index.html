@@ -3,349 +3,405 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NC30 Pro AV Interface (Final)</title>
+    <title>NC30 Pro AV Interface (Release)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div id="login-screen" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#111; z-index:2000; align-items:center; justify-content:center; flex-direction:column;">
-        <h2 style="color:#fff; margin-bottom:20px;">NC30 AV INTERFACE</h2>
-        <button class="btn btn-primary" onclick="document.getElementById('login-screen').style.display='none'; document.getElementById('view-decoder').style.display='block';">LOGIN</button>
+    <div id="page-login">
+        <div class="login-box">
+            <div class="login-logo"><span>NC</span>30</div>
+            <div class="login-subtitle">4K NDI Bi-Directional Converter</div>
+            <div class="form-group" style="text-align: left;">
+                <label class="form-label">Username</label>
+                <input type="text" class="form-input" value="admin">
+            </div>
+            <div class="form-group" style="text-align: left;">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-input" placeholder="••••••••">
+            </div>
+            <button class="btn btn-primary" onclick="doLogin()" style="width: 100%; padding: 12px; margin-top: 10px;">LOGIN</button>
+            <div class="login-note">* No password required currently, just click Login to enter.</div>
+        </div>
     </div>
 
-    <div id="view-decoder" style="display:block; height:100%;">
-        <div class="decoder-layout">
-            
-            <div class="decoder-top-grid">
-                <div class="output-container" id="outputContainer">
-                    <div id="outputLayout" class="output-layout-single">
-                        </div>
-                </div>
-                
-                <div class="decoder-settings-card">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                        <span class="panel-title" style="margin:0; border:none;">DECODING SETTINGS</span>
-                        <button class="btn btn-primary" onclick="togglePTZ()" style="padding:4px 10px; font-size:12px;">🕹️ Open PTZ</button>
+    <div id="page-home">
+        <div class="lobby-header">
+            <div class="lobby-logo"><span>NC</span>30</div>
+            <div class="lobby-subtitle">4K NDI Bi-Directional Converter</div>
+        </div>
+        <div class="card-container">
+            <div class="mode-card card-enc" onclick="switchMode('encoder')">
+                <div class="card-icon" style="color:#007AFF;">📡</div>
+                <div class="card-title">ENCODER</div>
+                <div class="card-desc">Transmit HDMI/SDI sources<br>to the NDI network.</div>
+            </div>
+            <div class="mode-card card-dec" onclick="switchMode('decoder')">
+                <div class="card-icon" style="color:#FF9500;">📺</div>
+                <div class="card-title">DECODER</div>
+                <div class="card-desc">Receive and display NDI streams<br>from the network.</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-shell" class="app-layout">
+        
+        <div class="top-bar">
+            <div class="back-btn" onclick="goHome()"><span>🏠 Mode Select</span></div>
+            <div class="mode-badge" id="current-mode-badge">ENCODER MODE</div>
+            <div style="display:flex; gap:20px; align-items:center;">
+                <div class="tally-indicator">🔴 LIVE</div>
+                <div class="settings-container">
+                    <div class="settings-btn" onclick="toggleSettings()">⚙️</div>
+                    <div class="settings-dropdown" id="settingsMenu">
+                        <a class="dropdown-item" onclick="showModal('Network Settings')"><span>🌐</span> Network Settings</a>
+                        <a class="dropdown-item" onclick="showModal('System Settings')"><span>🔧</span> System Settings</a>
+                        <a class="dropdown-item" onclick="showModal('Firmware Update')"><span>⬆️</span> Firmware Update</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" onclick="showModal('About Device')"><span>ℹ️</span> About</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" onclick="doLogout()" style="color:#FF3B30;"><span>🚪</span> Logout</a>
                     </div>
-                    <div class="settings-scroll-area">
-                        <div>
-                            <div class="settings-group-title">Layout & Routing</div>
-                            <div class="form-group">
-                                <label class="form-label">Output Mode</label>
-                                <div class="mode-selector">
-                                    <div class="mode-opt active" id="btn-mode-1" onclick="switchOutputMode(1, this)"><span style="font-size:16px;">⬜</span> Single</div>
-                                    <div class="mode-opt" id="btn-mode-4" onclick="switchOutputMode(4, this)"><span style="font-size:16px;">田</span> Quad</div>
+                </div>
+                <span style="font-size:20px; cursor:pointer; opacity:0.7;">👤</span>
+            </div>
+        </div>
+
+        <div class="main-content">
+            
+            <div id="view-encoder" style="display:none; height:100%;">
+                <div class="encoder-grid">
+                    <div class="monitor-section">
+                        <div class="preview-window" style="flex:2;">
+                            <div class="preview-label">HDMI 4K</div>
+                            <span style="color:#444;">[ Camera Source Signal ]</span>
+                        </div>
+                        <div class="panel" style="flex:1;">
+                            <span class="panel-title">Stream Status</span>
+                            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+                                <div>
+                                    <div class="info-row"><span class="info-label">Status</span><span class="info-val" style="color:#4CAF50;">● Encoding</span></div>
+                                    <div class="info-row"><span class="info-label">Format</span><span class="info-val">NDI HX (H.265)</span></div>
+                                </div>
+                                <div>
+                                    <div class="info-row"><span class="info-label">Resolution</span><span class="info-val">3840x2160 p60</span></div>
+                                    <div class="info-row"><span class="info-label">Bitrate</span><span class="info-val">25.4 Mbps</span></div>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label">Audio Routing</label>
-                                <select style="background:#333; color:#fff; border:1px solid #555; padding:2px;">
-                                    <option>Follow Video</option>
-                                    <option>Mute All</option>
-                                </select>
-                            </div>
                         </div>
                     </div>
-                    <div style="margin-top:auto; border-top:1px solid #333; padding-top:20px;">
-                        <button class="btn btn-primary" style="width:100%;">Apply Changes</button>
-                        <button class="btn btn-outline" style="width:100%; margin-top:10px; color:#d32f2f; border-color:#d32f2f;" onclick="clearAllWindows()">Clear All Windows</button>
+                    <div class="control-panel">
+                        <div style="padding:20px 20px 0 20px;">
+                            <span class="panel-title">Control Panel</span>
+                            <div class="ctrl-tabs">
+                                <div class="ctrl-tab active" onclick="switchEncTab('video')">Video</div>
+                                <div class="ctrl-tab" onclick="switchEncTab('audio')">Audio</div>
+                            </div>
+                        </div>
+                        <div class="panel-content">
+                            <div id="enc-tab-video">
+                                <div class="sub-tabs">
+                                    <div class="sub-tab active">Main Stream</div>
+                                    <div class="sub-tab">Sub Stream</div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Input Source</label>
+                                    <select class="form-select"><option>HDMI</option><option>SDI</option></select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Codec</label>
+                                    <select class="form-select"><option>NDI (High Bandwidth)</option><option>NDI HX (H.264)</option><option selected>NDI HX (H.265)</option></select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Bitrate (Kbps)</label>
+                                    <input type="text" class="form-input" value="25000">
+                                </div>
+                            </div>
+                            <div id="enc-tab-audio" style="display:none;">
+                                <div class="form-group">
+                                    <label class="form-label">Audio Source</label>
+                                    <select class="form-select"><option>Embedded</option><option>Line In</option></select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Volume</label>
+                                    <input type="range" style="width:100%;">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel-footer">
+                            <button class="btn btn-primary" style="width:100%;">Apply</button>
+                            <button class="btn btn-danger" style="width:100%;">Stop</button>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="source-list-panel">
-                <div class="list-toolbar">
-                    <span style="font-weight:bold; font-size:14px; color:#ddd;">AVAILABLE SOURCES</span>
-                    <div style="display:flex; gap:10px;">
-                        <button class="btn btn-primary" onclick="showModal('Add Manual Source')">➕ Add Source</button>
-                        <button class="btn btn-outline" onclick="window.location.reload()">🔄 Refresh</button>
+            <div id="view-decoder" style="display:none; height:100%;">
+                <div class="decoder-layout">
+                    <div class="decoder-top-grid">
+                        <div class="output-container" id="outputContainer">
+                            <div id="outputLayout" class="output-layout-single">
+                                <div class="preview-slot" ondrop="drop(event)" ondragover="allowDrop(event)" id="slot-1">
+                                    <div class="slot-label">Window 1</div>
+                                    <div class="slot-content"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="decoder-settings-card">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                                <span class="panel-title" style="margin:0; border:none;">DECODING SETTINGS</span>
+                                <button class="btn btn-primary" onclick="togglePTZ()" style="padding:4px 10px; font-size:12px;">🕹️ Open PTZ</button>
+                            </div>
+                            <div class="settings-scroll-area">
+                                <div>
+                                    <div class="settings-group-title">Layout & Routing</div>
+                                    <div class="form-group">
+                                        <label class="form-label">Output Mode</label>
+                                        <div class="mode-selector">
+                                            <div class="mode-opt active" onclick="switchOutputMode(1, this)"><span style="font-size:16px;">⬜</span> Single</div>
+                                            <div class="mode-opt" onclick="switchOutputMode(4, this)"><span style="font-size:16px;">田</span> Quad</div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Audio Follows</label>
+                                        <select class="form-select"><option selected>Window 1 (Main)</option><option>Window 2</option></select>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="settings-group-title">Output Format</div>
+                                    <div class="form-group">
+                                        <label class="form-label">Resolution</label>
+                                        <select class="form-select"><option>Auto</option><option selected>1080p60</option></select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Frame Rate</label>
+                                        <select class="form-select"><option>60 fps</option></select>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="settings-group-title">Audio Output</div>
+                                    <div class="form-group">
+                                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                                            <label class="form-label" style="margin:0;">HDMI Embedded</label>
+                                            <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div style="display:flex; justify-content:space-between;">
+                                            <label class="form-label">Line Out Volume</label>
+                                            <span style="font-size:11px; color:#aaa;">80%</span>
+                                        </div>
+                                        <input type="range" style="width:100%;" min="0" max="100" value="80">
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="margin-top:auto; border-top:1px solid #333; padding-top:20px;">
+                                <button class="btn btn-primary" style="width:100%;">Apply Changes</button>
+                                <button class="btn btn-outline" style="width:100%; margin-top:10px; color:#d32f2f; border-color:#d32f2f;">Clear All Windows</button>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="source-list-scroll">
-                    <table class="source-list-table">
-                        <thead class="source-list-header">
-                            <tr>
-                                <th style="width:50px; text-align:center;">Loop</th>
-                                <th style="width:100px;">Preview</th>
-                                <th>Source Info</th>
-                                <th style="width:120px;">Status</th>
-                                <th style="width:100px; text-align:right;">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="source-row" draggable="true" ondragstart="drag(event)" data-name="Studio Cam 01" data-status="online">
-                                <td style="text-align:center;"><input type="checkbox" checked class="loop-chk"></td>
-                                <td><div class="thumb-box" style="background:#222; color:#fff;">CAM 01</div></td>
-                                <td><span class="src-name">Studio Cam 01</span><span class="src-detail">192.168.1.101</span></td>
-                                <td><div class="status-badge status-ok">● Ready</div></td>
-                                <td style="text-align:right;"><button class="btn-icon">✏️</button></td>
-                            </tr>
-                            <tr class="source-row" draggable="true" ondragstart="drag(event)" data-name="PTZ Camera 03" data-status="online">
-                                <td style="text-align:center;"><input type="checkbox" class="loop-chk"></td>
-                                <td><div class="thumb-box">PTZ 03</div></td>
-                                <td><span class="src-name">PTZ Camera 03</span><span class="src-detail">192.168.1.52</span></td>
-                                <td><div class="status-badge status-warn">▲ Warning</div></td>
-                                <td style="text-align:right;"><button class="btn-icon">✏️</button></td>
-                            </tr>
-                            <tr class="source-row" draggable="true" ondragstart="drag(event)" data-name="vMix Output" data-status="online">
-                                <td style="text-align:center;"><input type="checkbox" checked class="loop-chk"></td>
-                                <td><div class="thumb-box" style="background:#111; color:#fff;">VMIX</div></td>
-                                <td><span class="src-name">vMix Output</span><span class="src-detail">192.168.1.200</span></td>
-                                <td><div class="status-badge status-ok">● Ready</div></td>
-                                <td style="text-align:right;"><button class="btn-icon">✏️</button></td>
-                            </tr>
-                            <tr class="source-row" draggable="true" ondragstart="drag(event)" data-name="Remote Guest" data-status="offline">
-                                <td style="text-align:center;"><input type="checkbox" disabled class="loop-chk"></td>
-                                <td><div class="thumb-box" style="background:#330000; color:#ff5555; border-color:#550000;">OFFLINE</div></td>
-                                <td><span class="src-name" style="color:#aaa;">Remote Guest</span><span class="src-detail">10.0.0.5</span></td>
-                                <td><div class="status-badge" style="color:#FF3B30;">❌ Offline</div></td>
-                                <td style="text-align:right;"><button class="btn-icon">✏️</button></td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="source-list-panel">
+                        <div class="list-toolbar">
+                            <span style="font-weight:bold; font-size:14px; color:#ddd;">AVAILABLE SOURCES (3)</span>
+                            <div style="display:flex; gap:10px;">
+                                <button class="btn btn-primary" onclick="showModal('Add Manual Source')">➕ Add Source</button>
+                                <button class="btn btn-outline">🔄 Refresh</button>
+                            </div>
+                        </div>
+                        <div class="source-list-scroll">
+                            <table class="source-list-table">
+                                <thead class="source-list-header">
+                                    <tr>
+                                        <th style="width:50px; text-align:center;">Loop</th>
+                                        <th style="width:100px;">Preview</th>
+                                        <th>Source Info</th>
+                                        <th style="width:60px; text-align:center;">Preset</th>
+                                        <th style="width:120px;">Status</th>
+                                        <th style="width:100px; text-align:right;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="source-row" draggable="true" ondragstart="drag(event)" data-name="Studio Cam 01" data-ip="192.168.1.101">
+                                        <td style="text-align:center;"><input type="checkbox" checked class="loop-chk"></td>
+                                        <td><div class="thumb-box" style="background:#222; color:#fff;">CAM 01</div></td>
+                                        <td><span class="src-name">Studio Cam 01</span><span class="src-detail">192.168.1.101</span></td>
+                                        <td style="text-align:center; font-weight:bold; color:#666;">1</td>
+                                        <td><div class="status-badge status-ok">● Ready</div></td>
+                                        <td style="text-align:right;"><button class="btn-icon">✏️</button><button class="btn-icon" style="color:#d32f2f;">🗑️</button></td>
+                                    </tr>
+                                    <tr class="source-row" draggable="true" ondragstart="drag(event)" data-name="PTZ Camera 03" data-ip="192.168.1.52">
+                                        <td style="text-align:center;"><input type="checkbox" class="loop-chk"></td>
+                                        <td><div class="thumb-box">PTZ 03</div></td>
+                                        <td><span class="src-name">PTZ Camera 03</span><span class="src-detail">192.168.1.52</span></td>
+                                        <td style="text-align:center; font-weight:bold; color:#666;">2</td>
+                                        <td><div class="status-badge status-warn">▲ Warning</div></td>
+                                        <td style="text-align:right;"><button class="btn-icon">✏️</button><button class="btn-icon" style="color:#d32f2f;">🗑️</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="common-modal" class="modal-overlay">
+    <div id="ptz-panel" class="draggable-panel">
+        <div class="panel-header-drag" id="ptz-header">
+            <div style="display:flex; flex-direction:column; line-height:1.2;">
+                <span>🕹️ PTZ Controller</span>
+                <span id="ptz-target-display" style="font-size:10px; color:#00e676; font-weight:normal;">Target: Window 1</span>
+            </div>
+            <button class="close-btn" onclick="togglePTZ()">×</button>
+        </div>
+        <div class="ptz-content">
+            <div class="ptz-joystick-area"><div class="joystick-base"><div class="joystick-stick"></div></div></div>
+            <div class="ptz-controls-grid">
+                <div class="control-group"><span class="control-label">Zoom</span><div class="btn-group"><button class="btn-mini">In</button><button class="btn-mini">Out</button></div></div>
+                <div class="control-group"><span class="control-label">Focus</span><div class="btn-group"><button class="btn-mini">Auto</button><button class="btn-mini">Man</button></div></div>
+            </div>
+            <div class="control-group"><span class="control-label">Speed</span><input type="range" style="width:100%;"></div>
+            <div class="control-group"><span class="control-label">Presets</span><div class="preset-grid"><button class="preset-btn">1</button><button class="preset-btn">2</button><button class="preset-btn">3</button><button class="preset-btn">4</button><button class="preset-btn">5</button><button class="preset-btn">6</button><button class="preset-btn">7</button><button class="preset-btn">8</button></div></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
         <div class="modal-box">
-            <div class="modal-header" id="modal-title">Title</div>
-            <div class="modal-body" id="modal-content">
-                Content goes here...
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="closeModal()">Confirm</button>
-            </div>
+            <h3 id="modalTitle" style="margin-top:0; color:#fff;">Settings</h3>
+            <div style="height:100px; display:flex; align-items:center; justify-content:center; color:#666;">Modal Content Placeholder</div>
+            <button class="btn btn-primary" style="float:right;" onclick="closeModal()">Close</button>
         </div>
     </div>
 
     <script>
-        // --- 初始化邏輯 ---
-        window.onload = function() {
-            // 預設載入 Single Mode 並且放入一個訊號源示範
-            switchOutputMode(1, document.getElementById('btn-mode-1'));
-        };
+        function doLogin() {
+            const btn = document.querySelector('#page-login .btn-primary');
+            btn.innerHTML = "Logging in...";
+            setTimeout(() => {
+                document.getElementById('page-login').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('page-login').style.display = 'none';
+                    document.getElementById('page-home').style.display = 'flex';
+                }, 500);
+            }, 800);
+        }
+        function doLogout() { location.reload(); }
 
-        // --- Drag & Drop Logic ---
-        function drag(ev) { 
-            ev.dataTransfer.setData("text", ev.currentTarget.getAttribute("data-name")); 
-            ev.dataTransfer.setData("status", ev.currentTarget.getAttribute("data-status")); 
+        dragElement(document.getElementById("ptz-panel"));
+        function dragElement(elmnt) {
+            var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            if (document.getElementById(elmnt.id + "-header")) document.getElementById(elmnt.id + "-header").onmousedown = dragMouseDown;
+            else elmnt.onmousedown = dragMouseDown;
+            function dragMouseDown(e) { e = e || window.event; e.preventDefault(); pos3 = e.clientX; pos4 = e.clientY; document.onmouseup = closeDragElement; document.onmousemove = elementDrag; }
+            function elementDrag(e) { e = e || window.event; e.preventDefault(); pos1 = pos3 - e.clientX; pos2 = pos4 - e.clientY; pos3 = e.clientX; pos4 = e.clientY; elmnt.style.top = (elmnt.offsetTop - pos2) + "px"; elmnt.style.left = (elmnt.offsetLeft - pos1) + "px"; }
+            function closeDragElement() { document.onmouseup = null; document.onmousemove = null; }
         }
-        
-        function allowDrop(ev) { 
-            ev.preventDefault(); 
-            // 只在還沒選中的時候加樣式，避免閃爍
-            if(!ev.currentTarget.classList.contains('drag-over')) {
-                ev.currentTarget.classList.add('drag-over'); 
-            }
+        function togglePTZ() {
+            var panel = document.getElementById("ptz-panel");
+            if (panel.style.display === "flex") panel.style.display = "none";
+            else { panel.style.display = "flex"; panel.style.top = "100px"; panel.style.left = "calc(50% - 160px)"; }
         }
-        
+
+        function drag(ev) { ev.dataTransfer.setData("text", ev.currentTarget.getAttribute("data-name")); }
+        function allowDrop(ev) { ev.preventDefault(); ev.currentTarget.classList.add('drag-over'); }
         function drop(ev) {
-            ev.preventDefault(); 
-            ev.currentTarget.classList.remove('drag-over');
-            
-            var name = ev.dataTransfer.getData("text");
-            var status = ev.dataTransfer.getData("status");
-            var slotId = ev.currentTarget.id;
-            var windowNum = slotId.split('-')[1];
-
-            // 根據狀態渲染不同內容
-            if (status === 'offline') {
-                ev.currentTarget.className = 'preview-slot offline-state'; 
-                ev.currentTarget.innerHTML = getOfflineSlotHTML(windowNum, name, slotId);
-            } else {
-                ev.currentTarget.className = 'preview-slot active-slot'; 
-                ev.currentTarget.innerHTML = getActiveSlotHTML(windowNum, name, slotId);
-            }
-            
-            selectSlot(slotId);
+            ev.preventDefault(); ev.currentTarget.classList.remove('drag-over');
+            var data = ev.dataTransfer.getData("text");
+            ev.currentTarget.innerHTML = `<div class="slot-label">Window</div><div class="slot-content"><div class="slot-name" style="color:#4CAF50;">${data}</div><div class="slot-meta">Connected</div></div>`;
+            ev.currentTarget.classList.add('active-slot');
         }
 
-        // --- Slot Selection Logic (補完的部分) ---
-        let currentSelectedSlotId = null;
-
+        let currentSelectedSlotId = 'slot-1';
         function selectSlot(slotId) {
-            // 移除舊的選取狀態
-            if(currentSelectedSlotId) {
-                const old = document.getElementById(currentSelectedSlotId);
-                if(old) old.classList.remove('selected');
-            }
-            
-            // 加入新的選取狀態
-            const current = document.getElementById(slotId);
-            if(current) {
-                current.classList.add('selected');
+            document.querySelectorAll('.preview-slot').forEach(el => el.classList.remove('selected-slot'));
+            const selectedEl = document.getElementById(slotId);
+            if(selectedEl) {
+                selectedEl.classList.add('selected-slot');
                 currentSelectedSlotId = slotId;
-            }
-            
-            // 也可以在這裡更新右側或底部的細節資訊面板
-            console.log("Selected Slot:", slotId);
-        }
-
-        // --- HTML Generators for Slots ---
-        function getActiveSlotHTML(num, name, id) {
-            return `
-                <div class="slot-label">Window ${num}</div>
-                <div class="slot-menu-container">
-                    <button class="slot-menu-btn" onclick="toggleSlotMenu('${id}', event)">•••</button>
-                    <div class="slot-dropdown" id="menu-${id}">
-                        <div class="slot-dropdown-item" onclick="showModal('Edit Source: ${name}')">Edit Source</div>
-                        <div class="slot-dropdown-item danger" onclick="removeSource('${id}')">Remove Source</div>
-                    </div>
-                </div>
-                <div class="slot-content">
-                    <div class="slot-name" style="color:#4CAF50;">${name}</div>
-                    <div class="slot-meta">Connected</div>
-                </div>
-            `;
-        }
-
-        function getOfflineSlotHTML(num, name, id) {
-            return `
-                <div class="slot-label">Window ${num}</div>
-                <div class="slot-menu-container">
-                    <button class="slot-menu-btn" onclick="toggleSlotMenu('${id}', event)">•••</button>
-                    <div class="slot-dropdown" id="menu-${id}">
-                        <div class="slot-dropdown-item" onclick="alert('Check Settings')">Diagnose</div>
-                        <div class="slot-dropdown-item danger" onclick="removeSource('${id}')">Remove Source</div>
-                    </div>
-                </div>
-                <div class="offline-overlay">
-                    <div class="offline-icon">⚠️</div>
-                    <div class="offline-text">NO SIGNAL</div>
-                    <div class="offline-source-name">${name}</div>
-                </div>
-            `;
-        }
-
-        function getEmptySlotHTML(num, id) {
-            return `
-                <div class="slot-label">Window ${num}</div>
-                <div class="slot-content">
-                    <div class="slot-name" style="color:#555;">[ Drag Source Here ]</div>
-                </div>
-            `;
-        }
-
-        // --- Slot Menu Actions ---
-        function toggleSlotMenu(slotId, event) {
-            event.stopPropagation(); 
-            document.querySelectorAll('.slot-dropdown').forEach(el => {
-                if(el.id !== `menu-${slotId}`) el.classList.remove('show');
-            });
-            const menu = document.getElementById(`menu-${slotId}`);
-            if(menu) menu.classList.toggle('show');
-        }
-
-        function removeSource(slotId) {
-            const slot = document.getElementById(slotId);
-            const num = slotId.split('-')[1];
-            slot.className = 'preview-slot'; 
-            slot.innerHTML = getEmptySlotHTML(num, slotId);
-            selectSlot(slotId);
-        }
-        
-        function clearAllWindows() {
-            if(confirm("Remove all sources from output?")) {
-                const slots = document.querySelectorAll('.preview-slot');
-                slots.forEach(slot => {
-                    const id = slot.id;
-                    const num = id.split('-')[1];
-                    slot.className = 'preview-slot';
-                    slot.innerHTML = getEmptySlotHTML(num, id);
-                });
+                const windowNum = slotId.split('-')[1];
+                const sourceNameEl = selectedEl.querySelector('.slot-name');
+                const sourceName = sourceNameEl ? sourceNameEl.innerText : "Empty";
+                const targetText = document.getElementById('ptz-target-display');
+                if(sourceName.includes("Drag") || sourceName === "NO SIGNAL") {
+                    targetText.innerText = `Target: Window ${windowNum} (No Source)`;
+                    targetText.style.color = "#888";
+                } else {
+                    targetText.innerText = `Target: Window ${windowNum} (${sourceName})`;
+                    targetText.style.color = "#00e676"; 
+                }
             }
         }
 
-        // --- Output Mode Switcher ---
         function switchOutputMode(count, btn) {
             document.querySelectorAll('.mode-opt').forEach(b => b.classList.remove('active'));
-            if(btn) btn.classList.add('active');
-            
+            btn.classList.add('active');
             const layout = document.getElementById('outputLayout');
             layout.innerHTML = '';
-            
             if(count === 1) {
                 layout.className = 'output-layout-single';
-                const slotId = 'slot-1';
-                layout.innerHTML = createSlotWrapper(1, slotId, true); // Create with mock content
-                // 預設填入內容
-                setTimeout(() => {
-                   document.getElementById(slotId).innerHTML = getActiveSlotHTML(1, "Studio Cam 01", slotId);
-                   document.getElementById(slotId).classList.add('active-slot');
-                   selectSlot(slotId);
-                }, 0);
+                layout.innerHTML = createSlot(1);
             } else {
                 layout.className = 'output-layout-quad';
-                // 產生 4 個格子
-                layout.innerHTML += createSlotWrapper(1, 'slot-1');
-                layout.innerHTML += createSlotWrapper(2, 'slot-2');
-                layout.innerHTML += createSlotWrapper(3, 'slot-3');
-                layout.innerHTML += createSlotWrapper(4, 'slot-4');
-                
-                // 模擬預設狀態
-                setTimeout(() => {
-                    // Slot 1: Active
-                    let s1 = document.getElementById('slot-1');
-                    s1.classList.add('active-slot');
-                    s1.innerHTML = getActiveSlotHTML(1, "Studio Cam 01", 'slot-1');
-                    
-                    // Slot 2: Active
-                    let s2 = document.getElementById('slot-2');
-                    s2.classList.add('active-slot');
-                    s2.innerHTML = getActiveSlotHTML(2, "PTZ Camera 03", 'slot-2');
-
-                    // Slot 3 & 4: Empty (Default)
-                    
-                    selectSlot('slot-1');
-                }, 0);
+                layout.innerHTML += createActiveSlot(1, "Studio Cam 01");
+                layout.innerHTML += createActiveSlot(2, "PTZ Camera 03");
+                layout.innerHTML += createOfflineSlot(3, "Remote Guest PC");
+                layout.innerHTML += createSlot(4);
             }
+            selectSlot('slot-1');
+        }
+        function createSlot(num) {
+            return `<div class="preview-slot" id="slot-${num}" onclick="selectSlot('slot-${num}')" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="this.classList.remove('drag-over')"><div class="slot-label">Window ${num}</div><div class="slot-content"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div></div>`;
+        }
+        function createActiveSlot(num, name) {
+            return `<div class="preview-slot active-slot" id="slot-${num}" onclick="selectSlot('slot-${num}')" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="this.classList.remove('drag-over')"><div class="slot-label">Window ${num}</div><div class="slot-content"><div class="slot-name" style="color:#4CAF50;">${name}</div><div class="slot-meta">Connected</div></div></div>`;
+        }
+        function createOfflineSlot(num, name) {
+            return `<div class="preview-slot offline-state" id="slot-${num}" onclick="selectSlot('slot-${num}')"><div class="slot-label">Window ${num}</div><div class="offline-overlay"><div class="offline-icon">⚠️</div><div class="offline-text">NO SIGNAL</div><div class="offline-source-name">${name}</div></div></div>`;
         }
 
-        function createSlotWrapper(num, id, isEmpty = true) {
-             return `
-                <div class="preview-slot" 
-                     id="${id}"
-                     onclick="selectSlot('${id}')" 
-                     ondrop="drop(event)" 
-                     ondragover="allowDrop(event)" 
-                     ondragleave="this.classList.remove('drag-over')">
-                    ${getEmptySlotHTML(num, id)}
-                </div>
-            `;
-        }
+        function toggleSettings() { document.getElementById('settingsMenu').classList.toggle('show'); }
+        function showModal(title) { document.getElementById('modalTitle').innerText = title; document.getElementById('modalOverlay').style.display = 'flex'; }
+        function closeModal() { document.getElementById('modalOverlay').style.display = 'none'; }
 
-        // --- PTZ Logic (補完) ---
-        function togglePTZ() {
-            if(currentSelectedSlotId) {
-                showModal("PTZ Control: " + currentSelectedSlotId);
+        function switchMode(mode) {
+            const root = document.documentElement;
+            const badge = document.getElementById('current-mode-badge');
+            document.getElementById('page-home').style.display = 'none';
+            document.getElementById('app-shell').style.display = 'grid';
+            document.getElementById('view-encoder').style.display = 'none';
+            document.getElementById('view-decoder').style.display = 'none';
+            if (mode === 'encoder') {
+                root.style.setProperty('--theme-color', '#007AFF');
+                document.getElementById('view-encoder').style.display = 'block';
+                badge.innerText = 'ENCODER MODE';
+                badge.style.color = '#007AFF'; badge.style.borderColor = '#007AFF';
             } else {
-                alert("Please select a window first.");
+                root.style.setProperty('--theme-color', '#FF9500'); 
+                document.getElementById('view-decoder').style.display = 'block';
+                badge.innerText = 'DECODER MODE';
+                badge.style.color = '#FF9500'; badge.style.borderColor = '#FF9500';
             }
         }
-
-        // --- Modal Logic (補完) ---
-        function showModal(title) {
-            document.getElementById('modal-title').innerText = title;
-            document.getElementById('common-modal').classList.add('show');
+        function goHome() {
+            document.getElementById('app-shell').style.display = 'none';
+            document.getElementById('page-home').style.display = 'flex';
         }
-
-        function closeModal() {
-            document.getElementById('common-modal').classList.remove('show');
+        function switchEncTab(tabName) {
+            document.querySelectorAll('.ctrl-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('enc-tab-video').style.display = 'none';
+            document.getElementById('enc-tab-audio').style.display = 'none';
+            event.target.classList.add('active');
+            document.getElementById('enc-tab-' + tabName).style.display = 'block';
         }
-
-        // 全域點擊關閉選單
         window.onclick = function(e) {
-            if (!e.target.matches('.slot-menu-btn')) {
-                document.querySelectorAll('.slot-dropdown').forEach(el => el.classList.remove('show'));
+            if (!e.target.matches('.settings-btn')) {
+                var dropdowns = document.getElementsByClassName("settings-dropdown");
+                for (var i = 0; i < dropdowns.length; i++) if (dropdowns[i].classList.contains('show')) dropdowns[i].classList.remove('show');
             }
-            if (e.target.classList.contains('modal-overlay')) {
-                closeModal();
-            }
+            if (e.target.className === 'modal-overlay') closeModal();
         }
+        document.addEventListener('DOMContentLoaded', () => { if(document.getElementById('view-decoder').style.display !== 'none') selectSlot('slot-1'); });
     </script>
 </body>
 </html>
