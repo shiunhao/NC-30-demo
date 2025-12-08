@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NC30 Pro AV Interface (Auto Search)</title>
+    <title>NC30 Pro AV Interface (Final Popups)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -212,7 +212,7 @@
                     </div>
                     <div class="source-list-panel">
                         <div class="list-toolbar">
-                            <span style="font-weight:bold; font-size:14px; color:#ddd;">AVAILABLE SOURCES (3)</span>
+                            <span style="font-weight:bold; font-size:14px; color:#ddd;">Source List (3)</span>
                             <div style="display:flex; gap:10px;">
                                 <button class="btn btn-primary" onclick="showModal('Add Manual Source')">➕ Add Source</button>
                                 <button class="btn btn-outline">🔄 Refresh</button>
@@ -288,6 +288,30 @@
             </div>
     </div>
 
+    <div id="searchOverlay" onclick="this.style.display='none'">
+        <div class="search-modal-box" onclick="event.stopPropagation()">
+            <div class="search-header">Select Network Source</div>
+            <ul class="search-list">
+                <li class="search-item" onclick="selectSearchItem('Meeting Room Cam', '192.168.1.105')">
+                    <span>Meeting Room Cam</span>
+                    <span style="color:#888;">192.168.1.105</span>
+                </li>
+                <li class="search-item" onclick="selectSearchItem('OBS Output Stream', '192.168.1.120')">
+                    <span>OBS Output Stream</span>
+                    <span style="color:#888;">192.168.1.120</span>
+                </li>
+                <li class="search-item" onclick="selectSearchItem('NDI Encoder 04', '192.168.1.200')">
+                    <span>NDI Encoder 04</span>
+                    <span style="color:#888;">192.168.1.200</span>
+                </li>
+                <li class="search-item" onclick="selectSearchItem('Backup Studio PTZ', '192.168.1.15')">
+                    <span>Backup Studio PTZ</span>
+                    <span style="color:#888;">192.168.1.15</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
     <script>
         function doLogin() {
             const btn = document.querySelector('#page-login .btn-primary');
@@ -355,6 +379,7 @@
                 let bgUrl = 'https://picsum.photos/id/237/400/300';
                 if(data.name.includes("Studio")) bgUrl = 'https://picsum.photos/id/64/400/300';
                 else if(data.name.includes("PTZ")) bgUrl = 'https://picsum.photos/id/1/400/300';
+                else if(data.name.includes("OBS") || data.name.includes("Encoder")) bgUrl = 'https://picsum.photos/id/48/400/300';
 
                 contentHTML = `
                     <div class="video-layer" style="background-image: url('${bgUrl}');"></div>
@@ -465,7 +490,7 @@
 
         function toggleSettings() { document.getElementById('settingsMenu').classList.toggle('show'); }
 
-        // === Modal System Update (New Add Source Logic) ===
+        // === Modal System (Updated Logic) ===
         function showModal(type) {
             const box = document.getElementById('modalContentBox');
             const overlay = document.getElementById('modalOverlay');
@@ -479,7 +504,7 @@
                     <div class="modal-body-add-source">
                         <div class="form-group">
                             <label class="form-label" style="color:#aaa;">Source Name</label>
-                            <input type="text" class="form-input" placeholder="e.g. My Camera 01">
+                            <input type="text" id="inputSrcName" class="form-input" placeholder="e.g. My Camera 01">
                         </div>
 
                         <div class="form-group">
@@ -489,30 +514,18 @@
                             </div>
                         </div>
 
-                        <div class="form-group" style="position:relative;">
+                        <div class="form-group">
                             <label class="form-label" style="color:#aaa;">* IP</label>
                             <div class="input-group-row">
-                                <input type="text" id="ipInputField" class="form-input input-with-btn" placeholder="rtsp:// or 192.168.x.x">
-                                <button class="btn btn-outline" onclick="toggleAutoSearch()">🔍 Auto Search</button>
-                            </div>
-                            
-                            <div id="ipSearchResults" class="search-results-dropdown" style="display:none;">
-                                <div class="search-result-item" onclick="selectIP('192.168.1.105')">
-                                    <span>192.168.1.105</span><span style="color:#888;">PTZ-New-Cam</span>
-                                </div>
-                                <div class="search-result-item" onclick="selectIP('192.168.1.120')">
-                                    <span>192.168.1.120</span><span style="color:#888;">OBS-Output</span>
-                                </div>
-                                <div class="search-result-item" onclick="selectIP('192.168.1.200')">
-                                    <span>192.168.1.200</span><span style="color:#888;">NDI-Encoder-04</span>
-                                </div>
+                                <input type="text" id="inputSrcIP" class="form-input input-with-btn" placeholder="rtsp:// or 192.168.x.x">
+                                <button class="btn btn-outline" onclick="showSearchOverlay()">🔍 Auto Search</button>
                             </div>
                         </div>
-                        </div>
+                    </div>
 
                     <div class="modal-footer">
                         <button class="modal-footer-btn" onclick="closeModal()">Cancel</button>
-                        <button class="modal-footer-btn" onclick="addSourceMock()">Confirm</button>
+                        <button class="modal-footer-btn" onclick="addSourceReal()">Confirm</button>
                     </div>
                 `;
             } else {
@@ -529,29 +542,53 @@
             overlay.style.display = 'flex';
         }
 
-        // Auto Search Logic
-        function toggleAutoSearch() {
-            const dropdown = document.getElementById('ipSearchResults');
-            if(dropdown.style.display === 'none') {
-                dropdown.style.display = 'block';
-            } else {
-                dropdown.style.display = 'none';
-            }
+        // === Auto Search Pop-up Logic ===
+        function showSearchOverlay() {
+            document.getElementById('searchOverlay').style.display = 'flex';
         }
 
-        function selectIP(ip) {
-            document.getElementById('ipInputField').value = ip;
-            document.getElementById('ipSearchResults').style.display = 'none';
+        function selectSearchItem(name, ip) {
+            document.getElementById('inputSrcName').value = name;
+            document.getElementById('inputSrcIP').value = ip;
+            document.getElementById('searchOverlay').style.display = 'none';
+        }
+
+        // === Real Add Source Logic ===
+        function addSourceReal() {
+            const nameInput = document.getElementById('inputSrcName');
+            const ipInput = document.getElementById('inputSrcIP');
+            
+            const name = nameInput.value || "New Source";
+            const ip = ipInput.value || "192.168.x.x";
+
+            // Create new row
+            const tbody = document.querySelector('.source-list-table tbody');
+            const newRow = document.createElement('tr');
+            newRow.className = "source-row";
+            newRow.draggable = true;
+            newRow.setAttribute('ondragstart', 'drag(event)');
+            newRow.setAttribute('data-name', name);
+            newRow.setAttribute('data-ip', ip);
+            newRow.setAttribute('data-status', 'online'); // Default to online for demo
+
+            newRow.innerHTML = `
+                <td style="text-align:center;"><input type="checkbox" checked class="loop-chk"></td>
+                <td><div class="thumb-box" style="background:#222; color:#fff;">NEW</div></td>
+                <td><span class="src-name">${name}</span><span class="src-detail">${ip}</span></td>
+                <td style="text-align:center; font-weight:bold; color:#666;">-</td>
+                <td><div class="status-badge status-ok">● Ready</div></td>
+                <td style="text-align:right;"><button class="btn-icon">✏️</button><button class="btn-icon" style="color:#d32f2f;">🗑️</button></td>
+            `;
+
+            tbody.appendChild(newRow);
+            
+            closeModal();
+            showToast(`Added source: ${name}`, "success");
         }
 
         function closeModal(event) { 
             if (event && event.target !== document.getElementById('modalOverlay')) return;
             document.getElementById('modalOverlay').style.display = 'none'; 
-        }
-
-        function addSourceMock() {
-            document.getElementById('modalOverlay').style.display = 'none'; 
-            showToast("New source added successfully!", "success");
         }
 
         function switchMode(mode) {
@@ -603,7 +640,7 @@
                 const dropdowns = document.getElementsByClassName("settings-dropdown");
                 for (let i = 0; i < dropdowns.length; i++) if (dropdowns[i].classList.contains('show')) dropdowns[i].classList.remove('show');
             }
-            if (e.target.className === 'modal-overlay') closeModal(e); // 傳入 event
+            if (e.target.className === 'modal-overlay') closeModal(e); 
             if (!e.target.matches('.slot-menu-btn')) {
                  document.querySelectorAll('.slot-dropdown').forEach(el => el.classList.remove('show'));
             }
