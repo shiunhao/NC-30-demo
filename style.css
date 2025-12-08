@@ -1,4 +1,4 @@
-/* style.css - Layout Optimized Version */
+/* style.css - Final Layout matching User Reference */
 
 /* === 1. 全域變數與基礎設定 === */
 * { box-sizing: border-box; }
@@ -185,27 +185,77 @@ input:checked + .slider:before { transform: translateX(14px); }
 }
 .preview-window {
     background: #000; width: 100%; 
-    /* 修改：讓 Preview Window 佔滿剩餘空間，不再受 flex:2 限制 */
     flex: 1; 
     border-radius: 8px; border: 1px solid #333;
     position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden;
     min-height: 250px;
 }
 
-/* === 新增：Compact Status Bar (精簡資訊列) === */
-.status-bar-container {
-    display: grid; grid-template-columns: repeat(4, 1fr); 
-    background: #1E1E1E; border: 1px solid #333; border-radius: 8px;
-    overflow: hidden; flex-shrink: 0; height: 80px; /* 固定高度，不佔位 */
+/* === 新增：Reference Layout Status Bar (模仿圖片佈局) === */
+.enc-status-bar {
+    display: flex;
+    background: #252526; 
+    border: 1px solid #333;
+    border-radius: 8px;
+    overflow: hidden;
+    height: 80px; /* 固定高度 */
+    flex-shrink: 0;
 }
-.status-item {
-    display: flex; flex-direction: column; justify-content: center; padding: 10px 20px;
-    border-right: 1px solid #2a2a2a; transition: background 0.2s;
+
+/* 左側模式區塊 */
+.mode-indicator {
+    width: 130px;
+    background: #1e1e1e;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid #333;
+    color: #999;
+    font-size: 11px;
+    flex-shrink: 0;
 }
-.status-item:last-child { border-right: none; }
-.status-item:hover { background: #252526; }
-.status-head { font-size: 10px; color: #888; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 1px;}
-.status-value { font-size: 15px; font-weight: bold; color: #fff; white-space: nowrap; }
+.mode-indicator .mode-val {
+    color: var(--theme-color);
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 4px;
+}
+.mode-circle {
+    width: 20px; height: 20px;
+    background: #333; border-radius: 50%;
+    margin-bottom: 5px;
+}
+
+/* 右側資訊網格 */
+.status-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3列 */
+    grid-template-rows: 1fr 1fr; /* 2行 */
+}
+.status-cell {
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    border-right: 1px solid #333;
+    border-bottom: 1px solid #333;
+    font-size: 12px;
+    color: #ccc;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+/* 處理邊框細節 */
+.status-cell:nth-child(n+4) { border-bottom: none; } /* 第二行無底線 */
+.status-cell:nth-child(3), .status-cell:nth-child(6) { border-right: none; } /* 最後一欄無右線 */
+
+/* 小圓點圖示 */
+.icon-circle {
+    width: 10px; height: 10px;
+    background: #444;
+    border-radius: 50%;
+    margin-right: 10px; flex-shrink: 0;
+}
+
 
 .control-panel {
     background: #1E1E1E; border-left: 1px solid #333; 
