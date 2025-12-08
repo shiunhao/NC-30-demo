@@ -1,4 +1,4 @@
-/* style.css - Visual Update Version (Images) */
+/* style.css - Layout Optimized Version */
 
 /* === 1. 全域變數與基礎設定 === */
 * { box-sizing: border-box; }
@@ -175,18 +175,37 @@ input:checked + .slider:before { transform: translateX(14px); }
     background-color: #121212; padding: 20px 40px; overflow-y: auto;
 }
 
-/* === 6. 視圖：ENCODER === */
+/* === 6. 視圖：ENCODER (Layout Optimized) === */
 .encoder-grid { 
     display: grid; grid-template-columns: minmax(0, 2fr) minmax(360px, 1fr); 
     gap: 30px; height: calc(100vh - 100px); max-width: 1800px; margin: 0 auto;
 }
-.monitor-section { display: flex; flex-direction: column; gap: 20px; height: 100%; }
+.monitor-section { 
+    display: flex; flex-direction: column; gap: 15px; height: 100%; 
+}
 .preview-window {
-    background: #000; width: 100%; flex: 1;
+    background: #000; width: 100%; 
+    /* 修改：讓 Preview Window 佔滿剩餘空間，不再受 flex:2 限制 */
+    flex: 1; 
     border-radius: 8px; border: 1px solid #333;
     position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden;
     min-height: 250px;
 }
+
+/* === 新增：Compact Status Bar (精簡資訊列) === */
+.status-bar-container {
+    display: grid; grid-template-columns: repeat(4, 1fr); 
+    background: #1E1E1E; border: 1px solid #333; border-radius: 8px;
+    overflow: hidden; flex-shrink: 0; height: 80px; /* 固定高度，不佔位 */
+}
+.status-item {
+    display: flex; flex-direction: column; justify-content: center; padding: 10px 20px;
+    border-right: 1px solid #2a2a2a; transition: background 0.2s;
+}
+.status-item:last-child { border-right: none; }
+.status-item:hover { background: #252526; }
+.status-head { font-size: 10px; color: #888; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 1px;}
+.status-value { font-size: 15px; font-weight: bold; color: #fff; white-space: nowrap; }
 
 .control-panel {
     background: #1E1E1E; border-left: 1px solid #333; 
