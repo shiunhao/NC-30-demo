@@ -1,4 +1,4 @@
-/* style.css - V3 (Encoder Panel Update) */
+/* style.css - Final V4 (Signal Lost State) */
 
 /* === 1. 全域變數與基礎設定 === */
 * { box-sizing: border-box; }
@@ -60,7 +60,6 @@ body {
     color: #fff; padding: 8px; border-radius: 4px; font-size: 13px;
 }
 .form-select:focus, .form-input:focus { border-color: var(--theme-color); outline: none; }
-/* 唯讀輸入框樣式 */
 .form-input[readonly] { background-color: #1a1a1a; color: #777; border-color: #333; cursor: not-allowed; }
 
 /* 開關 (Switch) */
@@ -194,6 +193,15 @@ input:checked + .slider:before { transform: translateX(14px); }
     min-height: 250px;
 }
 
+/* === 新增：Encoder Signal Lost Overlay === */
+.signal-lost-overlay {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: #000; z-index: 50; display: none; /* 預設隱藏 */
+    flex-direction: column; align-items: center; justify-content: center;
+}
+.signal-lost-icon { font-size: 40px; margin-bottom: 10px; opacity: 0.5; }
+.signal-lost-text { color: #666; font-weight: bold; font-size: 14px; letter-spacing: 1px; }
+
 /* Status Bar */
 .enc-status-bar {
     display: flex; background: #252526; border: 1px solid #333; border-radius: 8px;
@@ -233,7 +241,7 @@ input:checked + .slider:before { transform: translateX(14px); }
 .panel-content { padding: 20px; overflow-y: auto; flex: 1; }
 .panel-footer { padding: 20px; border-top: 1px solid #333; background: #252526; display: flex; flex-direction: column; gap: 10px; }
 
-/* === Encoder Panel New Styles (參考圖樣式) === */
+/* Encoder Panel Styles */
 .enc-settings-group {
     border: 1px solid #333; background: #1a1a1a; padding: 15px;
     border-radius: 6px; margin-bottom: 20px;
