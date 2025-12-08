@@ -1,4 +1,4 @@
-/* style.css - Final V2 (Real Add + Popups) */
+/* style.css - V3 (Encoder Panel Update) */
 
 /* === 1. 全域變數與基礎設定 === */
 * { box-sizing: border-box; }
@@ -60,6 +60,8 @@ body {
     color: #fff; padding: 8px; border-radius: 4px; font-size: 13px;
 }
 .form-select:focus, .form-input:focus { border-color: var(--theme-color); outline: none; }
+/* 唯讀輸入框樣式 */
+.form-input[readonly] { background-color: #1a1a1a; color: #777; border-color: #333; cursor: not-allowed; }
 
 /* 開關 (Switch) */
 .switch { position: relative; display: inline-block; width: 34px; height: 20px; margin-left: auto; }
@@ -176,7 +178,7 @@ input:checked + .slider:before { transform: translateX(14px); }
     background-color: #121212; padding: 20px 40px; overflow-y: auto;
 }
 
-/* === 6. 視圖：ENCODER (Layout Optimized) === */
+/* === 6. 視圖：ENCODER === */
 .encoder-grid { 
     display: grid; grid-template-columns: minmax(0, 2fr) minmax(360px, 1fr); 
     gap: 30px; height: calc(100vh - 100px); max-width: 1800px; margin: 0 auto;
@@ -192,71 +194,37 @@ input:checked + .slider:before { transform: translateX(14px); }
     min-height: 250px;
 }
 
-/* === Reference Layout Status Bar === */
+/* Status Bar */
 .enc-status-bar {
-    display: flex;
-    background: #252526; 
-    border: 1px solid #333;
-    border-radius: 8px;
-    overflow: hidden;
-    height: 80px; /* 固定高度 */
-    flex-shrink: 0;
+    display: flex; background: #252526; border: 1px solid #333; border-radius: 8px;
+    overflow: hidden; height: 80px; flex-shrink: 0;
 }
-
-/* 左側模式區塊 */
 .mode-indicator {
-    width: 130px;
-    background: #1e1e1e;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    border-right: 1px solid #333;
-    color: #999;
-    font-size: 11px;
-    flex-shrink: 0;
+    width: 130px; background: #1e1e1e; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; border-right: 1px solid #333;
+    color: #999; font-size: 11px; flex-shrink: 0;
 }
 .mode-indicator .mode-val {
-    color: var(--theme-color);
-    font-size: 16px;
-    font-weight: bold;
-    margin-top: 4px;
+    color: var(--theme-color); font-size: 16px; font-weight: bold; margin-top: 4px;
 }
 .mode-circle {
-    width: 20px; height: 20px;
-    background: #333; border-radius: 50%;
-    margin-bottom: 5px;
+    width: 20px; height: 20px; background: #333; border-radius: 50%; margin-bottom: 5px;
 }
-
-/* 右側資訊網格 */
 .status-grid {
-    flex: 1;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: 1fr 1fr;
+    flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: 1fr 1fr;
 }
 .status-cell {
-    display: flex;
-    align-items: center;
-    padding: 0 15px;
-    border-right: 1px solid #333;
-    border-bottom: 1px solid #333;
-    font-size: 12px;
-    color: #ccc;
+    display: flex; align-items: center; padding: 0 15px; border-right: 1px solid #333;
+    border-bottom: 1px solid #333; font-size: 12px; color: #ccc;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .status-cell:nth-child(n+4) { border-bottom: none; }
 .status-cell:nth-child(3), .status-cell:nth-child(6) { border-right: none; }
-
-/* 小圓點圖示 */
 .icon-circle {
-    width: 10px; height: 10px;
-    background: #444;
-    border-radius: 50%;
-    margin-right: 10px; flex-shrink: 0;
+    width: 10px; height: 10px; background: #444; border-radius: 50%; margin-right: 10px; flex-shrink: 0;
 }
 
-
+/* Control Panel (Encoder) */
 .control-panel {
     background: #1E1E1E; border-left: 1px solid #333; 
     display: flex; flex-direction: column; height: 100%;
@@ -264,9 +232,23 @@ input:checked + .slider:before { transform: translateX(14px); }
 }
 .panel-content { padding: 20px; overflow-y: auto; flex: 1; }
 .panel-footer { padding: 20px; border-top: 1px solid #333; background: #252526; display: flex; flex-direction: column; gap: 10px; }
-.info-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 13px; border-bottom: 1px solid #2a2a2a; padding-bottom: 8px; }
-.info-label { color: #888; }
-.info-val { font-weight: bold; color: #fff; }
+
+/* === Encoder Panel New Styles (參考圖樣式) === */
+.enc-settings-group {
+    border: 1px solid #333; background: #1a1a1a; padding: 15px;
+    border-radius: 6px; margin-bottom: 20px;
+}
+.enc-group-header {
+    font-size: 14px; font-weight: bold; color: #ddd; margin-bottom: 15px;
+    display: flex; align-items: center; gap: 8px;
+}
+.enc-icon {
+    font-size: 10px; background: #444; color: #aaa; padding: 2px 4px;
+    border-radius: 2px; text-transform: uppercase; font-weight: normal;
+}
+.form-section-disabled {
+    opacity: 0.4; pointer-events: none; filter: grayscale(100%);
+}
 
 /* === 7. 視圖：DECODER === */
 .decoder-layout { 
