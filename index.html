@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NC30 Pro AV Interface (Final V3)</title>
+    <title>NC30 Pro AV Interface (Final V4)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -75,6 +75,11 @@
                         <div class="preview-window">
                             <div class="video-layer" style="background-image: url('https://picsum.photos/id/10/800/600');"></div>
                             <div class="video-overlay-gradient"></div>
+                            
+                            <div id="signalLostOverlay" class="signal-lost-overlay">
+                                <div class="signal-lost-icon">⚠️</div>
+                                <div class="signal-lost-text">NO SIGNAL</div>
+                            </div>
                             
                             <div class="preview-label">HDMI 4K</div>
                             <div class="slot-content">
@@ -658,7 +663,7 @@
             newRow.setAttribute('ondragstart', 'drag(event)');
             newRow.setAttribute('data-name', name);
             newRow.setAttribute('data-ip', ip);
-            newRow.setAttribute('data-status', 'online'); // Default to online for demo
+            newRow.setAttribute('data-status', 'online'); 
 
             newRow.innerHTML = `
                 <td style="text-align:center;"><input type="checkbox" checked class="loop-chk"></td>
@@ -680,21 +685,27 @@
             document.getElementById('modalOverlay').style.display = 'none'; 
         }
 
+        // === Toggle Logic Updated with NO SIGNAL Overlay ===
         function toggleVideoSource(checkbox) {
             const input = document.getElementById('videoSourceInput');
             const streamGroup = document.getElementById('streamOutputGroup');
             const ndiGroup = document.getElementById('ndiSettingsGroup');
+            const overlay = document.getElementById('signalLostOverlay');
             
             if(checkbox.checked) {
+                // Connected
                 input.value = "HDMI (Auto detect)";
                 input.style.color = "#fff";
                 streamGroup.classList.remove('form-section-disabled');
                 ndiGroup.classList.remove('form-section-disabled');
+                overlay.style.display = 'none';
             } else {
+                // Disconnected
                 input.value = "Disconnected";
                 input.style.color = "#777";
                 streamGroup.classList.add('form-section-disabled');
                 ndiGroup.classList.add('form-section-disabled');
+                overlay.style.display = 'flex';
             }
         }
 
