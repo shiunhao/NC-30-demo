@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NC30 Pro AV Interface (Visual Update)</title>
+    <title>NC30 Pro AV Interface (Layout Optimized)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -72,7 +72,7 @@
             <div id="view-encoder" style="display:none; height:100%;">
                 <div class="encoder-grid">
                     <div class="monitor-section">
-                        <div class="preview-window" style="flex:2;">
+                        <div class="preview-window">
                             <div class="video-layer" style="background-image: url('https://picsum.photos/id/10/800/600');"></div>
                             <div class="video-overlay-gradient"></div>
                             
@@ -82,19 +82,26 @@
                                 <div class="slot-meta">2160p60 | NDI Active</div>
                             </div>
                         </div>
-                        <div class="panel" style="flex:1;">
-                            <span class="panel-title">Stream Status</span>
-                            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
-                                <div>
-                                    <div class="info-row"><span class="info-label">Status</span><span class="info-val" style="color:#4CAF50;">● Encoding</span></div>
-                                    <div class="info-row"><span class="info-label">Format</span><span class="info-val">NDI HX (H.265)</span></div>
-                                </div>
-                                <div>
-                                    <div class="info-row"><span class="info-label">Resolution</span><span class="info-val">3840x2160 p60</span></div>
-                                    <div class="info-row"><span class="info-label">Bitrate</span><span class="info-val">25.4 Mbps</span></div>
-                                </div>
+                        
+                        <div class="status-bar-container">
+                            <div class="status-item">
+                                <span class="status-head">Status</span>
+                                <span class="status-value" style="color:#4CAF50;">● Encoding</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-head">Format</span>
+                                <span class="status-value">NDI HX (H.265)</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-head">Resolution</span>
+                                <span class="status-value">3840x2160 p60</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-head">Bitrate</span>
+                                <span class="status-value">25.4 Mbps</span>
                             </div>
                         </div>
+
                     </div>
                     <div class="control-panel">
                         <div style="padding:20px 20px 0 20px;">
