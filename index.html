@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NC30 Pro AV Interface (Final)</title>
+    <title>NC30 Pro AV Interface (Release)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,19 +12,15 @@
         <div class="login-box">
             <div class="login-logo"><span>NC</span>30</div>
             <div class="login-subtitle">4K NDI Bi-Directional Converter</div>
-            
             <div class="form-group" style="text-align: left;">
                 <label class="form-label">Username</label>
                 <input type="text" class="form-input" value="admin">
             </div>
-            
             <div class="form-group" style="text-align: left;">
                 <label class="form-label">Password</label>
                 <input type="password" class="form-input" placeholder="••••••••">
             </div>
-
             <button class="btn btn-primary" onclick="doLogin()" style="width: 100%; padding: 12px; margin-top: 10px;">LOGIN</button>
-            
             <div class="login-note">* No password required currently, just click Login to enter.</div>
         </div>
     </div>
@@ -53,10 +49,8 @@
         <div class="top-bar">
             <div class="back-btn" onclick="goHome()"><span>🏠 Mode Select</span></div>
             <div class="mode-badge" id="current-mode-badge">ENCODER MODE</div>
-            
             <div style="display:flex; gap:20px; align-items:center;">
                 <div class="tally-indicator">🔴 LIVE</div>
-                
                 <div class="settings-container">
                     <div class="settings-btn" onclick="toggleSettings()">⚙️</div>
                     <div class="settings-dropdown" id="settingsMenu">
@@ -77,13 +71,11 @@
             
             <div id="view-encoder" style="display:none; height:100%;">
                 <div class="encoder-grid">
-                    
                     <div class="monitor-section">
                         <div class="preview-window" style="flex:2;">
                             <div class="preview-label">HDMI 4K</div>
                             <span style="color:#444;">[ Camera Source Signal ]</span>
                         </div>
-                        
                         <div class="panel" style="flex:1;">
                             <span class="panel-title">Stream Status</span>
                             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
@@ -98,7 +90,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="control-panel">
                         <div style="padding:20px 20px 0 20px;">
                             <span class="panel-title">Control Panel</span>
@@ -107,7 +98,6 @@
                                 <div class="ctrl-tab" onclick="switchEncTab('audio')">Audio</div>
                             </div>
                         </div>
-
                         <div class="panel-content">
                             <div id="enc-tab-video">
                                 <div class="sub-tabs">
@@ -127,11 +117,10 @@
                                     <input type="text" class="form-input" value="25000">
                                 </div>
                             </div>
-                            
                             <div id="enc-tab-audio" style="display:none;">
                                 <div class="form-group">
                                     <label class="form-label">Audio Source</label>
-                                    <select class="form-select"><option>Embedded (HDMI/SDI)</option><option>Line In</option><option>Mic In</option></select>
+                                    <select class="form-select"><option>Embedded</option><option>Line In</option></select>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Volume</label>
@@ -139,7 +128,6 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="panel-footer">
                             <button class="btn btn-primary" style="width:100%;">Apply</button>
                             <button class="btn btn-danger" style="width:100%;">Stop</button>
@@ -150,28 +138,21 @@
 
             <div id="view-decoder" style="display:none; height:100%;">
                 <div class="decoder-layout">
-                    
                     <div class="decoder-top-grid">
-                        
                         <div class="output-container" id="outputContainer">
                             <div id="outputLayout" class="output-layout-single">
                                 <div class="preview-slot" ondrop="drop(event)" ondragover="allowDrop(event)" id="slot-1">
                                     <div class="slot-label">Window 1</div>
-                                    <div class="slot-content">
-                                        <div class="slot-name" style="color:#555;">[ Drag Source Here ]</div>
-                                    </div>
+                                    <div class="slot-content"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div>
                                 </div>
                             </div>
                         </div>
-                        
                         <div class="decoder-settings-card">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                                 <span class="panel-title" style="margin:0; border:none;">DECODING SETTINGS</span>
                                 <button class="btn btn-primary" onclick="togglePTZ()" style="padding:4px 10px; font-size:12px;">🕹️ Open PTZ</button>
                             </div>
-                            
                             <div class="settings-scroll-area">
-                                
                                 <div>
                                     <div class="settings-group-title">Layout & Routing</div>
                                     <div class="form-group">
@@ -183,13 +164,9 @@
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label">Audio Follows</label>
-                                        <select class="form-select">
-                                            <option selected>Window 1 (Main)</option>
-                                            <option>Window 2</option>
-                                        </select>
+                                        <select class="form-select"><option selected>Window 1 (Main)</option><option>Window 2</option></select>
                                     </div>
                                 </div>
-
                                 <div>
                                     <div class="settings-group-title">Output Format</div>
                                     <div class="form-group">
@@ -201,7 +178,6 @@
                                         <select class="form-select"><option>60 fps</option></select>
                                     </div>
                                 </div>
-
                                 <div>
                                     <div class="settings-group-title">Audio Output</div>
                                     <div class="form-group">
@@ -218,16 +194,13 @@
                                         <input type="range" style="width:100%;" min="0" max="100" value="80">
                                     </div>
                                 </div>
-
                             </div>
-
                             <div style="margin-top:auto; border-top:1px solid #333; padding-top:20px;">
                                 <button class="btn btn-primary" style="width:100%;">Apply Changes</button>
                                 <button class="btn btn-outline" style="width:100%; margin-top:10px; color:#d32f2f; border-color:#d32f2f;">Clear All Windows</button>
                             </div>
                         </div>
                     </div>
-
                     <div class="source-list-panel">
                         <div class="list-toolbar">
                             <span style="font-weight:bold; font-size:14px; color:#ddd;">AVAILABLE SOURCES (3)</span>
@@ -236,7 +209,6 @@
                                 <button class="btn btn-outline">🔄 Refresh</button>
                             </div>
                         </div>
-                        
                         <div class="source-list-scroll">
                             <table class="source-list-table">
                                 <thead class="source-list-header">
@@ -256,10 +228,7 @@
                                         <td><span class="src-name">Studio Cam 01</span><span class="src-detail">192.168.1.101</span></td>
                                         <td style="text-align:center; font-weight:bold; color:#666;">1</td>
                                         <td><div class="status-badge status-ok">● Ready</div></td>
-                                        <td style="text-align:right;">
-                                            <button class="btn-icon">✏️</button>
-                                            <button class="btn-icon" style="color:#d32f2f;">🗑️</button>
-                                        </td>
+                                        <td style="text-align:right;"><button class="btn-icon">✏️</button><button class="btn-icon" style="color:#d32f2f;">🗑️</button></td>
                                     </tr>
                                     <tr class="source-row" draggable="true" ondragstart="drag(event)" data-name="PTZ Camera 03" data-ip="192.168.1.52">
                                         <td style="text-align:center;"><input type="checkbox" class="loop-chk"></td>
@@ -267,10 +236,7 @@
                                         <td><span class="src-name">PTZ Camera 03</span><span class="src-detail">192.168.1.52</span></td>
                                         <td style="text-align:center; font-weight:bold; color:#666;">2</td>
                                         <td><div class="status-badge status-warn">▲ Warning</div></td>
-                                        <td style="text-align:right;">
-                                            <button class="btn-icon">✏️</button>
-                                            <button class="btn-icon" style="color:#d32f2f;">🗑️</button>
-                                        </td>
+                                        <td style="text-align:right;"><button class="btn-icon">✏️</button><button class="btn-icon" style="color:#d32f2f;">🗑️</button></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -278,7 +244,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -291,55 +256,25 @@
             <button class="close-btn" onclick="togglePTZ()">×</button>
         </div>
         <div class="ptz-content">
-            <div class="ptz-joystick-area">
-                <div class="joystick-base">
-                    <div class="joystick-stick"></div>
-                </div>
-            </div>
+            <div class="ptz-joystick-area"><div class="joystick-base"><div class="joystick-stick"></div></div></div>
             <div class="ptz-controls-grid">
-                <div class="control-group">
-                    <span class="control-label">Zoom</span>
-                    <div class="btn-group">
-                        <button class="btn-mini">In</button>
-                        <button class="btn-mini">Out</button>
-                    </div>
-                </div>
-                <div class="control-group">
-                    <span class="control-label">Focus</span>
-                    <div class="btn-group">
-                        <button class="btn-mini">Auto</button>
-                        <button class="btn-mini">Man</button>
-                    </div>
-                </div>
+                <div class="control-group"><span class="control-label">Zoom</span><div class="btn-group"><button class="btn-mini">In</button><button class="btn-mini">Out</button></div></div>
+                <div class="control-group"><span class="control-label">Focus</span><div class="btn-group"><button class="btn-mini">Auto</button><button class="btn-mini">Man</button></div></div>
             </div>
-            <div class="control-group">
-                <span class="control-label">Speed</span>
-                <input type="range" style="width:100%;">
-            </div>
-            <div class="control-group">
-                <span class="control-label">Presets</span>
-                <div class="preset-grid">
-                    <button class="preset-btn">1</button><button class="preset-btn">2</button>
-                    <button class="preset-btn">3</button><button class="preset-btn">4</button>
-                    <button class="preset-btn">5</button><button class="preset-btn">6</button>
-                    <button class="preset-btn">7</button><button class="preset-btn">8</button>
-                </div>
-            </div>
+            <div class="control-group"><span class="control-label">Speed</span><input type="range" style="width:100%;"></div>
+            <div class="control-group"><span class="control-label">Presets</span><div class="preset-grid"><button class="preset-btn">1</button><button class="preset-btn">2</button><button class="preset-btn">3</button><button class="preset-btn">4</button><button class="preset-btn">5</button><button class="preset-btn">6</button><button class="preset-btn">7</button><button class="preset-btn">8</button></div></div>
         </div>
     </div>
 
     <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
         <div class="modal-box">
             <h3 id="modalTitle" style="margin-top:0; color:#fff;">Settings</h3>
-            <div style="height:100px; display:flex; align-items:center; justify-content:center; color:#666;">
-                Modal Content Placeholder
-            </div>
+            <div style="height:100px; display:flex; align-items:center; justify-content:center; color:#666;">Modal Content Placeholder</div>
             <button class="btn btn-primary" style="float:right;" onclick="closeModal()">Close</button>
         </div>
     </div>
 
     <script>
-        // --- Login Logic ---
         function doLogin() {
             const btn = document.querySelector('#page-login .btn-primary');
             btn.innerHTML = "Logging in...";
@@ -351,60 +286,23 @@
                 }, 500);
             }, 800);
         }
+        function doLogout() { location.reload(); }
 
-        function doLogout() {
-            location.reload(); 
-        }
-
-        // --- Drag & Drop Logic (Window) ---
         dragElement(document.getElementById("ptz-panel"));
-
         function dragElement(elmnt) {
             var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-            if (document.getElementById(elmnt.id + "-header")) {
-                document.getElementById(elmnt.id + "-header").onmousedown = dragMouseDown;
-            } else {
-                elmnt.onmousedown = dragMouseDown;
-            }
-
-            function dragMouseDown(e) {
-                e = e || window.event;
-                e.preventDefault();
-                pos3 = e.clientX;
-                pos4 = e.clientY;
-                document.onmouseup = closeDragElement;
-                document.onmousemove = elementDrag;
-            }
-
-            function elementDrag(e) {
-                e = e || window.event;
-                e.preventDefault();
-                pos1 = pos3 - e.clientX;
-                pos2 = pos4 - e.clientY;
-                pos3 = e.clientX;
-                pos4 = e.clientY;
-                elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-                elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
-            }
-
-            function closeDragElement() {
-                document.onmouseup = null;
-                document.onmousemove = null;
-            }
+            if (document.getElementById(elmnt.id + "-header")) document.getElementById(elmnt.id + "-header").onmousedown = dragMouseDown;
+            else elmnt.onmousedown = dragMouseDown;
+            function dragMouseDown(e) { e = e || window.event; e.preventDefault(); pos3 = e.clientX; pos4 = e.clientY; document.onmouseup = closeDragElement; document.onmousemove = elementDrag; }
+            function elementDrag(e) { e = e || window.event; e.preventDefault(); pos1 = pos3 - e.clientX; pos2 = pos4 - e.clientY; pos3 = e.clientX; pos4 = e.clientY; elmnt.style.top = (elmnt.offsetTop - pos2) + "px"; elmnt.style.left = (elmnt.offsetLeft - pos1) + "px"; }
+            function closeDragElement() { document.onmouseup = null; document.onmousemove = null; }
         }
-
         function togglePTZ() {
             var panel = document.getElementById("ptz-panel");
-            if (panel.style.display === "flex") {
-                panel.style.display = "none";
-            } else {
-                panel.style.display = "flex";
-                panel.style.top = "100px";
-                panel.style.left = "calc(50% - 160px)";
-            }
+            if (panel.style.display === "flex") panel.style.display = "none";
+            else { panel.style.display = "flex"; panel.style.top = "100px"; panel.style.left = "calc(50% - 160px)"; }
         }
 
-        // --- Drag & Drop Logic (Source List) ---
         function drag(ev) { ev.dataTransfer.setData("text", ev.currentTarget.getAttribute("data-name")); }
         function allowDrop(ev) { ev.preventDefault(); ev.currentTarget.classList.add('drag-over'); }
         function drop(ev) {
@@ -414,25 +312,18 @@
             ev.currentTarget.classList.add('active-slot');
         }
 
-        // --- Slot Selection ---
         let currentSelectedSlotId = 'slot-1';
-
         function selectSlot(slotId) {
-            document.querySelectorAll('.preview-slot').forEach(el => {
-                el.classList.remove('selected-slot');
-            });
-
+            document.querySelectorAll('.preview-slot').forEach(el => el.classList.remove('selected-slot'));
             const selectedEl = document.getElementById(slotId);
             if(selectedEl) {
                 selectedEl.classList.add('selected-slot');
                 currentSelectedSlotId = slotId;
-                
                 const windowNum = slotId.split('-')[1];
                 const sourceNameEl = selectedEl.querySelector('.slot-name');
                 const sourceName = sourceNameEl ? sourceNameEl.innerText : "Empty";
-                
                 const targetText = document.getElementById('ptz-target-display');
-                if(sourceName.includes("Drag")) {
+                if(sourceName.includes("Drag") || sourceName === "NO SIGNAL") {
                     targetText.innerText = `Target: Window ${windowNum} (No Source)`;
                     targetText.style.color = "#888";
                 } else {
@@ -442,41 +333,33 @@
             }
         }
 
-        // --- Output Mode Switcher ---
         function switchOutputMode(count, btn) {
             document.querySelectorAll('.mode-opt').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             const layout = document.getElementById('outputLayout');
             layout.innerHTML = '';
-            
             if(count === 1) {
                 layout.className = 'output-layout-single';
                 layout.innerHTML = createSlot(1);
             } else {
                 layout.className = 'output-layout-quad';
-                for(let i=1; i<=4; i++) layout.innerHTML += createSlot(i);
+                layout.innerHTML += createActiveSlot(1, "Studio Cam 01");
+                layout.innerHTML += createActiveSlot(2, "PTZ Camera 03");
+                layout.innerHTML += createOfflineSlot(3, "Remote Guest PC");
+                layout.innerHTML += createSlot(4);
             }
             selectSlot('slot-1');
         }
-
         function createSlot(num) {
-            return `
-                <div class="preview-slot" 
-                     id="slot-${num}"
-                     onclick="selectSlot('slot-${num}')" 
-                     ondrop="drop(event)" 
-                     ondragover="allowDrop(event)" 
-                     ondragleave="this.classList.remove('drag-over')">
-                    
-                    <div class="slot-label">Window ${num}</div>
-                    <div class="slot-content">
-                        <div class="slot-name" style="color:#555;">[ Drag Source Here ]</div>
-                    </div>
-                </div>
-            `;
+            return `<div class="preview-slot" id="slot-${num}" onclick="selectSlot('slot-${num}')" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="this.classList.remove('drag-over')"><div class="slot-label">Window ${num}</div><div class="slot-content"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div></div>`;
+        }
+        function createActiveSlot(num, name) {
+            return `<div class="preview-slot active-slot" id="slot-${num}" onclick="selectSlot('slot-${num}')" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="this.classList.remove('drag-over')"><div class="slot-label">Window ${num}</div><div class="slot-content"><div class="slot-name" style="color:#4CAF50;">${name}</div><div class="slot-meta">Connected</div></div></div>`;
+        }
+        function createOfflineSlot(num, name) {
+            return `<div class="preview-slot offline-state" id="slot-${num}" onclick="selectSlot('slot-${num}')"><div class="slot-label">Window ${num}</div><div class="offline-overlay"><div class="offline-icon">⚠️</div><div class="offline-text">NO SIGNAL</div><div class="offline-source-name">${name}</div></div></div>`;
         }
 
-        // --- Basic UI Logic ---
         function toggleSettings() { document.getElementById('settingsMenu').classList.toggle('show'); }
         function showModal(title) { document.getElementById('modalTitle').innerText = title; document.getElementById('modalOverlay').style.display = 'flex'; }
         function closeModal() { document.getElementById('modalOverlay').style.display = 'none'; }
@@ -488,7 +371,6 @@
             document.getElementById('app-shell').style.display = 'grid';
             document.getElementById('view-encoder').style.display = 'none';
             document.getElementById('view-decoder').style.display = 'none';
-
             if (mode === 'encoder') {
                 root.style.setProperty('--theme-color', '#007AFF');
                 document.getElementById('view-encoder').style.display = 'block';
@@ -501,12 +383,10 @@
                 badge.style.color = '#FF9500'; badge.style.borderColor = '#FF9500';
             }
         }
-
         function goHome() {
             document.getElementById('app-shell').style.display = 'none';
             document.getElementById('page-home').style.display = 'flex';
         }
-        
         function switchEncTab(tabName) {
             document.querySelectorAll('.ctrl-tab').forEach(t => t.classList.remove('active'));
             document.getElementById('enc-tab-video').style.display = 'none';
@@ -514,24 +394,14 @@
             event.target.classList.add('active');
             document.getElementById('enc-tab-' + tabName).style.display = 'block';
         }
-        
         window.onclick = function(e) {
             if (!e.target.matches('.settings-btn')) {
                 var dropdowns = document.getElementsByClassName("settings-dropdown");
-                for (var i = 0; i < dropdowns.length; i++) {
-                    if (dropdowns[i].classList.contains('show')) dropdowns[i].classList.remove('show');
-                }
+                for (var i = 0; i < dropdowns.length; i++) if (dropdowns[i].classList.contains('show')) dropdowns[i].classList.remove('show');
             }
             if (e.target.className === 'modal-overlay') closeModal();
         }
-
-        // Init
-        document.addEventListener('DOMContentLoaded', () => {
-             if(document.getElementById('view-decoder').style.display !== 'none') {
-                 selectSlot('slot-1');
-             }
-        });
+        document.addEventListener('DOMContentLoaded', () => { if(document.getElementById('view-decoder').style.display !== 'none') selectSlot('slot-1'); });
     </script>
-
 </body>
 </html>
