@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NC30 Pro AV Interface (Final V5)</title>
+    <title>NC30 Pro AV Interface (Final V6)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -78,7 +78,7 @@
                             
                             <div id="signalLostOverlay" class="signal-lost-overlay">
                                 <div class="signal-lost-icon">⚠️</div>
-                                <div class="signal-lost-text">NO SIGNAL</div>
+                                <div class="signal-lost-text">No Source Detected</div>
                             </div>
                             
                             <div class="preview-label">HDMI 4K</div>
@@ -95,12 +95,12 @@
                                 <span class="mode-val">Encoder</span>
                             </div>
                             <div class="status-grid">
-                                <div class="status-cell"><div class="icon-circle"></div>Input Resolution: 3840 X 2160</div>
-                                <div class="status-cell"><div class="icon-circle"></div>Streaming Resolution: 3840 X 2160</div>
-                                <div class="status-cell"><div class="icon-circle"></div>Framerate: 60FPS</div>
-                                <div class="status-cell"><div class="icon-circle"></div>Bitrate: AUTO</div>
-                                <div class="status-cell"><div class="icon-circle"></div>Audio Format: 48kHz</div>
-                                <div class="status-cell"><div class="icon-circle"></div>Audio Source: HDMI</div>
+                                <div class="status-cell"><div class="icon-circle"></div>Input Resolution: <span id="stat-res-in" style="margin-left:5px;">3840 X 2160</span></div>
+                                <div class="status-cell"><div class="icon-circle"></div>Streaming Resolution: <span id="stat-res-out" style="margin-left:5px;">3840 X 2160</span></div>
+                                <div class="status-cell"><div class="icon-circle"></div>Framerate: <span id="stat-fps" style="margin-left:5px;">60FPS</span></div>
+                                <div class="status-cell"><div class="icon-circle"></div>Bitrate: <span id="stat-bitrate" style="margin-left:5px;">AUTO</span></div>
+                                <div class="status-cell"><div class="icon-circle"></div>Audio Format: <span id="stat-audio-fmt" style="margin-left:5px;">48kHz</span></div>
+                                <div class="status-cell"><div class="icon-circle"></div>Audio Source: <span id="stat-audio-src" style="margin-left:5px;">HDMI</span></div>
                             </div>
                         </div>
                     </div>
@@ -113,7 +113,7 @@
                             
                             <div class="enc-settings-group">
                                 <div class="enc-group-header">
-                                    <span class="enc-icon">Icon</span> Input Source
+                                    <span class="enc-icon-circle"></span> Input Source
                                 </div>
                                 <div class="form-group">
                                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
@@ -144,7 +144,7 @@
                             <div id="enc-tab-video" style="margin-top:10px;">
                                 <div class="enc-settings-group" id="streamOutputGroup">
                                     <div class="enc-group-header">
-                                        <span class="enc-icon">Icon</span> Stream Video Output
+                                        <span class="enc-icon-circle"></span> Stream Video Output
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label">Resolution</label>
@@ -176,7 +176,7 @@
                             <div id="enc-tab-audio" style="display:none; margin-top:10px;">
                                 <div class="enc-settings-group" id="audioEncodingGroup">
                                     <div class="enc-group-header">
-                                        <span class="enc-icon">Icon</span> Audio Encoding
+                                        <span class="enc-icon-circle"></span> Audio Encoding
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label">Audio Format</label>
@@ -195,7 +195,7 @@
 
                             <div class="enc-settings-group" id="ndiSettingsGroup">
                                 <div class="enc-group-header">
-                                    <span class="enc-icon">Icon</span> NDI Settings
+                                    <span class="enc-icon-circle"></span> NDI Settings
                                 </div>
                                 <div class="form-group">
                                     <div style="display:flex; justify-content:space-between;">
@@ -455,7 +455,7 @@
                     <div class="slot-label">Window ${windowNum}</div>
                     <div class="offline-overlay">
                         <div class="offline-icon">⚠️</div>
-                        <div class="offline-text">NO SIGNAL</div>
+                        <div class="offline-text">No Source Detected</div>
                         <div class="offline-source-name">${data.name}</div>
                     </div>
                 `;
@@ -524,7 +524,7 @@
                 const sourceName = sourceNameEl ? sourceNameEl.innerText : "Empty";
                 const targetText = document.getElementById('ptz-target-display');
                 
-                if(sourceName.includes("Drag") || sourceName.includes("NO SIGNAL")) {
+                if(sourceName.includes("Drag") || sourceName.includes("No Source")) {
                     targetText.innerText = `Target: Window ${windowNum} (No Source)`;
                     targetText.style.color = "#888";
                 } else {
@@ -675,38 +675,60 @@
             document.getElementById('modalOverlay').style.display = 'none'; 
         }
 
-        // === Toggle Logic Updated (Input & Output) ===
+        // === Toggle Logic Updated (No Data in Status Bar) ===
         function toggleVideoSource(checkbox) {
             const videoInput = document.getElementById('videoSourceInput');
             const audioContainer = document.getElementById('audioSourceContainer');
             
             const streamGroup = document.getElementById('streamOutputGroup');
             const audioEncGroup = document.getElementById('audioEncodingGroup');
-            const ndiGroup = document.getElementById('ndiSettingsGroup');
+            const ndiGroup = document.getElementById('ndiSettingsGroup'); // NDI 保持可見，但可能禁用
+            
             const overlay = document.getElementById('signalLostOverlay');
             
+            // Status Bar Elements
+            const statResIn = document.getElementById('stat-res-in');
+            const statResOut = document.getElementById('stat-res-out');
+            const statFps = document.getElementById('stat-fps');
+            const statBitrate = document.getElementById('stat-bitrate');
+            const statAudioFmt = document.getElementById('stat-audio-fmt');
+            const statAudioSrc = document.getElementById('stat-audio-src');
+
             if(checkbox.checked) {
                 // Connected
                 videoInput.value = "HDMI (Auto detect)";
                 videoInput.style.color = "#fff";
-                
-                // Restore Select
                 audioContainer.innerHTML = `<select class="form-select" id="audioSourceSelect"><option>HDMI</option><option>Analog</option></select>`;
                 
                 streamGroup.classList.remove('form-section-disabled');
                 audioEncGroup.classList.remove('form-section-disabled');
                 overlay.style.display = 'none';
+
+                // Restore Status
+                statResIn.innerText = "3840 X 2160";
+                statResOut.innerText = "3840 X 2160";
+                statFps.innerText = "60FPS";
+                statBitrate.innerText = "AUTO";
+                statAudioFmt.innerText = "48kHz";
+                statAudioSrc.innerText = "HDMI";
+
             } else {
                 // Disconnected
-                videoInput.value = "Disconnected";
+                videoInput.value = "No Source Detected";
                 videoInput.style.color = "#777";
-                
-                // Show Error Text
                 audioContainer.innerHTML = `<span class="status-text-error">No Audio Source Detected</span>`;
                 
                 streamGroup.classList.add('form-section-disabled');
                 audioEncGroup.classList.add('form-section-disabled');
                 overlay.style.display = 'flex';
+
+                // Clear Status
+                statResIn.innerText = "-";
+                statResOut.innerText = "-";
+                statFps.innerText = "-";
+                statBitrate.innerText = "-";
+                statAudioFmt.innerText = "-";
+                statAudioSrc.innerText = "-";
             }
         }
 
