@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NC30 Pro AV Interface (Release)</title>
+    <title>NC30 Pro AV Interface (Visual Update)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -73,9 +73,15 @@
                 <div class="encoder-grid">
                     <div class="monitor-section">
                         <div class="preview-window" style="flex:2;">
+                            <div class="video-layer" style="background-image: url('https://picsum.photos/id/10/800/600');"></div>
+                            <div class="video-overlay-gradient"></div>
+                            
                             <div class="preview-label">HDMI 4K</div>
-                            <span style="color:#444;">[ Camera Source Signal ]</span>
+                            <div class="slot-content">
+                                <div class="slot-name">Main Camera Input</div>
+                                <div class="slot-meta">2160p60 | NDI Active</div>
                             </div>
+                        </div>
                         <div class="panel" style="flex:1;">
                             <span class="panel-title">Stream Status</span>
                             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
@@ -143,7 +149,7 @@
                             <div id="outputLayout" class="output-layout-single">
                                 <div class="preview-slot" ondrop="drop(event)" ondragover="allowDrop(event)" id="slot-1" onclick="selectSlot('slot-1')">
                                     <div class="slot-label">Window 1</div>
-                                    <div class="slot-content"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div>
+                                    <div class="slot-content" style="text-align:center;"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div>
                                 </div>
                             </div>
                         </div>
@@ -311,25 +317,22 @@
             else { panel.style.display = "flex"; panel.style.top = "100px"; panel.style.left = "calc(50% - 160px)"; }
         }
 
-        // === 1. 拖曳邏輯更新 (支援 JSON 資料傳遞狀態) ===
+        // === Drag Logic ===
         function drag(ev) { 
             const target = ev.currentTarget;
             const name = target.getAttribute("data-name");
             const status = target.getAttribute("data-status") || "online";
-            
-            // 傳遞 JSON 字串
             const payload = JSON.stringify({ name: name, status: status });
             ev.dataTransfer.setData("application/json", payload);
         }
         function allowDrop(ev) { ev.preventDefault(); ev.currentTarget.classList.add('drag-over'); }
         
-        // === 2. 放置邏輯更新 (支援 Offline 效果 & 選單生成) ===
+        // === Drop Logic (Visual Update: Images) ===
         function drop(ev) {
             ev.preventDefault();
             const slot = ev.currentTarget;
             slot.classList.remove('drag-over');
 
-            // 讀取資料
             const dataStr = ev.dataTransfer.getData("application/json");
             if (!dataStr) return;
             const data = JSON.parse(dataStr);
@@ -341,7 +344,7 @@
             let contentHTML = '';
 
             if (data.status === 'offline') {
-                // 渲染彩條
+                // Offline State (Color Bars)
                 slot.classList.add('offline-state');
                 contentHTML = `
                     <div class="slot-label">Window ${windowNum}</div>
@@ -352,28 +355,28 @@
                     </div>
                 `;
             } else {
-                // 渲染正常視訊
+                // Online State (Use Images based on Source Name)
+                let bgUrl = 'https://picsum.photos/id/237/400/300'; // Default Dog
+                if(data.name.includes("Studio")) bgUrl = 'https://picsum.photos/id/64/400/300'; // Portrait/Girl
+                else if(data.name.includes("PTZ")) bgUrl = 'https://picsum.photos/id/1/400/300'; // Tech/Laptop
+
                 contentHTML = `
+                    <div class="video-layer" style="background-image: url('${bgUrl}');"></div>
+                    <div class="video-overlay-gradient"></div>
                     <div class="slot-label">Window ${windowNum}</div>
                     <div class="slot-content">
-                        <div class="slot-name" style="color:#4CAF50;">${data.name}</div>
-                        <div class="slot-meta">Connected</div>
-                        <div class="audio-meter-container" style="margin-top:10px; width:60%; margin-left:auto; margin-right:auto;">
-                            <div class="audio-meter-bar" style="width: 50%; background: #4CAF50;"></div>
-                        </div>
+                        <div class="slot-name">${data.name}</div>
+                        <div class="slot-meta" style="color:#4CAF50;">● Connected</div>
                     </div>
                 `;
             }
 
-            // 加入右上角選單
             contentHTML += renderSlotMenu(slotId);
-            
             slot.innerHTML = contentHTML;
             slot.classList.add('active-slot');
             selectSlot(slotId);
         }
 
-        // === 3. 生成選單 HTML ===
         function renderSlotMenu(slotId) {
             return `
                 <button class="slot-menu-btn" onclick="toggleSlotMenu('${slotId}', event)">•••</button>
@@ -385,7 +388,6 @@
             `;
         }
 
-        // === 4. 選單操作邏輯 ===
         function toggleSlotMenu(slotId, event) {
             event.stopPropagation();
             document.querySelectorAll('.slot-dropdown').forEach(el => {
@@ -401,7 +403,7 @@
             if (!slot) return;
             const windowNum = slotId.split('-')[1];
             slot.classList.remove('active-slot', 'offline-state');
-            slot.innerHTML = `<div class="slot-label">Window ${windowNum}</div><div class="slot-content"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div>`;
+            slot.innerHTML = `<div class="slot-label">Window ${windowNum}</div><div class="slot-content" style="text-align:center;"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div>`;
             if(currentSelectedSlotId === slotId) selectSlot(slotId);
         }
 
@@ -413,11 +415,11 @@
                 selectedEl.classList.add('selected-slot');
                 currentSelectedSlotId = slotId;
                 const windowNum = slotId.split('-')[1];
-                const sourceNameEl = selectedEl.querySelector('.slot-name, .offline-source-name'); // 兼容 offline
+                const sourceNameEl = selectedEl.querySelector('.slot-name');
                 const sourceName = sourceNameEl ? sourceNameEl.innerText : "Empty";
                 const targetText = document.getElementById('ptz-target-display');
                 
-                if(sourceName.includes("Drag") || sourceName === "NO SIGNAL") {
+                if(sourceName.includes("Drag") || sourceName.includes("NO SIGNAL")) {
                     targetText.innerText = `Target: Window ${windowNum} (No Source)`;
                     targetText.style.color = "#888";
                 } else {
@@ -437,17 +439,15 @@
                 layout.innerHTML = createSlot(1);
             } else {
                 layout.className = 'output-layout-quad';
-                // 產生 4 個空槽位
                 for(let i=1; i<=4; i++) layout.innerHTML += createSlot(i);
             }
             selectSlot('slot-1');
         }
         
         function createSlot(num) {
-            return `<div class="preview-slot" id="slot-${num}" onclick="selectSlot('slot-${num}')" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="this.classList.remove('drag-over')"><div class="slot-label">Window ${num}</div><div class="slot-content"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div></div>`;
+            return `<div class="preview-slot" id="slot-${num}" onclick="selectSlot('slot-${num}')" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="this.classList.remove('drag-over')"><div class="slot-label">Window ${num}</div><div class="slot-content" style="text-align:center;"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div></div>`;
         }
 
-        // === 5. UI 回饋 (Toast & Audio Sim) ===
         function showToast(message, type = 'info') {
             let container = document.getElementById('toast-container');
             if (!container) {
@@ -483,15 +483,6 @@
                 document.getElementById('view-encoder').style.display = 'block';
                 badge.innerText = 'ENCODER MODE';
                 badge.style.color = '#007AFF'; badge.style.borderColor = '#007AFF';
-                // Encoder 視圖也要加上音量條
-                const encPreview = document.querySelector('#view-encoder .preview-window');
-                if(!encPreview.querySelector('.audio-meter-container')) {
-                    const meter = document.createElement('div');
-                    meter.className = 'audio-meter-container';
-                    meter.style.width = '60%'; meter.style.marginTop = '20px';
-                    meter.innerHTML = '<div class="audio-meter-bar" style="width: 50%; background: #4CAF50;"></div>';
-                    encPreview.appendChild(meter);
-                }
             } else {
                 root.style.setProperty('--theme-color', '#FF9500'); 
                 document.getElementById('view-decoder').style.display = 'block';
@@ -511,7 +502,6 @@
             document.getElementById('enc-tab-' + tabName).style.display = 'block';
         }
 
-        // Apply 按鈕掛載 Toast
         document.querySelectorAll('.btn-primary').forEach(btn => {
             if(btn.innerText === 'Apply' || btn.innerText === 'Apply Changes') {
                 btn.onclick = function() {
@@ -525,7 +515,6 @@
             }
         });
 
-        // 全域點擊關閉選單
         window.onclick = function(e) {
             if (!e.target.matches('.settings-btn')) {
                 const dropdowns = document.getElementsByClassName("settings-dropdown");
@@ -536,17 +525,6 @@
                  document.querySelectorAll('.slot-dropdown').forEach(el => el.classList.remove('show'));
             }
         }
-
-        // 啟動音訊動畫
-        setInterval(() => {
-            document.querySelectorAll('.audio-meter-bar').forEach(bar => {
-                const vol = Math.floor(Math.random() * (95 - 30 + 1)) + 30;
-                bar.style.width = vol + '%';
-                if(vol > 90) bar.style.background = '#D32F2F';
-                else if(vol > 75) bar.style.background = '#FFC107'; 
-                else bar.style.background = '#4CAF50';
-            });
-        }, 150);
 
         document.addEventListener('DOMContentLoaded', () => { if(document.getElementById('view-decoder').style.display !== 'none') selectSlot('slot-1'); });
     </script>
