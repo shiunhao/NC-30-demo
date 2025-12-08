@@ -1,4 +1,4 @@
-/* style.css - Final V4 (Signal Lost State) */
+/* style.css - Final V5 (Layout Re-structure + Logic Update) */
 
 /* === 1. 全域變數與基礎設定 === */
 * { box-sizing: border-box; }
@@ -61,6 +61,13 @@ body {
 }
 .form-select:focus, .form-input:focus { border-color: var(--theme-color); outline: none; }
 .form-input[readonly] { background-color: #1a1a1a; color: #777; border-color: #333; cursor: not-allowed; }
+
+/* 特殊狀態文字 */
+.status-text-error {
+    width: 100%; background-color: #1a1a1a; border: 1px solid #333;
+    color: #FF3B30; padding: 8px; border-radius: 4px; font-size: 13px;
+    display: block; cursor: not-allowed;
+}
 
 /* 開關 (Switch) */
 .switch { position: relative; display: inline-block; width: 34px; height: 20px; margin-left: auto; }
@@ -193,10 +200,10 @@ input:checked + .slider:before { transform: translateX(14px); }
     min-height: 250px;
 }
 
-/* === 新增：Encoder Signal Lost Overlay === */
+/* Signal Lost Overlay */
 .signal-lost-overlay {
     position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-    background: #000; z-index: 50; display: none; /* 預設隱藏 */
+    background: #000; z-index: 50; display: none;
     flex-direction: column; align-items: center; justify-content: center;
 }
 .signal-lost-icon { font-size: 40px; margin-bottom: 10px; opacity: 0.5; }
