@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NC30 Pro AV Interface (Final Layout)</title>
+    <title>NC30 Pro AV Interface (Final Version)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -98,7 +98,6 @@
                                 <div class="status-cell"><div class="icon-circle"></div>Audio Source: HDMI</div>
                             </div>
                         </div>
-
                     </div>
                     <div class="control-panel">
                         <div style="padding:20px 20px 0 20px;">
@@ -285,11 +284,8 @@
     </div>
 
     <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
-        <div class="modal-box">
-            <h3 id="modalTitle" style="margin-top:0; color:#fff;">Settings</h3>
-            <div style="height:100px; display:flex; align-items:center; justify-content:center; color:#666;">Modal Content Placeholder</div>
-            <button class="btn btn-primary" style="float:right;" onclick="closeModal()">Close</button>
-        </div>
+        <div class="modal-box" id="modalContentBox">
+            </div>
     </div>
 
     <script>
@@ -321,7 +317,6 @@
             else { panel.style.display = "flex"; panel.style.top = "100px"; panel.style.left = "calc(50% - 160px)"; }
         }
 
-        // === Drag Logic ===
         function drag(ev) { 
             const target = ev.currentTarget;
             const name = target.getAttribute("data-name");
@@ -331,7 +326,6 @@
         }
         function allowDrop(ev) { ev.preventDefault(); ev.currentTarget.classList.add('drag-over'); }
         
-        // === Drop Logic (Visual Update: Images) ===
         function drop(ev) {
             ev.preventDefault();
             const slot = ev.currentTarget;
@@ -348,7 +342,6 @@
             let contentHTML = '';
 
             if (data.status === 'offline') {
-                // Offline State (Color Bars)
                 slot.classList.add('offline-state');
                 contentHTML = `
                     <div class="slot-label">Window ${windowNum}</div>
@@ -359,10 +352,9 @@
                     </div>
                 `;
             } else {
-                // Online State (Use Images based on Source Name)
-                let bgUrl = 'https://picsum.photos/id/237/400/300'; // Default Dog
-                if(data.name.includes("Studio")) bgUrl = 'https://picsum.photos/id/64/400/300'; // Portrait/Girl
-                else if(data.name.includes("PTZ")) bgUrl = 'https://picsum.photos/id/1/400/300'; // Tech/Laptop
+                let bgUrl = 'https://picsum.photos/id/237/400/300';
+                if(data.name.includes("Studio")) bgUrl = 'https://picsum.photos/id/64/400/300';
+                else if(data.name.includes("PTZ")) bgUrl = 'https://picsum.photos/id/1/400/300';
 
                 contentHTML = `
                     <div class="video-layer" style="background-image: url('${bgUrl}');"></div>
@@ -472,8 +464,75 @@
         }
 
         function toggleSettings() { document.getElementById('settingsMenu').classList.toggle('show'); }
-        function showModal(title) { document.getElementById('modalTitle').innerText = title; document.getElementById('modalOverlay').style.display = 'flex'; }
-        function closeModal() { document.getElementById('modalOverlay').style.display = 'none'; }
+
+        // === Modal System Update ===
+        function showModal(type) {
+            const box = document.getElementById('modalContentBox');
+            const overlay = document.getElementById('modalOverlay');
+            
+            let content = '';
+
+            if (type === 'Add Manual Source') {
+                content = `
+                    <h3 style="margin-top:0; color:#fff; font-size:16px; border-bottom:1px solid #333; padding-bottom:15px; margin-bottom:20px;">Source Configuration</h3>
+                    
+                    <div class="modal-body-add-source">
+                        <div class="form-group">
+                            <label class="form-label" style="color:#aaa;">Group</label>
+                            <div class="tag-input-container">
+                                <span class="tag-chip">public <span class="tag-close">×</span></span>
+                                <span class="tag-chip">kiloview <span class="tag-close">×</span></span>
+                                <input type="text" class="tag-input-field">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" style="color:#aaa;">* IP</label>
+                            <div class="input-group-row">
+                                <input type="text" class="form-input input-with-btn" placeholder="rtsp:// or 192.168.x.x">
+                                <button class="btn btn-outline btn-square">＋</button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="address-list-header">
+                                <span>Address List</span>
+                                <span class="clear-icon" title="Clear All">🗑️</span>
+                            </div>
+                            <div style="height:100px; background:#1a1a1a; border:1px solid #333; border-radius:4px; display:flex; align-items:center; justify-content:center; color:#444; font-size:12px; font-style:italic;">
+                                No addresses added
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button class="modal-footer-btn" onclick="closeModal()">Cancel</button>
+                        <button class="modal-footer-btn" onclick="addSourceMock()">Confirm</button>
+                    </div>
+                `;
+            } else {
+                content = `
+                    <h3 style="margin-top:0; color:#fff;">${type}</h3>
+                    <div style="height:100px; display:flex; align-items:center; justify-content:center; color:#666;">Settings content for ${type}...</div>
+                    <div style="margin-top:20px; text-align:right;">
+                        <button class="btn btn-primary" onclick="closeModal()">Close</button>
+                    </div>
+                `;
+            }
+
+            box.innerHTML = content;
+            overlay.style.display = 'flex';
+        }
+
+        function closeModal(event) { 
+            if (event && event.target !== document.getElementById('modalOverlay')) return;
+            document.getElementById('modalOverlay').style.display = 'none'; 
+        }
+
+        function addSourceMock() {
+            document.getElementById('modalOverlay').style.display = 'none'; 
+            showToast("New source added successfully!", "success");
+        }
 
         function switchMode(mode) {
             const root = document.documentElement;
@@ -524,7 +583,7 @@
                 const dropdowns = document.getElementsByClassName("settings-dropdown");
                 for (let i = 0; i < dropdowns.length; i++) if (dropdowns[i].classList.contains('show')) dropdowns[i].classList.remove('show');
             }
-            if (e.target.className === 'modal-overlay') closeModal();
+            if (e.target.className === 'modal-overlay') closeModal(e); // 傳入 event
             if (!e.target.matches('.slot-menu-btn')) {
                  document.querySelectorAll('.slot-dropdown').forEach(el => el.classList.remove('show'));
             }
