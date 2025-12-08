@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NC30 Pro AV Interface (Final Version)</title>
+    <title>NC30 Pro AV Interface (Auto Search)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -465,7 +465,7 @@
 
         function toggleSettings() { document.getElementById('settingsMenu').classList.toggle('show'); }
 
-        // === Modal System Update ===
+        // === Modal System Update (New Add Source Logic) ===
         function showModal(type) {
             const box = document.getElementById('modalContentBox');
             const overlay = document.getElementById('modalOverlay');
@@ -478,32 +478,37 @@
                     
                     <div class="modal-body-add-source">
                         <div class="form-group">
+                            <label class="form-label" style="color:#aaa;">Source Name</label>
+                            <input type="text" class="form-input" placeholder="e.g. My Camera 01">
+                        </div>
+
+                        <div class="form-group">
                             <label class="form-label" style="color:#aaa;">Group</label>
                             <div class="tag-input-container">
-                                <span class="tag-chip">public <span class="tag-close">×</span></span>
-                                <span class="tag-chip">kiloview <span class="tag-close">×</span></span>
-                                <input type="text" class="tag-input-field">
+                                <input type="text" class="tag-input-field" placeholder="Add group tags...">
                             </div>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" style="position:relative;">
                             <label class="form-label" style="color:#aaa;">* IP</label>
                             <div class="input-group-row">
-                                <input type="text" class="form-input input-with-btn" placeholder="rtsp:// or 192.168.x.x">
-                                <button class="btn btn-outline btn-square">＋</button>
+                                <input type="text" id="ipInputField" class="form-input input-with-btn" placeholder="rtsp:// or 192.168.x.x">
+                                <button class="btn btn-outline" onclick="toggleAutoSearch()">🔍 Auto Search</button>
+                            </div>
+                            
+                            <div id="ipSearchResults" class="search-results-dropdown" style="display:none;">
+                                <div class="search-result-item" onclick="selectIP('192.168.1.105')">
+                                    <span>192.168.1.105</span><span style="color:#888;">PTZ-New-Cam</span>
+                                </div>
+                                <div class="search-result-item" onclick="selectIP('192.168.1.120')">
+                                    <span>192.168.1.120</span><span style="color:#888;">OBS-Output</span>
+                                </div>
+                                <div class="search-result-item" onclick="selectIP('192.168.1.200')">
+                                    <span>192.168.1.200</span><span style="color:#888;">NDI-Encoder-04</span>
+                                </div>
                             </div>
                         </div>
-
-                        <div class="form-group">
-                            <div class="address-list-header">
-                                <span>Address List</span>
-                                <span class="clear-icon" title="Clear All">🗑️</span>
-                            </div>
-                            <div style="height:100px; background:#1a1a1a; border:1px solid #333; border-radius:4px; display:flex; align-items:center; justify-content:center; color:#444; font-size:12px; font-style:italic;">
-                                No addresses added
-                            </div>
                         </div>
-                    </div>
 
                     <div class="modal-footer">
                         <button class="modal-footer-btn" onclick="closeModal()">Cancel</button>
@@ -522,6 +527,21 @@
 
             box.innerHTML = content;
             overlay.style.display = 'flex';
+        }
+
+        // Auto Search Logic
+        function toggleAutoSearch() {
+            const dropdown = document.getElementById('ipSearchResults');
+            if(dropdown.style.display === 'none') {
+                dropdown.style.display = 'block';
+            } else {
+                dropdown.style.display = 'none';
+            }
+        }
+
+        function selectIP(ip) {
+            document.getElementById('ipInputField').value = ip;
+            document.getElementById('ipSearchResults').style.display = 'none';
         }
 
         function closeModal(event) { 
