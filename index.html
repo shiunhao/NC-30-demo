@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NC30 Pro AV Interface (Final V7)</title>
+    <title>NC30 Pro AV Interface (Final V8)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -221,11 +221,7 @@
                             </div>
 
                         </div>
-                        <div class="panel-footer">
-                            <button class="btn btn-primary" style="width:100%;">Apply</button>
-                            <button class="btn btn-danger" style="width:100%;">Stop</button>
                         </div>
-                    </div>
                 </div>
             </div>
 
@@ -288,11 +284,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div style="margin-top:auto; border-top:1px solid #333; padding-top:20px;">
-                                <button class="btn btn-primary" style="width:100%;">Apply Changes</button>
-                                <button class="btn btn-outline" style="width:100%; margin-top:10px; color:#d32f2f; border-color:#d32f2f;">Clear All Windows</button>
                             </div>
-                        </div>
                     </div>
                     <div class="source-list-panel">
                         <div class="list-toolbar">
@@ -762,19 +754,6 @@
             event.target.classList.add('active');
             document.getElementById('enc-tab-' + tabName).style.display = 'block';
         }
-
-        document.querySelectorAll('.btn-primary').forEach(btn => {
-            if(btn.innerText === 'Apply' || btn.innerText === 'Apply Changes') {
-                btn.onclick = function() {
-                    const originalText = btn.innerText;
-                    btn.innerText = 'Saving...';
-                    setTimeout(() => {
-                        btn.innerText = originalText;
-                        showToast('Settings applied successfully!', 'success');
-                    }, 800);
-                };
-            }
-        });
 
         window.onclick = function(e) {
             if (!e.target.matches('.settings-btn')) {
