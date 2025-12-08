@@ -1,4 +1,4 @@
-/* style.css - Final Integrated Version */
+/* style.css - Visual Update Version (Images) */
 
 /* === 1. 全域變數與基礎設定 === */
 * { box-sizing: border-box; }
@@ -22,11 +22,10 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     margin: 0; padding: 0;
     height: 100vh; width: 100vw;
-    overflow: hidden; /* 防止視窗出現外層捲軸 */
+    overflow: hidden;
 }
 
 /* === 2. 通用 UI 元件 === */
-/* 按鈕 */
 .btn {
     padding: 6px 12px; border-radius: 4px; cursor: pointer;
     border: 1px solid transparent; font-weight: 600; font-size: 13px;
@@ -61,7 +60,7 @@ body {
 }
 .form-select:focus, .form-input:focus { border-color: var(--theme-color); outline: none; }
 
-/* 開關 (Toggle Switch) */
+/* 開關 (Switch) */
 .switch { position: relative; display: inline-block; width: 34px; height: 20px; margin-left: auto; }
 .switch input { opacity: 0; width: 0; height: 0; }
 .slider {
@@ -106,7 +105,7 @@ input:checked + .slider:before { transform: translateX(14px); }
 
 /* === 4. 頁面：大廳 (Home/Lobby) === */
 #page-home {
-    display: none; /* 初始隱藏 */
+    display: none;
     flex-direction: column; align-items: center; justify-content: center;
     height: 100%; width: 100%; background: radial-gradient(circle at center, #2a2a2a 0%, #121212 100%);
     position: absolute; top: 0; left: 0; z-index: 10;
@@ -131,7 +130,7 @@ input:checked + .slider:before { transform: translateX(14px); }
 /* === 5. 主應用框架 (App Shell) === */
 .app-layout {
     display: none; width: 100vw; height: 100vh;
-    grid-template-rows: 60px 1fr; grid-template-columns: 1fr; /* 單欄式佈局，無 Sidebar */
+    grid-template-rows: 60px 1fr; grid-template-columns: 1fr;
 }
 .top-bar {
     grid-row: 1 / 2; grid-column: 1 / -1; 
@@ -188,10 +187,7 @@ input:checked + .slider:before { transform: translateX(14px); }
     position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden;
     min-height: 250px;
 }
-.preview-label {
-    position: absolute; top: 20px; left: 20px; background: rgba(0,0,0,0.7);
-    padding: 6px 12px; border-radius: 4px; font-size: 14px; color: #fff; font-weight: 500;
-}
+
 .control-panel {
     background: #1E1E1E; border-left: 1px solid #333; 
     display: flex; flex-direction: column; height: 100%;
@@ -210,10 +206,10 @@ input:checked + .slider:before { transform: translateX(14px); }
 }
 .decoder-top-grid {
     display: grid; grid-template-columns: 2fr 1fr; gap: 20px; 
-    height: 60%; min-height: 400px; /* 固定高度佔比 */
+    height: 60%; min-height: 400px;
 }
 
-/* Output Preview (Grid System) */
+/* Output Preview */
 .output-container {
     background: #000; border: 1px solid #333; border-radius: 8px;
     position: relative; overflow: hidden; display: flex; flex-direction: column;
@@ -227,10 +223,36 @@ input:checked + .slider:before { transform: translateX(14px); }
     background: #0a0a0a; position: relative; width: 100%; height: 100%;
     display: flex; align-items: center; justify-content: center;
     border: 2px solid transparent; transition: all 0.2s; cursor: pointer;
+    overflow: hidden; /* 確保圖片不溢出 */
 }
 .preview-slot.drag-over { border-color: var(--theme-color); background: #1a1a1a; border-style: dashed; }
 .preview-slot.active-slot { border: 1px solid #444; }
-.preview-slot.selected-slot { border: 2px solid var(--theme-color); box-shadow: inset 0 0 15px rgba(0, 122, 255, 0.3); z-index: 10; }
+.preview-slot.selected-slot { border: 2px solid var(--theme-color); z-index: 10; }
+
+/* === 新增：Video/Image Layer (處理圖片顯示) === */
+.video-layer {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background-size: cover; background-position: center; background-repeat: no-repeat;
+    z-index: 1; /* 圖片在最底層 */
+}
+/* 遮罩層：讓文字更清晰 */
+.video-overlay-gradient {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 50%;
+    background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+    z-index: 2; pointer-events: none;
+}
+/* 標籤與內容層 */
+.slot-label {
+    position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.6);
+    padding: 2px 8px; border-radius: 4px; font-size: 11px; color: #fff; pointer-events: none;
+    z-index: 10;
+}
+.slot-content { 
+    position: absolute; bottom: 10px; left: 10px; right: 10px;
+    text-align: left; pointer-events: none; z-index: 10;
+}
+.slot-name { font-size: 16px; font-weight: bold; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+.slot-meta { font-size: 12px; color: #ccc; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
 
 /* Offline Source Style (彩條效果) */
 .preview-slot.offline-state {
@@ -239,7 +261,7 @@ input:checked + .slider:before { transform: translateX(14px); }
 }
 .offline-overlay {
     position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(0, 0, 0, 0.4); z-index: 10;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     pointer-events: none;
 }
@@ -250,20 +272,11 @@ input:checked + .slider:before { transform: translateX(14px); }
 }
 .offline-source-name { margin-top: 5px; color: #ddd; font-size: 11px; text-shadow: 0 1px 2px #000; }
 
-.slot-label {
-    position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.6);
-    padding: 2px 8px; border-radius: 4px; font-size: 11px; color: #fff; pointer-events: none;
-}
-.slot-content { text-align: center; pointer-events: none; }
-.slot-name { font-size: 16px; font-weight: bold; color: #fff; display: block; }
-.slot-meta { font-size: 12px; color: #888; }
-
 /* Decoder Settings Panel */
 .decoder-settings-card {
     background: #1E1E1E; border: 1px solid #333; border-radius: 8px; 
     display: flex; flex-direction: column; overflow: hidden;
-    padding: 30px; gap: 20px; 
-    min-height: 0; /* 關鍵修正：防止版面撐破 */
+    padding: 30px; gap: 20px; min-height: 0;
 }
 .settings-scroll-area {
     overflow-y: auto; flex: 1; padding-right: 5px;
@@ -313,7 +326,7 @@ input:checked + .slider:before { transform: translateX(14px); }
 .status-ok { color: var(--success-color); }
 .status-warn { color: var(--warn-color); }
 
-/* === 8. Draggable PTZ Panel === */
+/* Draggable PTZ Panel */
 .draggable-panel {
     position: absolute; width: 320px; background-color: rgba(30, 30, 30, 0.95);
     border: 1px solid #444; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.6);
@@ -366,19 +379,7 @@ input:checked + .slider:before { transform: translateX(14px); }
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
 
-@keyframes meter { 0% { width: 10%; } 100% { width: 80%; } }
-
-/* === 新增功能樣式 (Update) === */
-
-/* Audio VU Meter (音訊跳動條) */
-.audio-meter-container {
-    width: 100%; height: 6px; background: #333; border-radius: 3px; overflow: hidden; position: relative; margin-top: 8px;
-}
-.audio-meter-bar {
-    height: 100%; width: 0%; transition: width 0.1s linear, background-color 0.2s;
-}
-
-/* Toast Notification (通知提示) */
+/* Toast Notification */
 #toast-container {
     position: fixed; bottom: 20px; right: 20px; z-index: 3000;
     display: flex; flex-direction: column; gap: 10px; pointer-events: none;
@@ -411,7 +412,6 @@ input:checked + .slider:before { transform: translateX(14px); }
 .preview-slot:hover .slot-menu-btn, .slot-menu-btn.active { opacity: 1; }
 .slot-menu-btn:hover { background: var(--theme-color); border-color: var(--theme-color); }
 
-/* 下拉選單 */
 .slot-dropdown {
     position: absolute; top: 35px; right: 8px;
     background: #252526; border: 1px solid #444;
@@ -428,7 +428,6 @@ input:checked + .slider:before { transform: translateX(14px); }
 .slot-action:hover { background: #333; }
 .slot-action.danger:hover { background: #D32F2F; color: white; }
 
-/* 修正：Offline 狀態下也要能看到選單 */
 .preview-slot.offline-state .slot-menu-btn {
     background: rgba(0,0,0,0.8); border-color: #555;
 }
