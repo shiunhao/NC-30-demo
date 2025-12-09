@@ -1,4 +1,4 @@
-/* style.css - Final V13 (Direct Settings & Account Update) */
+/* style.css - Final V14 (Date & Time Update) */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -60,7 +60,7 @@ body {
     color: #fff; padding: 8px; border-radius: 4px; font-size: 13px;
 }
 .form-select:focus, .form-input:focus { border-color: var(--theme-color); outline: none; }
-.form-input[readonly] { background-color: #1a1a1a; color: #777; border-color: #333; cursor: not-allowed; }
+.form-input[readonly], .form-input[disabled] { background-color: #1a1a1a; color: #777; border-color: #333; cursor: not-allowed; }
 
 /* Error Text */
 .status-text-error {
