@@ -1,4 +1,4 @@
-/* style.css - Final Demo Version (V3 - Final Tweaks) */
+/* style.css - Final Demo Version (V4 - Full Logic) */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -14,7 +14,7 @@
     --danger-color: #D32F2F;
     --success-color: #4CAF50;
     --ptz-bg: #222222;
-    --ptz-thumb: #C69C6D; /* Gold/Tan color from image */
+    --ptz-thumb: #C69C6D; /* Gold/Tan color */
 }
 
 body {
@@ -204,14 +204,22 @@ input:checked + .slider:before { transform: translateX(14px); }
 .decoder-left-col { display: flex; flex-direction: column; gap: 20px; height: 100%; overflow: hidden; }
 .output-container { background: #000; border: 1px solid #333; border-radius: 8px; position: relative; overflow: hidden; display: flex; flex-direction: column; flex: 0 0 60%; min-height: 300px; }
 
-/* Output Header */
+/* Output Header - Dynamic Info Styles */
 .output-header-bar {
     background: #1a1a1a; padding: 10px 15px; border-bottom: 1px solid #333;
     display: flex; justify-content: space-between; align-items: center;
 }
-.output-header-title { color: #fff; font-weight: bold; font-size: 14px; }
-.output-header-controls { display: flex; align-items: center; gap: 15px; }
-.res-tag { color: var(--ptz-thumb); font-size: 12px; font-family: monospace; font-weight: bold; }
+.header-left { display: flex; align-items: center; }
+.header-title { color: #ccc; font-weight: bold; font-size: 14px; margin-right: 20px; }
+
+.header-info-container { display: flex; gap: 10px; }
+.header-info-block {
+    background: #000; padding: 4px 10px; border-radius: 4px;
+    display: flex; flex-direction: column; min-width: 100px;
+}
+.info-label { font-size: 10px; color: #777; margin-bottom: 2px; }
+.info-value-row { font-size: 12px; color: #fff; font-weight: bold; display: flex; gap: 6px; }
+.info-value { color: #FF9500; font-size: 12px; font-weight: bold; }
 
 .output-layout-single { width: 100%; height: 100%; display: flex; }
 .output-layout-quad { width: 100%; height: 100%; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 2px; background: #333; }
@@ -279,7 +287,7 @@ input:checked + .slider:before { transform: translateX(14px); }
 .preset-badge { display: inline-block; background: #6D4C41; color: #fff; font-size: 11px; width: 20px; height: 20px; line-height: 20px; text-align: center; border-radius: 2px; }
 .action-col { width: 120px; text-align: right; padding-right: 30px !important; }
 
-/* === Draggable PTZ (REMODELED V3 - Square Grid) === */
+/* === Draggable PTZ (Square Grid) === */
 .draggable-panel {
     display: none; position: absolute; top: 100px; right: 400px; width: 260px;
     background: var(--ptz-bg); border-radius: 8px; border: 1px solid #444;
