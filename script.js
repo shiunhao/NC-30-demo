@@ -123,7 +123,6 @@ function checkModalValidity() {
     }
 }
 
-// Auto Search Logic (Modal)
 function openAutoSearch() {
     document.getElementById('modal-auto-search').style.display = 'flex';
     selectedAutoSearchIp = null;
