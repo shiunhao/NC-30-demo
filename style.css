@@ -1,4 +1,4 @@
-/* style.css - Final Fixed V35 (Add Source UI Fix) */
+/* style.css - Final Fixed V36 (Reboot Loading Fix, PTZ Tweak, Status Icons) */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -15,7 +15,6 @@
     --success-color: #4CAF50;
     --warn-color: #FFC107;
     --ptz-orange: #E67E22;
-    --list-selected-border: #E67E22;
 }
 
 body {
@@ -42,13 +41,12 @@ body {
 .btn-danger:hover { background-color: var(--danger-color); color: #fff; }
 .btn-icon { padding: 6px; border: none; background: transparent; color: #888; font-size: 16px; cursor: pointer; }
 .btn-icon:hover { color: #fff; background: rgba(255,255,255,0.1); border-radius: 4px; }
-.btn-square { width: 36px; padding: 0; font-size: 18px; font-weight: bold; }
 
-/* Icon Placeholders with Background */
+/* FIX 1: Icon Placeholders with Background */
 .icon-bg {
-    background-color: #333; border-radius: 50%; width: 24px; height: 24px;
+    background-color: #333; border-radius: 50%; width: 28px; height: 28px;
     display: inline-flex; align-items: center; justify-content: center;
-    font-size: 10px; color: #ccc; margin-right: 5px;
+    font-size: 10px; color: #ccc; margin-right: 0; border: 1px solid #444;
 }
 
 /* Panel Containers */
@@ -66,7 +64,7 @@ body {
 .form-label { display: block; color: var(--text-sub); font-size: 12px; margin-bottom: 5px; }
 .form-select, .form-input {
     width: 100%; background-color: #252526; border: 1px solid #444;
-    color: #fff; padding: 8px; border-radius: 4px; font-size: 13px;
+    color: #fff; padding: 10px; border-radius: 4px; font-size: 13px;
 }
 .form-select:focus, .form-input:focus { border-color: var(--theme-color); outline: none; }
 .form-input[readonly] { background-color: #1a1a1a; color: #777; border-color: #333; cursor: not-allowed; }
@@ -75,13 +73,6 @@ body {
 .radio-group { display: flex; gap: 15px; align-items: center; }
 .radio-label { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #ccc; cursor: pointer; }
 .radio-label input { accent-color: var(--theme-color); }
-
-/* Error Text */
-.status-text-error {
-    width: 100%; background-color: #1a1a1a; border: 1px solid #333;
-    color: #FF3B30; padding: 8px; border-radius: 4px; font-size: 13px;
-    display: block; cursor: not-allowed;
-}
 
 /* Switch */
 .switch { position: relative; display: inline-block; width: 34px; height: 20px; margin-left: auto; }
@@ -187,7 +178,7 @@ input:checked + .slider:before { transform: translateX(14px); }
     background: rgba(0,0,0,0.3); border: 1px solid var(--theme-color); color: var(--theme-color); text-transform: uppercase;
 }
 
-/* === TOP BAR RIGHT SIDE === */
+/* === TOP BAR RIGHT SIDE (FIX 4 - Status Icons) === */
 .header-right { display: flex; align-items: center; gap: 15px; }
 
 .tally-indicator {
@@ -197,12 +188,12 @@ input:checked + .slider:before { transform: translateX(14px); }
 
 .header-center-group { display: flex; gap: 12px; align-items: center; margin: 0 15px; }
 .status-circle {
-    width: 32px; height: 32px; border-radius: 50%; background: #333;
+    width: 36px; height: 36px; border-radius: 50%; background: #2a2a2a;
     display: flex; align-items: center; justify-content: center;
     color: #bbb; font-size: 16px; cursor: help; transition: 0.2s;
-    border: 1px solid transparent;
+    border: 1px solid #444; box-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
-.status-circle:hover { color: #fff; background: #444; border-color: #555; }
+.status-circle:hover { color: #fff; background: #444; border-color: #666; transform: translateY(-1px); }
 
 .vertical-divider { width: 1px; height: 24px; background: #444; margin: 0 5px; }
 
@@ -419,7 +410,6 @@ body.user-mode .ctrl-tabs, body.user-mode .sub-tabs { pointer-events: auto !impo
 }
 .offline-source-name { margin-top: 5px; color: #ddd; font-size: 11px; text-shadow: 0 1px 2px #000; }
 
-/* Right Column: Settings - Takes full height of its grid cell */
 .decoder-settings-card {
     background: #1E1E1E; border: 1px solid #333; border-radius: 8px; 
     display: flex; flex-direction: column; overflow: hidden;
@@ -470,7 +460,7 @@ body.user-mode .ctrl-tabs, body.user-mode .sub-tabs { pointer-events: auto !impo
 .source-row { border-bottom: 1px solid #2a2a2a; transition: background 0.1s; cursor: grab; }
 .source-row:active { cursor: grabbing; background: #2a2a2a; }
 .source-row:hover { background-color: #252525; }
-.source-row.selected { background: #2a2a2a; } /* Orange border removed per V31 */
+.source-row.selected { background: #2a2a2a; }
 
 .source-row td { padding: 10px; vertical-align: middle; }
 
@@ -508,7 +498,7 @@ body.user-mode .ctrl-tabs, body.user-mode .sub-tabs { pointer-events: auto !impo
 .btn-small:hover { background: #444; color: #fff; }
 
 
-/* === 8. Draggable Floating Panels (PTZ SIMPLIFIED) === */
+/* === 8. Draggable Floating Panels (PTZ FIX V36) === */
 .draggable-panel {
     display: none; position: absolute;
     top: 100px; right: 400px; 
@@ -516,12 +506,12 @@ body.user-mode .ctrl-tabs, body.user-mode .sub-tabs { pointer-events: auto !impo
     background: #252526; border: 1px solid #444; border-radius: 8px;
     box-shadow: 0 10px 40px rgba(0,0,0,0.8);
     z-index: 1000; overflow: visible; user-select: none;
-    padding-top: 10px; /* Space for close btn */
+    padding: 15px; /* Unified padding */
 }
 
-/* V34 FIX: Floating Close Button Position Left */
+/* V36 FIX: Floating Close Button Left Adjusted */
 .ptz-floating-close {
-    position: absolute; top: 12px; right: 15px;
+    position: absolute; top: 12px; right: 25px; /* Move left away from edge */
     background: rgba(0,0,0,0.5); color: #ccc;
     width: 24px; height: 24px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
@@ -561,15 +551,16 @@ input[type=range].ptz-range::-moz-range-thumb {
     width: 14px; height: 14px; border-radius: 50%; background: var(--ptz-orange); cursor: pointer; border: 2px solid #222;
 }
 
-/* Preset Area - V34 Fix: Aligned with Pad */
+/* Preset Area - V36 Fix: Bigger Buttons to match Pad */
 .ptz-preset-area { margin-top: 5px; }
 .preset-num-grid {
     display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;
     background: #222; padding: 4px; border: 1px solid #333; border-radius: 4px;
-    height: 120px; /* Force height to match similar weight */
+    /* Removed fixed height, let buttons define height */
 }
 .preset-num-grid button {
-    background: #333; border: none; color: #ccc; font-size: 14px; cursor: pointer; border-radius: 2px;
+    background: #333; border: none; color: #ccc; font-size: 16px; font-weight: bold;
+    cursor: pointer; border-radius: 2px; height: 40px; /* Taller buttons */
 }
 .preset-num-grid button:hover { background: #444; color: #fff; }
 .preset-num-grid button:active { background: var(--theme-color); }
@@ -593,17 +584,33 @@ input[type=range].ptz-range::-moz-range-thumb {
 }
 .modal-close-x:hover { color: #fff; }
 
-/* V35 FIX: Add Source Modal Footer Buttons */
-.modal-footer {
-    display: flex; gap: 10px; padding-top: 20px; margin-top: 20px; border-top: 1px solid #333;
+/* V36 FIX: Add Source Modal Footer Grid */
+.modal-footer-split {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 0; border-top: 1px solid #333; margin-top: 20px; padding-top: 0;
 }
-.modal-btn-white {
-    background: #eee; color: #333; border: none; padding: 8px 16px; 
-    border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold;
-    transition: background 0.2s;
+.modal-btn-cancel {
+    background: transparent; color: #ccc; border: none; font-weight: bold; cursor: pointer; border-right: 1px solid #333; padding: 15px; font-size: 14px;
 }
-.modal-btn-white:hover { background: #fff; }
+.modal-btn-cancel:hover { color: #fff; background: rgba(255,255,255,0.05); }
+.modal-btn-confirm {
+    background: transparent; color: var(--theme-color); border: none; font-weight: bold; cursor: pointer; padding: 15px; font-size: 14px;
+}
+.modal-btn-confirm:hover { color: #fff; background: rgba(255,255,255,0.05); }
 
+/* V36 FIX: Reboot Warning Modal Specifics */
+.reboot-warning-content { text-align: center; }
+.reboot-icon { font-size: 50px; margin-bottom: 15px; color: #FFC107; /* Yellow Warning */ }
+.reboot-title { color: #fff; font-size: 20px; font-weight: bold; margin-bottom: 10px; }
+.reboot-desc { color: #ccc; font-size: 14px; line-height: 1.5; margin-bottom: 30px; }
+.reboot-btn-group { display: flex; gap: 15px; justify-content: center; }
+.btn-reboot-cancel {
+    background: transparent; border: 1px solid #555; color: #ccc; padding: 10px 24px; border-radius: 4px; cursor: pointer; font-size: 14px;
+}
+.btn-reboot-cancel:hover { border-color: #fff; color: #fff; }
+.btn-reboot-confirm {
+    background: transparent; border: 1px solid #D32F2F; color: #D32F2F; padding: 10px 24px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px;
+}
+.btn-reboot-confirm:hover { background: #D32F2F; color: #fff; }
 
 #toast-container {
     position: fixed; top: 80px; right: 20px; z-index: 3000;
@@ -625,16 +632,11 @@ input[type=range].ptz-range::-moz-range-thumb {
 }
 
 /* === MODAL SETTINGS FIX === */
-/* Ensure flexbox works correctly in large settings modal */
 #modal-large-settings .modal-box {
     width: 800px; height: 550px; padding: 0; overflow: hidden; display: flex; flex-direction: row;
 }
-
-/* Left Sidebar - Fixed Width */
 .settings-sidebar {
-    width: 200px; 
-    flex-shrink: 0; /* Prevent shrinking */
-    background: #1a1a1a; border-right: 1px solid #333;
+    width: 200px; flex-shrink: 0; background: #1a1a1a; border-right: 1px solid #333;
     display: flex; flex-direction: column; padding: 20px 0;
 }
 .sidebar-category {
@@ -645,12 +647,8 @@ input[type=range].ptz-range::-moz-range-thumb {
 }
 .sidebar-item:hover { background: #252526; color: #fff; }
 .sidebar-item.active { background: #252526; color: #fff; border-left-color: var(--theme-color); font-weight: bold; }
-
-/* Right Content Area - Flex Grow & Hidden Overflow */
 .settings-content-area {
-    flex: 1; 
-    min-width: 0; /* Important for flex child text overflow */
-    display: flex; flex-direction: column; background: var(--panel-color);
+    flex: 1; min-width: 0; display: flex; flex-direction: column; background: var(--panel-color);
 }
 .settings-header {
     height: 60px; border-bottom: 1px solid #333; display: flex; align-items: center; justify-content: space-between; padding: 0 30px;
@@ -658,13 +656,10 @@ input[type=range].ptz-range::-moz-range-thumb {
 .settings-title { font-size: 18px; font-weight: bold; color: #fff; }
 .settings-close-btn { cursor: pointer; font-size: 20px; color: #888; }
 .settings-close-btn:hover { color: #fff; }
-
 .settings-body {
     flex: 1; padding: 30px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px;
 }
-.settings-subsection {
-    margin-bottom: 20px;
-}
+.settings-subsection { margin-bottom: 20px; }
 .settings-subsection-title {
     font-size: 14px; font-weight: bold; color: var(--theme-color); border-bottom: 1px solid #333;
     padding-bottom: 8px; margin-bottom: 15px;
