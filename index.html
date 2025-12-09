@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NC30 Pro AV Interface (Final Fixed V31)</title>
+    <title>NC30 Pro AV Interface (Final Fixed V32)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -48,19 +48,38 @@
         <div class="top-bar">
             <div class="back-btn" onclick="goHome()"><span>🏠 Mode Select</span></div>
             <div class="mode-badge" id="current-mode-badge">ENCODER MODE</div>
-            <div style="display:flex; gap:20px; align-items:center;">
-                <div class="tally-indicator">🔴 LIVE</div>
-                <div class="settings-container">
-                    <div id="btn-settings-gear" class="settings-btn" onclick="openFullSettings('audio')">⚙️</div>
+            
+            <div class="header-right">
+                <div class="tally-indicator">LIVE</div>
+                
+                <div class="header-center-group">
+                    <div class="status-circle" title="NDI Status">Icon</div>
+                    <div class="status-circle" title="CPU">Icon</div>
+                    <div class="status-circle" title="Network">Icon</div>
                 </div>
+                
+                <div class="vertical-divider"></div>
+
                 <div class="settings-container">
-                    <div id="btn-account-avatar" class="settings-btn" onclick="toggleAccountMenu()">👤</div>
-                    <div class="settings-dropdown" id="accountMenu">
-                        <a class="dropdown-item" onclick="actionAdminMode()"><span>🔑</span> Admin</a>
-                        <a class="dropdown-item" onclick="actionUserMode()"><span>👤</span> User</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" onclick="actionLogout()" style="color:#FF3B30;"><span>🚪</span> Logout</a>
+                    <div id="btn-account-avatar" class="account-pill" onclick="toggleAccountMenu()">
+                        <span id="current-user-label">Admin</span> <span>Icon</span>
                     </div>
+                    <div class="settings-dropdown" id="accountMenu">
+                        <div class="dropdown-item active" id="role-admin" onclick="actionAdminMode()">
+                            <span>Icon</span> Admin
+                        </div>
+                        <div class="dropdown-item" id="role-user" onclick="actionUserMode()">
+                            <span>Icon</span> User
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-item" onclick="actionLogout()" style="color:#FF3B30;">
+                            <span>Icon</span> Logout
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-container">
+                    <div id="btn-settings-gear" class="settings-btn" onclick="openFullSettings('audio')">Icon</div>
                 </div>
             </div>
         </div>
@@ -73,7 +92,7 @@
                             <div class="video-layer" style="background-image: url('https://picsum.photos/id/10/800/600');"></div>
                             <div class="video-overlay-gradient"></div>
                             <div id="signalLostOverlay" class="signal-lost-overlay">
-                                <div class="signal-lost-icon">⚠️</div>
+                                <div class="signal-lost-icon">Icon</div>
                                 <div class="signal-lost-text">No Source Detected</div>
                             </div>
                             <div class="preview-label">HDMI 4K</div>
@@ -248,7 +267,7 @@
                     <div class="decoder-settings-card">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                             <span class="panel-title" style="margin:0; border:none;">DECODING SETTINGS</span>
-                            <button class="btn btn-primary" onclick="togglePTZ()" style="padding:4px 10px; font-size:12px;">🕹️ Open PTZ</button>
+                            <button class="btn btn-primary" onclick="togglePTZ()" style="padding:4px 10px; font-size:12px;">Icon Open PTZ</button>
                         </div>
                         <div class="settings-scroll-area">
                             <div>
@@ -404,12 +423,12 @@
             <div class="upgrade-modal-input-group">
                 <label class="form-label">Username</label>
                 <input type="text" class="form-input" id="upgradeUser" placeholder="">
-                <span class="upgrade-modal-icon">👤</span>
+                <span class="upgrade-modal-icon">Icon</span>
             </div>
             <div class="upgrade-modal-input-group">
                 <label class="form-label">Password</label>
                 <input type="password" class="form-input" id="upgradePass" placeholder="">
-                <span class="upgrade-modal-icon">🔒</span>
+                <span class="upgrade-modal-icon">Icon</span>
             </div>
             <div class="modal-footer">
                 <button class="modal-footer-btn" onclick="closeSpecificModal('modal-upgrade-permission')">Cancel</button>
@@ -474,9 +493,22 @@
             updateHomeUI();
         }
 
+        // === Updated Account UI Logic ===
+        function updateAccountUI() {
+            // Update Top Bar Label
+            const label = document.getElementById('current-user-label');
+            label.innerText = currentUserRole === 'admin' ? 'Admin' : 'User';
+
+            // Update Dropdown Active State
+            document.querySelectorAll('.dropdown-item').forEach(el => el.classList.remove('active'));
+            if(currentUserRole === 'admin') document.getElementById('role-admin').classList.add('active');
+            else document.getElementById('role-user').classList.add('active');
+        }
+
         function actionUserMode() {
             currentUserRole = 'user';
             document.body.classList.add('user-mode');
+            updateAccountUI(); // Update UI
             showToast("Switched to User Mode (View Only)", "success");
             document.getElementById('accountMenu').classList.remove('show');
         }
@@ -497,6 +529,7 @@
             if(u && p) {
                 currentUserRole = 'admin';
                 document.body.classList.remove('user-mode');
+                updateAccountUI(); // Update UI
                 closeSpecificModal('modal-upgrade-permission');
                 showToast("Permissions Upgraded to Admin", "success");
                 document.getElementById('upgradeUser').value = '';
@@ -577,6 +610,7 @@
             }
             else if (tabId === 'account') {
                 titleEl.innerText = "Account Settings";
+                // Updated Account Content (Admin + User)
                 htmlContent = `
                     <div class="settings-subsection">
                         <div class="settings-subsection-title">Admin Account</div>
@@ -748,7 +782,7 @@
                 contentHTML = `
                     <div class="slot-label">Window ${windowNum}</div>
                     <div class="offline-overlay">
-                        <div class="offline-icon">⚠️</div>
+                        <div class="offline-icon">Icon</div>
                         <div class="offline-text">No Source Detected</div>
                         <div class="offline-source-name">${data.name}</div>
                     </div>
@@ -780,9 +814,9 @@
             return `
                 <button class="slot-menu-btn" onclick="toggleSlotMenu('${slotId}', event)">•••</button>
                 <div class="slot-dropdown" id="menu-${slotId}">
-                    <button class="slot-action" onclick="alert('Edit functionality coming soon!')">✏️ Edit</button>
+                    <button class="slot-action" onclick="alert('Edit functionality coming soon!')">Icon Edit</button>
                     <div style="height:1px; background:#444; margin:2px 0;"></div>
-                    <button class="slot-action danger" onclick="removeSource('${slotId}')">🗑️ Remove</button>
+                    <button class="slot-action danger" onclick="removeSource('${slotId}')">Icon Remove</button>
                 </div>
             `;
         }
@@ -949,7 +983,7 @@
                             <label class="form-label" style="color:#aaa;">* IP</label>
                             <div class="input-group-row">
                                 <input type="text" id="inputSrcIP" class="form-input input-with-btn" placeholder="rtsp:// or 192.168.x.x">
-                                <button class="btn btn-outline" onclick="showSearchOverlay()">🔍 Auto Search</button>
+                                <button class="btn btn-outline" onclick="showSearchOverlay()">Icon Auto Search</button>
                             </div>
                         </div>
                     </div>
