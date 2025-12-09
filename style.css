@@ -1,4 +1,4 @@
-/* style.css - Final V10 (Account & User Mode) */
+/* style.css - Final V11 (Header Fix for User Mode) */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -201,20 +201,30 @@ input:checked + .slider:before { transform: translateX(14px); }
     background-color: #121212; padding: 20px 40px; overflow-y: auto;
 }
 
-/* === USER MODE STYLES === */
-/* When body has .user-mode, disable controls and hide nav */
-body.user-mode .back-btn, 
-body.user-mode .settings-btn {
-    display: none !important;
+/* === USER MODE STYLES (Update: Visually disabled but visible) === */
+/* Disable Header Navigation items */
+body.user-mode .back-btn,
+body.user-mode #btn-settings-gear {
+    opacity: 0.5; 
+    cursor: not-allowed;
+    /* We handle clicks via JS to ensure they don't do anything */
 }
+
+/* Ensure Account Menu stays active */
+body.user-mode #btn-account-avatar {
+    opacity: 1; 
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+/* Disable Content Interaction */
 body.user-mode .control-panel,
 body.user-mode .decoder-settings-card,
 body.user-mode .source-list-panel {
     pointer-events: none;
     opacity: 0.7;
 }
-/* Unlock specific parts if needed (Tabs are usually okay to click to see config, but requested 'no UI control') */
-/* Keeping tabs click-able for viewing but inner inputs disabled */
+/* Ensure inner form elements don't get events */
 body.user-mode .control-panel input,
 body.user-mode .control-panel select,
 body.user-mode .control-panel button,
@@ -225,7 +235,7 @@ body.user-mode .source-list-panel button {
     pointer-events: none !important;
     opacity: 0.5;
 }
-/* Allow tabs to be clicked for viewing different pages */
+/* Allow tabs switching for viewing */
 body.user-mode .ctrl-tabs, body.user-mode .sub-tabs {
     pointer-events: auto !important;
     opacity: 1;
@@ -602,7 +612,6 @@ body.user-mode .ctrl-tabs, body.user-mode .sub-tabs {
 }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-/* Upgrade Permission Modal Style */
 .upgrade-modal-input-group {
     position: relative; margin-bottom: 15px;
 }
