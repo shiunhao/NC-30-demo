@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NC30 Pro AV Interface (Final Fixed V18)</title>
+    <title>NC30 Pro AV Interface (Final Fixed V19)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -82,7 +82,7 @@
                             <div class="video-layer" style="background-image: url('https://picsum.photos/id/10/800/600');"></div>
                             <div class="video-overlay-gradient"></div>
                             <div id="signalLostOverlay" class="signal-lost-overlay">
-                                <div class="signal-lost-icon">⚠️</div>
+                                <div class="signal-lost-icon">Icon</div>
                                 <div class="signal-lost-text">No Source Detected</div>
                             </div>
                             <div class="preview-label">HDMI 4K</div>
@@ -262,10 +262,8 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <div id="ptz-panel" class="draggable-panel">
+            <div id="ptz-panel" class="draggable-panel">
         <div class="panel-header-drag" id="ptz-header">
             <div style="display:flex; flex-direction:column; line-height:1.2;">
                 <span>🕹️ PTZ Controller</span>
@@ -441,10 +439,9 @@
         function confirmLogout() { location.reload(); }
         function closeSpecificModal(id) { document.getElementById(id).style.display = 'none'; }
 
-        // === NEW Settings Modal Logic ===
+        // === Modal & Settings Logic ===
         function openFullSettings(tab) {
-            if (currentUserRole === 'user') return; // User mode check
-            
+            if (currentUserRole === 'user') return;
             document.getElementById('modal-large-settings').style.display = 'flex';
             switchSettingsTab(tab);
         }
@@ -456,159 +453,49 @@
 
             const titleEl = document.getElementById('settings-title');
             const bodyEl = document.getElementById('settings-body-content');
-            
             let htmlContent = '';
 
             if (tabId === 'audio') {
                 titleEl.innerText = "Audio Settings";
-                htmlContent = `
-                    <div class="settings-subsection">
-                        <div class="settings-subsection-title">Basic Audio</div>
-                        <div class="form-group"><label class="form-label">Source Select</label><select class="form-select"><option>Auto</option><option>HDMI</option><option>3.5mm</option></select></div>
-                        <div class="form-group"><label class="form-label">Volume (Gain)</label><input type="range" style="width:100%;"></div>
-                        <div class="form-group"><label class="form-label">Audio Delay (Lip-sync)</label><input type="range" min="-500" max="500" value="0" style="width:100%;"><div style="text-align:right; font-size:11px; color:#888;">0ms</div></div>
-                    </div>`;
-            } 
-            else if (tabId === 'network') {
+                htmlContent = `<div class="settings-subsection"><div class="settings-subsection-title">Basic Audio</div><div class="form-group"><label class="form-label">Source Select</label><select class="form-select"><option>Auto</option><option>HDMI</option><option>3.5mm</option></select></div><div class="form-group"><label class="form-label">Volume (Gain)</label><input type="range" style="width:100%;"></div><div class="form-group"><label class="form-label">Audio Delay</label><input type="range" min="-500" max="500" value="0" style="width:100%;"></div></div>`;
+            } else if (tabId === 'network') {
                 titleEl.innerText = "IP Configuration";
-                htmlContent = `
-                    <div class="settings-subsection">
-                        <div class="settings-subsection-title">IPv4</div>
-                        <div class="form-group"><label class="form-label">Mode</label><select class="form-select"><option>DHCP</option><option>Static IP</option></select></div>
-                        <div class="form-group"><label class="form-label">IP Address</label><input type="text" class="form-input" value="192.168.1.100"></div>
-                        <div class="form-group"><label class="form-label">Subnet Mask</label><input type="text" class="form-input" value="255.255.255.0"></div>
-                        <div class="form-group"><label class="form-label">Gateway</label><input type="text" class="form-input" value="192.168.1.1"></div>
-                        <div class="form-group"><label class="form-label">DNS</label><input type="text" class="form-input" value="8.8.8.8"></div>
-                    </div>`;
-            }
-            else if (tabId === 'ndi') {
-                titleEl.innerText = "Advanced NDI";
-                htmlContent = `
-                    <div class="settings-subsection">
-                        <div class="settings-subsection-title">Transport</div>
-                        <div class="form-group"><label class="form-label">Connection Mode</label><select class="form-select"><option>Auto (RUDP)</option><option>TCP</option><option>Multicast</option></select></div>
-                        <div class="form-group"><label class="form-label">Multicast Address</label><input type="text" class="form-input" placeholder="e.g. 239.255.0.1"></div>
-                    </div>
-                    <div class="settings-subsection">
-                        <div class="settings-subsection-title">Discovery</div>
-                        <div class="form-group"><label class="form-label">Discovery Server IP</label><input type="text" class="form-input"></div>
-                    </div>`;
-            }
-            else if (tabId === 'general') {
-                titleEl.innerText = "General Settings";
-                htmlContent = `
-                    <div class="form-group"><label class="form-label">Device Name</label><input type="text" class="form-input" value="AVer NC30"></div>
-                    <div class="form-group"><label class="form-label">Location</label><input type="text" class="form-input" value="Studio A"></div>
-                    <div class="form-group"><label class="form-label">Language</label><select class="form-select"><option>English</option><option>Traditional Chinese</option></select></div>`;
-            }
-            else if (tabId === 'account') {
-                titleEl.innerText = "Account Settings";
-                htmlContent = `
-                    <div class="settings-subsection">
-                        <div class="settings-subsection-title">Admin Account</div>
-                        <div class="form-group"><label class="form-label">New Password</label><input type="password" class="form-input"></div>
-                        <div class="form-group"><label class="form-label">Confirm Password</label><input type="password" class="form-input"></div>
-                        <button class="btn btn-primary" style="margin-top:5px;">Update Admin Password</button>
-                    </div>
-                    <div class="settings-subsection">
-                        <div class="settings-subsection-title">User Account</div>
-                        <div class="form-group"><label class="form-label">Username</label><input type="text" class="form-input" value="user"></div>
-                        <div class="form-group"><label class="form-label">New Password</label><input type="password" class="form-input"></div>
-                        <div class="form-group"><label class="form-label">Confirm Password</label><input type="password" class="form-input"></div>
-                        <button class="btn btn-primary" style="margin-top:5px;">Update User Account</button>
-                    </div>`;
-            }
-            else if (tabId === 'datetime') {
+                htmlContent = `<div class="settings-subsection"><div class="settings-subsection-title">IPv4</div><div class="form-group"><label class="form-label">Mode</label><select class="form-select"><option>DHCP</option><option>Static IP</option></select></div><div class="form-group"><label class="form-label">IP Address</label><input type="text" class="form-input" value="192.168.1.100"></div></div>`;
+            } else if (tabId === 'datetime') {
                 titleEl.innerText = "Date & Time";
-                htmlContent = `
-                    <div class="settings-subsection">
-                        <div class="form-group" style="display:flex; justify-content:space-between; align-items:center;">
-                            <label class="form-label" style="margin:0;">NC30 System Time</label>
-                            <span style="color:#fff; font-family:monospace;">2025-12-09 10:26:52 AM</span>
-                        </div>
-                        <div class="form-group" style="display:flex; justify-content:space-between; align-items:center;">
-                            <label class="form-label" style="margin:0;">NTP</label>
-                            <label class="switch"><input type="checkbox" checked id="ntpSwitch" onchange="toggleNTP(this)"><span class="slider"></span></label>
-                        </div>
-                        <div class="form-group"><label class="form-label">NTP Server</label><input type="text" class="form-input" id="ntpServerInput" value="pool.ntp.org"></div>
-                        <div class="form-group" style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid #333; padding-top:15px; margin-top:15px;">
-                            <label class="form-label" style="margin:0;">Synchronize Time with PC</label>
-                            <button class="btn btn-outline" onclick="showToast('Time synced with PC', 'success')">Execute</button>
-                        </div>
-                        <div class="settings-subsection-title" style="margin-top:20px;">Manual Settings</div>
-                        <div class="form-group"><label class="form-label">Date (yyyy-mm-dd)</label><input type="date" class="form-input" id="manualDate" disabled></div>
-                        <div class="form-group"><label class="form-label">Time</label><input type="time" class="form-input" id="manualTime" disabled step="1"></div>
-                        <div class="form-group" style="margin-top:15px; border-top:1px solid #333; padding-top:15px;">
-                            <label class="form-label">Time Zone</label>
-                            <select class="form-select"><option>(GMT+08:00) Taipei</option><option>(GMT+00:00) UTC</option><option>(GMT-08:00) Pacific Time</option></select>
-                        </div>
-                        <div style="text-align:right; margin-top:20px;"><button class="btn btn-primary">Set</button></div>
-                    </div>`;
+                htmlContent = `<div class="settings-subsection"><div class="form-group" style="display:flex; justify-content:space-between; align-items:center;"><label class="form-label" style="margin:0;">NC30 System Time</label><span style="color:#fff; font-family:monospace;">2025-12-09 10:26:52 AM</span></div><div class="form-group" style="display:flex; justify-content:space-between; align-items:center;"><label class="form-label" style="margin:0;">NTP</label><label class="switch"><input type="checkbox" checked id="ntpSwitch" onchange="toggleNTP(this)"><span class="slider"></span></label></div><div class="form-group"><label class="form-label">NTP Server</label><input type="text" class="form-input" id="ntpServerInput" value="pool.ntp.org"></div><div class="settings-subsection-title" style="margin-top:20px;">Manual Settings</div><div class="form-group"><label class="form-label">Date (yyyy-mm-dd)</label><input type="date" class="form-input" id="manualDate" disabled></div></div>`;
+            } else {
+                 titleEl.innerText = "Settings"; htmlContent = "<div>Content Placeholder</div>";
             }
-            else if (tabId === 'maintenance') {
-                titleEl.innerText = "Maintenance";
-                htmlContent = `
-                    <div class="settings-subsection"><div class="settings-subsection-title">Firmware</div><button class="btn btn-outline" style="width:100%;">Check for Updates</button></div>
-                    <div class="settings-subsection"><div class="settings-subsection-title">Config</div><div style="display:flex; gap:10px;"><button class="btn btn-outline" style="flex:1;">Export Settings</button><button class="btn btn-outline" style="flex:1;">Import Settings</button></div></div>
-                    <div class="settings-subsection"><div class="settings-subsection-title">Power</div><div style="display:flex; gap:10px;"><button class="btn btn-danger" style="flex:1;">Reboot Device</button><button class="btn btn-danger" style="flex:1;">Factory Reset</button></div></div>`;
-            }
-            else if (tabId === 'system') {
-                switchSettingsTab('general');
-                return; 
-            }
-
             bodyEl.innerHTML = htmlContent;
         }
 
-        // Logic for NTP Toggle in Date & Time
         function toggleNTP(checkbox) {
             const isNTP = checkbox.checked;
-            document.getElementById('ntpServerInput').disabled = !isNTP;
-            document.getElementById('manualDate').disabled = isNTP;
-            document.getElementById('manualTime').disabled = isNTP;
-            
-            if(isNTP) {
-                document.getElementById('manualDate').value = "";
-                document.getElementById('manualTime').value = "";
-            }
+            if(document.getElementById('ntpServerInput')) document.getElementById('ntpServerInput').disabled = !isNTP;
+            if(document.getElementById('manualDate')) document.getElementById('manualDate').disabled = isNTP;
         }
 
-        // --- Mode Switch Logic (Corrected) ---
+        // === FIXED MODE SWITCH LOGIC ===
         function checkModeSwitch(targetMode) {
-            // Case 1: First time user (no current mode) -> Go direct
-            if (!currentSystemMode) {
-                performSwitch(targetMode);
-                return;
-            }
-            
-            // Case 2: User clicks DIFFERENT mode -> Warning
-            if (currentSystemMode !== targetMode) {
-                showRebootWarning(targetMode);
-                return;
-            }
-
-            // Case 3: User clicks SAME mode -> Go direct (Re-enter)
-            enterView(targetMode);
+            if (currentSystemMode === null) { performSwitch(targetMode); return; }
+            if (currentSystemMode === targetMode) { enterView(targetMode); return; }
+            showRebootWarning(targetMode);
         }
 
         function showRebootWarning(targetMode) {
             const box = document.getElementById('modalContentBox');
             const overlay = document.getElementById('modalOverlay');
-            
             box.innerHTML = `
                 <div style="text-align:center;">
-                    <div style="font-size:40px; margin-bottom:15px;">⚠️</div>
+                    <div style="width:50px; height:50px; background:#444; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 15px auto; color:#ccc; font-size:12px;">Icon</div>
                     <h3 style="color:#fff; margin-bottom:10px;">System Reboot Required</h3>
-                    <p style="color:#ccc; font-size:14px; line-height:1.5; margin-bottom:25px;">
-                        Switching to <b>${targetMode.toUpperCase()}</b> mode requires the device to reboot.<br>
-                        Current stream operations will be interrupted.
-                    </p>
+                    <p style="color:#ccc; font-size:14px; margin-bottom:25px;">Switching to <b>${targetMode.toUpperCase()}</b> requires reboot.</p>
                     <div style="display:flex; gap:10px; justify-content:center;">
                         <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
                         <button class="btn btn-danger" onclick="confirmReboot('${targetMode}')">Reboot & Switch</button>
                     </div>
-                </div>
-            `;
+                </div>`;
             overlay.style.display = 'flex';
         }
 
@@ -629,10 +516,8 @@
         function enterView(mode) {
             const root = document.documentElement;
             const badge = document.getElementById('current-mode-badge');
-            
             document.getElementById('page-home').style.display = 'none';
             document.getElementById('app-shell').style.display = 'grid';
-            
             document.getElementById('view-encoder').style.display = 'none';
             document.getElementById('view-decoder').style.display = 'none';
 
@@ -651,181 +536,99 @@
 
         function updateHomeUI() {
             document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('selected-mode'));
-            if (currentSystemMode === 'encoder') {
-                document.getElementById('card-enc').classList.add('selected-mode');
-            } else if (currentSystemMode === 'decoder') {
-                document.getElementById('card-dec').classList.add('selected-mode');
-            }
+            if (currentSystemMode === 'encoder') document.getElementById('card-enc').classList.add('selected-mode');
+            else if (currentSystemMode === 'decoder') document.getElementById('card-dec').classList.add('selected-mode');
         }
 
-        dragElement(document.getElementById("ptz-panel"));
-        function dragElement(elmnt) {
-            var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-            if (document.getElementById(elmnt.id + "-header")) document.getElementById(elmnt.id + "-header").onmousedown = dragMouseDown;
-            else elmnt.onmousedown = dragMouseDown;
-            function dragMouseDown(e) { e = e || window.event; e.preventDefault(); pos3 = e.clientX; pos4 = e.clientY; document.onmouseup = closeDragElement; document.onmousemove = elementDrag; }
-            function elementDrag(e) { e = e || window.event; e.preventDefault(); pos1 = pos3 - e.clientX; pos2 = pos4 - e.clientY; pos3 = e.clientX; pos4 = e.clientY; elmnt.style.top = (elmnt.offsetTop - pos2) + "px"; elmnt.style.left = (elmnt.offsetLeft - pos1) + "px"; }
-            function closeDragElement() { document.onmouseup = null; document.onmousemove = null; }
-        }
-        function togglePTZ() {
-            var panel = document.getElementById("ptz-panel");
-            if (panel.style.display === "flex") panel.style.display = "none";
-            else { panel.style.display = "flex"; panel.style.top = "100px"; panel.style.left = "calc(50% - 160px)"; }
-        }
+        // === FIXED: Toggle Video Source Logic ===
+        function toggleVideoSource(checkbox) {
+            const videoInput = document.getElementById('videoSourceInput');
+            const audioContainer = document.getElementById('audioSourceContainer');
+            
+            const streamGroup = document.getElementById('streamOutputGroup');
+            const audioEncGroup = document.getElementById('audioEncodingGroup');
+            const ndiGroup = document.getElementById('ndiSettingsGroup');
+            
+            const overlay = document.getElementById('signalLostOverlay');
+            
+            // Status Bar IDs
+            const ids = ['stat-res-in', 'stat-res-out', 'stat-fps', 'stat-bitrate', 'stat-audio-fmt', 'stat-audio-src'];
+            const vals = ['3840 X 2160', '3840 X 2160', '60FPS', 'AUTO', '48kHz', 'HDMI'];
 
-        function drag(ev) { 
-            const target = ev.currentTarget;
-            const name = target.getAttribute("data-name");
-            const status = target.getAttribute("data-status") || "online";
-            const payload = JSON.stringify({ name: name, status: status });
-            ev.dataTransfer.setData("application/json", payload);
-        }
-        function allowDrop(ev) { ev.preventDefault(); ev.currentTarget.classList.add('drag-over'); }
-        
-        function drop(ev) {
-            ev.preventDefault();
-            const slot = ev.currentTarget;
-            slot.classList.remove('drag-over');
-
-            const dataStr = ev.dataTransfer.getData("application/json");
-            if (!dataStr) return;
-            const data = JSON.parse(dataStr);
-
-            const slotId = slot.id;
-            const windowNum = slotId.split('-')[1];
-
-            slot.classList.remove('offline-state');
-            let contentHTML = '';
-
-            if (data.status === 'offline') {
-                slot.classList.add('offline-state');
-                contentHTML = `
-                    <div class="slot-label">Window ${windowNum}</div>
-                    <div class="offline-overlay">
-                        <div class="offline-icon">⚠️</div>
-                        <div class="offline-text">No Source Detected</div>
-                        <div class="offline-source-name">${data.name}</div>
-                    </div>
-                `;
-            } else {
-                let bgUrl = 'https://picsum.photos/id/237/400/300';
-                if(data.name.includes("Studio")) bgUrl = 'https://picsum.photos/id/64/400/300';
-                else if(data.name.includes("PTZ")) bgUrl = 'https://picsum.photos/id/1/400/300';
-                else if(data.name.includes("OBS") || data.name.includes("Encoder")) bgUrl = 'https://picsum.photos/id/48/400/300';
-
-                contentHTML = `
-                    <div class="video-layer" style="background-image: url('${bgUrl}');"></div>
-                    <div class="video-overlay-gradient"></div>
-                    <div class="slot-label">Window ${windowNum}</div>
-                    <div class="slot-content">
-                        <div class="slot-name">${data.name}</div>
-                        <div class="slot-meta" style="color:#4CAF50;">● Connected</div>
-                    </div>
-                `;
-            }
-
-            contentHTML += renderSlotMenu(slotId);
-            slot.innerHTML = contentHTML;
-            slot.classList.add('active-slot');
-            selectSlot(slotId);
-        }
-
-        function renderSlotMenu(slotId) {
-            return `
-                <button class="slot-menu-btn" onclick="toggleSlotMenu('${slotId}', event)">•••</button>
-                <div class="slot-dropdown" id="menu-${slotId}">
-                    <button class="slot-action" onclick="alert('Edit functionality coming soon!')">✏️ Edit</button>
-                    <div style="height:1px; background:#444; margin:2px 0;"></div>
-                    <button class="slot-action danger" onclick="removeSource('${slotId}')">🗑️ Remove</button>
-                </div>
-            `;
-        }
-
-        function toggleSlotMenu(slotId, event) {
-            event.stopPropagation();
-            document.querySelectorAll('.slot-dropdown').forEach(el => {
-                if(el.id !== `menu-${slotId}`) el.classList.remove('show');
-            });
-            const menu = document.getElementById(`menu-${slotId}`);
-            if (menu.classList.contains('show')) menu.classList.remove('show');
-            else menu.classList.add('show');
-        }
-
-        function removeSource(slotId) {
-            const slot = document.getElementById(slotId);
-            if (!slot) return;
-            const windowNum = slotId.split('-')[1];
-            slot.classList.remove('active-slot', 'offline-state');
-            slot.innerHTML = `<div class="slot-label">Window ${windowNum}</div><div class="slot-content" style="text-align:center;"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div>`;
-            if(currentSelectedSlotId === slotId) selectSlot(slotId);
-        }
-
-        let currentSelectedSlotId = 'slot-1';
-        function selectSlot(slotId) {
-            document.querySelectorAll('.preview-slot').forEach(el => el.classList.remove('selected-slot'));
-            const selectedEl = document.getElementById(slotId);
-            if(selectedEl) {
-                selectedEl.classList.add('selected-slot');
-                currentSelectedSlotId = slotId;
-                const windowNum = slotId.split('-')[1];
-                const sourceNameEl = selectedEl.querySelector('.slot-name');
-                const sourceName = sourceNameEl ? sourceNameEl.innerText : "Empty";
-                const targetText = document.getElementById('ptz-target-display');
+            if(checkbox.checked) {
+                // Connected State
+                videoInput.value = "HDMI (Auto detect)";
+                videoInput.style.color = "#fff";
+                audioContainer.innerHTML = `<select class="form-select" id="audioSourceSelect"><option>HDMI</option><option>Analog</option></select>`;
                 
-                if(sourceName.includes("Drag") || sourceName.includes("No Source")) {
-                    targetText.innerText = `Target: Window ${windowNum} (No Source)`;
-                    targetText.style.color = "#888";
-                } else {
-                    targetText.innerText = `Target: Window ${windowNum} (${sourceName})`;
-                    targetText.style.color = "#00e676"; 
-                }
-            }
-        }
+                streamGroup.classList.remove('form-section-disabled');
+                audioEncGroup.classList.remove('form-section-disabled');
+                if(ndiGroup) ndiGroup.classList.remove('form-section-disabled');
+                
+                overlay.style.display = 'none';
 
-        function switchOutputMode(count, btn) {
-            document.querySelectorAll('.mode-opt').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            const layout = document.getElementById('outputLayout');
-            layout.innerHTML = '';
-            if(count === 1) {
-                layout.className = 'output-layout-single';
-                layout.innerHTML = createSlot(1);
+                // Restore Status Values
+                ids.forEach((id, i) => { 
+                    const el = document.getElementById(id);
+                    if(el) el.innerText = vals[i]; 
+                });
             } else {
-                layout.className = 'output-layout-quad';
-                for(let i=1; i<=4; i++) layout.innerHTML += createSlot(i);
+                // Disconnected State
+                videoInput.value = "No Source Detected";
+                videoInput.style.color = "#777";
+                audioContainer.innerHTML = `<span class="status-text-error">No Audio Source Detected</span>`;
+                
+                streamGroup.classList.add('form-section-disabled');
+                audioEncGroup.classList.add('form-section-disabled');
+                if(ndiGroup) ndiGroup.classList.add('form-section-disabled');
+                
+                overlay.style.display = 'flex';
+
+                // Clear Status Values
+                ids.forEach(id => { 
+                    const el = document.getElementById(id);
+                    if(el) el.innerText = "-"; 
+                });
             }
-            selectSlot('slot-1');
-        }
-        
-        function createSlot(num) {
-            return `<div class="preview-slot" id="slot-${num}" onclick="selectSlot('slot-${num}')" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="this.classList.remove('drag-over')"><div class="slot-label">Window ${num}</div><div class="slot-content" style="text-align:center;"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div></div>`;
         }
 
+        function switchEncTab(tabName) {
+            document.querySelectorAll('.ctrl-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('enc-tab-video').style.display = 'none';
+            document.getElementById('enc-tab-audio').style.display = 'none';
+            event.target.classList.add('active');
+            document.getElementById('enc-tab-' + tabName).style.display = 'block';
+        }
+
+        function showModal(type) {
+            if(type === 'Add Manual Source') {
+                 const box = document.getElementById('modalContentBox');
+                 const overlay = document.getElementById('modalOverlay');
+                 box.innerHTML = `<h3 style="margin-top:0; color:#fff;">Source Configuration</h3><div class="modal-body-add-source"><div class="form-group"><label class="form-label" style="color:#aaa;">Source Name</label><input type="text" id="inputSrcName" class="form-input" placeholder="e.g. My Camera 01"></div><div class="form-group"><label class="form-label" style="color:#aaa;">Group</label><div class="tag-input-container"><input type="text" class="tag-input-field" placeholder="Add group tags..."></div></div><div class="form-group"><label class="form-label" style="color:#aaa;">* IP</label><div class="input-group-row"><input type="text" id="inputSrcIP" class="form-input input-with-btn" placeholder="rtsp:// or 192.168.x.x"><button class="btn btn-outline" onclick="showSearchOverlay()">🔍 Auto Search</button></div></div></div><div class="modal-footer"><button class="modal-footer-btn" onclick="closeModal()">Cancel</button><button class="modal-footer-btn" onclick="addSourceReal()">Confirm</button></div>`;
+                 overlay.style.display = 'flex';
+            } else {
+                 const box = document.getElementById('modalContentBox');
+                 const overlay = document.getElementById('modalOverlay');
+                 box.innerHTML = `<h3 style="margin-top:0; color:#fff;">${type}</h3><div style="height:100px; display:flex; align-items:center; justify-content:center; color:#666;">Settings content for ${type}...</div><div style="margin-top:20px; text-align:right;"><button class="btn btn-primary" onclick="closeModal()">Close</button></div>`;
+                 overlay.style.display = 'flex';
+            }
+        }
+        function closeModal() { document.getElementById('modalOverlay').style.display = 'none'; }
+        function showSearchOverlay() { document.getElementById('searchOverlay').style.display = 'flex'; }
+        function selectSearchItem(name, ip) { document.getElementById('inputSrcName').value = name; document.getElementById('inputSrcIP').value = ip; document.getElementById('searchOverlay').style.display = 'none'; }
+        function addSourceReal() { closeModal(); showToast("Added source!", "success"); }
         function showToast(message, type = 'info') {
             let container = document.getElementById('toast-container');
-            if (!container) {
-                container = document.createElement('div');
-                container.id = 'toast-container';
-                document.body.appendChild(container);
-            }
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            const color = type === 'success' ? '#4CAF50' : (type === 'error' ? '#D32F2F' : 'var(--theme-color)');
-            toast.style.borderLeftColor = color;
-            toast.innerHTML = `<span>${message}</span>`;
-            container.appendChild(toast);
-            setTimeout(() => {
-                toast.style.animation = 'fadeOut 0.3s forwards';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
+            if (!container) { container = document.createElement('div'); container.id = 'toast-container'; document.body.appendChild(container); }
+            const toast = document.createElement('div'); toast.className = 'toast'; toast.style.borderLeftColor = '#4CAF50'; toast.innerHTML = `<span>${message}</span>`; container.appendChild(toast);
+            setTimeout(() => { toast.style.animation = 'fadeOut 0.3s forwards'; setTimeout(() => toast.remove(), 300); }, 3000);
         }
 
         window.onclick = function(e) {
-            // Close account menu if clicked outside
-            if (!e.target.matches('#btn-account-avatar') && !e.target.matches('.settings-btn')) {
-                 document.getElementById('accountMenu').classList.remove('show');
+            if (!e.target.matches('.settings-btn') && !e.target.matches('#btn-account-avatar')) {
+                document.getElementById('accountMenu').classList.remove('show');
             }
-            if (e.target.className === 'modal-overlay') closeModal(e); 
+            if (e.target.className === 'modal-overlay') closeModal();
             if (!e.target.matches('.slot-menu-btn')) document.querySelectorAll('.slot-dropdown').forEach(el => el.classList.remove('show'));
         }
 
