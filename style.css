@@ -1,4 +1,4 @@
-/* style.css - Final V15 (Header Status Icons & Layout Update) */
+/* style.css - Final V13 (Direct Settings & Account Update) */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -60,7 +60,7 @@ body {
     color: #fff; padding: 8px; border-radius: 4px; font-size: 13px;
 }
 .form-select:focus, .form-input:focus { border-color: var(--theme-color); outline: none; }
-.form-input[readonly], .form-input[disabled] { background-color: #1a1a1a; color: #777; border-color: #333; cursor: not-allowed; }
+.form-input[readonly] { background-color: #1a1a1a; color: #777; border-color: #333; cursor: not-allowed; }
 
 /* Error Text */
 .status-text-error {
@@ -175,18 +175,6 @@ input:checked + .slider:before { transform: translateX(14px); }
 .tally-indicator {
     background-color: #D32F2F; color: white; padding: 4px 12px; border-radius: 4px;
     font-weight: bold; font-size: 12px; box-shadow: 0 0 8px rgba(211, 47, 47, 0.5);
-}
-
-/* Header Status Icons */
-.header-status-group {
-    display: flex; align-items: center; gap: 20px;
-}
-.status-indicator {
-    display: flex; align-items: center; gap: 6px; font-size: 11px; color: #ccc; font-weight: bold; cursor: default;
-}
-.status-indicator-dot {
-    width: 8px; height: 8px; border-radius: 50%; background-color: #4CAF50;
-    box-shadow: 0 0 4px rgba(76, 175, 80, 0.6);
 }
 
 /* Settings & Account Dropdowns */
