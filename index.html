@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NC30 Pro AV Interface (Final Fixed V29)</title>
+    <title>NC30 Pro AV Interface (Final Fixed V30)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -169,7 +169,7 @@
 
             <div id="view-decoder" style="display:none; height:100%;">
                 <div class="decoder-layout">
-                    <div class="decoder-top-grid">
+                    <div class="decoder-left-col">
                         <div class="output-container" id="outputContainer">
                             <div id="outputLayout" class="output-layout-single">
                                 <div class="preview-slot" ondrop="drop(event)" ondragover="allowDrop(event)" id="slot-1" onclick="selectSlot('slot-1')">
@@ -178,125 +178,127 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="decoder-settings-card">
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                                <span class="panel-title" style="margin:0; border:none;">DECODING SETTINGS</span>
-                                <button class="btn btn-primary" onclick="togglePTZ()" style="padding:4px 10px; font-size:12px;">🕹️ Open PTZ</button>
+                        
+                        <div class="source-list-panel">
+                            <div class="list-toolbar">
+                                <span style="font-weight:bold; font-size:14px; color:#ddd;">Source List</span>
+                                <div style="display:flex; gap:10px;">
+                                    <button class="btn btn-primary" onclick="showModal('Add Manual Source')">Add Source</button>
+                                    <button class="btn btn-outline">Refresh</button>
+                                </div>
                             </div>
-                            <div class="settings-scroll-area">
-                                <div>
-                                    <div class="settings-group-title">
-                                        <div class="settings-group-icon">Icon</div> Output Settings
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Output Switch Mode</label>
-                                        <select class="form-select" onchange="switchOutputMode(this.value === 'Single' ? 1 : 4)">
-                                            <option value="Single" selected>High Quality(4k) - Single</option>
-                                            <option value="Quad">Multiview - Quad</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Resolution</label>
-                                        <select class="form-select">
-                                            <option>3840 X 2160</option>
-                                            <option selected>1920 X 1080</option>
-                                            <option>1280 X 720</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Color Space</label>
-                                        <select class="form-select">
-                                            <option selected>RGB</option>
-                                            <option>YUV 4:4:4</option>
-                                            <option>YUV 4:2:2</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Audio output source</label>
-                                        <select class="form-select">
-                                            <option selected>HDMI</option>
-                                            <option>Line Out</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <div class="settings-group-title">
-                                        <div class="settings-group-icon">Icon</div> USB(Theme Mode)
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label" style="margin-bottom:10px;">USB Output</label>
-                                        <div class="radio-group">
-                                            <label class="radio-label"><input type="radio" name="usb_out"> On</label>
-                                            <label class="radio-label"><input type="radio" name="usb_out" checked> Off</label>
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class="source-list-scroll">
+                                <table class="source-list-table">
+                                    <thead class="source-list-header">
+                                        <tr>
+                                            <th style="width:40px;"></th>
+                                            <th style="width:120px;">Preview</th>
+                                            <th>Details</th>
+                                            <th style="width:60px; text-align:center;">Preset</th>
+                                            <th style="width:120px; text-align:right;">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="source-row selected" draggable="true" ondragstart="drag(event)" data-name="Source name" data-ip="0000.000.000.0000" data-status="online">
+                                            <td class="drag-col"><span class="drag-handle-icon">⋮⋮</span></td>
+                                            <td class="thumb-col"><div class="thumb-box"><img src="https://picsum.photos/id/64/100/56"></div></td>
+                                            <td class="info-col">
+                                                <div class="src-name">Source name</div>
+                                                <div class="src-meta">0000.000.000.0000 | Group Name | Status:Online</div>
+                                            </td>
+                                            <td class="preset-col"><span class="preset-badge">1</span></td>
+                                            <td class="action-col"><button class="btn-small">Edit</button><button class="btn-small">Remove</button></td>
+                                        </tr>
+                                        <tr class="source-row" draggable="true" ondragstart="drag(event)" data-name="Source name" data-ip="0000.000.000.0000" data-status="online">
+                                            <td class="drag-col"><span class="drag-handle-icon">⋮⋮</span></td>
+                                            <td class="thumb-col"><div class="thumb-box"><img src="https://picsum.photos/id/1/100/56"></div></td>
+                                            <td class="info-col">
+                                                <div class="src-name">Source name</div>
+                                                <div class="src-meta">0000.000.000.0000 | Group Name | Status:Online</div>
+                                            </td>
+                                            <td class="preset-col"></td>
+                                            <td class="action-col"><button class="btn-small">Edit</button><button class="btn-small">Remove</button></td>
+                                        </tr>
+                                        <tr class="source-row" draggable="true" ondragstart="drag(event)" data-name="Source name" data-ip="0000.000.000.0000" data-status="error">
+                                            <td class="drag-col"><span class="drag-handle-icon">⋮⋮</span></td>
+                                            <td class="thumb-col"><div class="thumb-box"><img src="https://picsum.photos/id/48/100/56"></div></td>
+                                            <td class="info-col">
+                                                <div class="src-name">Source name</div>
+                                                <div class="src-meta">0000.000.000.0000 | Group Name | Status:<span class="src-status-error">No support 4k▲</span></div>
+                                            </td>
+                                            <td class="preset-col"></td>
+                                            <td class="action-col"><button class="btn-small">Edit</button><button class="btn-small">Remove</button></td>
+                                        </tr>
+                                        <tr class="source-row" draggable="true" ondragstart="drag(event)" data-name="Source name" data-ip="0000.000.000.0000" data-status="offline">
+                                            <td class="drag-col"><span class="drag-handle-icon">⋮⋮</span></td>
+                                            <td class="thumb-col"><div class="thumb-box offline"><span>Offline</span><span>Icon</span></div></td>
+                                            <td class="info-col">
+                                                <div class="src-name" style="color:#888;">Source name</div>
+                                                <div class="src-meta">0000.000.000.0000 | Group Name | Offline</div>
+                                            </td>
+                                            <td class="preset-col"></td>
+                                            <td class="action-col"><button class="btn-small">Edit</button><button class="btn-small">Remove</button></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
-                    <div class="source-list-panel">
-                        <div class="list-toolbar">
-                            <span style="font-weight:bold; font-size:14px; color:#ddd;">Source List</span>
-                            <div style="display:flex; gap:10px;">
-                                <button class="btn btn-primary" onclick="showModal('Add Manual Source')">Add Source</button>
-                                <button class="btn btn-outline">Refresh</button>
-                            </div>
+
+                    <div class="decoder-settings-card">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                            <span class="panel-title" style="margin:0; border:none;">DECODING SETTINGS</span>
+                            <button class="btn btn-primary" onclick="togglePTZ()" style="padding:4px 10px; font-size:12px;">🕹️ Open PTZ</button>
                         </div>
-                        <div class="source-list-scroll">
-                            <table class="source-list-table">
-                                <thead class="source-list-header">
-                                    <tr>
-                                        <th style="width:40px;"></th>
-                                        <th style="width:120px;">Preview</th>
-                                        <th>Details</th>
-                                        <th style="width:60px; text-align:center;">Preset</th>
-                                        <th style="width:120px; text-align:right;">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr class="source-row selected" draggable="true" ondragstart="drag(event)" data-name="Source name" data-ip="0000.000.000.0000" data-status="online">
-                                        <td class="drag-col"><span class="drag-handle-icon">⋮⋮</span></td>
-                                        <td class="thumb-col"><div class="thumb-box"><img src="https://picsum.photos/id/64/100/56"></div></td>
-                                        <td class="info-col">
-                                            <div class="src-name">Source name</div>
-                                            <div class="src-meta">0000.000.000.0000 | Group Name | Status:Online</div>
-                                        </td>
-                                        <td class="preset-col"><span class="preset-badge">1</span></td>
-                                        <td class="action-col"><button class="btn-small">Edit</button><button class="btn-small">Remove</button></td>
-                                    </tr>
-                                    <tr class="source-row" draggable="true" ondragstart="drag(event)" data-name="Source name" data-ip="0000.000.000.0000" data-status="online">
-                                        <td class="drag-col"><span class="drag-handle-icon">⋮⋮</span></td>
-                                        <td class="thumb-col"><div class="thumb-box"><img src="https://picsum.photos/id/1/100/56"></div></td>
-                                        <td class="info-col">
-                                            <div class="src-name">Source name</div>
-                                            <div class="src-meta">0000.000.000.0000 | Group Name | Status:Online</div>
-                                        </td>
-                                        <td class="preset-col"></td>
-                                        <td class="action-col"><button class="btn-small">Edit</button><button class="btn-small">Remove</button></td>
-                                    </tr>
-                                    <tr class="source-row" draggable="true" ondragstart="drag(event)" data-name="Source name" data-ip="0000.000.000.0000" data-status="error">
-                                        <td class="drag-col"><span class="drag-handle-icon">⋮⋮</span></td>
-                                        <td class="thumb-col"><div class="thumb-box"><img src="https://picsum.photos/id/48/100/56"></div></td>
-                                        <td class="info-col">
-                                            <div class="src-name">Source name</div>
-                                            <div class="src-meta">0000.000.000.0000 | Group Name | Status:<span class="src-status-error">No support 4k▲</span></div>
-                                        </td>
-                                        <td class="preset-col"></td>
-                                        <td class="action-col"><button class="btn-small">Edit</button><button class="btn-small">Remove</button></td>
-                                    </tr>
-                                    <tr class="source-row" draggable="true" ondragstart="drag(event)" data-name="Source name" data-ip="0000.000.000.0000" data-status="offline">
-                                        <td class="drag-col"><span class="drag-handle-icon">⋮⋮</span></td>
-                                        <td class="thumb-col"><div class="thumb-box offline"><span>Offline</span><span>Icon</span></div></td>
-                                        <td class="info-col">
-                                            <div class="src-name" style="color:#888;">Source name</div>
-                                            <div class="src-meta">0000.000.000.0000 | Group Name | Offline</div>
-                                        </td>
-                                        <td class="preset-col"></td>
-                                        <td class="action-col"><button class="btn-small">Edit</button><button class="btn-small">Remove</button></td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <div class="settings-scroll-area">
+                            <div>
+                                <div class="settings-group-title">
+                                    <div class="settings-group-icon">Icon</div> Output Settings
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Output Switch Mode</label>
+                                    <select class="form-select" onchange="switchOutputMode(this.value === 'Single' ? 1 : 4)">
+                                        <option value="Single" selected>High Quality(4k) - Single</option>
+                                        <option value="Quad">Multiview - Quad</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Resolution</label>
+                                    <select class="form-select">
+                                        <option>3840 X 2160</option>
+                                        <option selected>1920 X 1080</option>
+                                        <option>1280 X 720</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Color Space</label>
+                                    <select class="form-select">
+                                        <option selected>RGB</option>
+                                        <option>YUV 4:4:4</option>
+                                        <option>YUV 4:2:2</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Audio output source</label>
+                                    <select class="form-select">
+                                        <option selected>HDMI</option>
+                                        <option>Line Out</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="settings-group-title">
+                                    <div class="settings-group-icon">Icon</div> USB(Theme Mode)
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" style="margin-bottom:10px;">USB Output</label>
+                                    <div class="radio-group">
+                                        <label class="radio-label"><input type="radio" name="usb_out"> On</label>
+                                        <label class="radio-label"><input type="radio" name="usb_out" checked> Off</label>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -617,20 +619,23 @@
             bodyEl.innerHTML = htmlContent;
         }
 
-        // --- Mode Switch Logic ---
+        // --- Mode Switch Logic (BUG FIX 3) ---
         function checkModeSwitch(targetMode) {
             console.log("Current:", currentSystemMode, "Target:", targetMode);
 
+            // 1. Initial State: Directly Enter
             if (!currentSystemMode) {
                 performSwitch(targetMode);
                 return;
             }
 
+            // 2. Same Mode: Directly Enter (No Warning)
             if (currentSystemMode === targetMode) {
                 enterView(targetMode);
                 return;
             }
 
+            // 3. Different Mode: Show Reboot Warning
             if (currentSystemMode !== targetMode) {
                 showRebootWarning(targetMode);
                 return;
