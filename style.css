@@ -1,4 +1,4 @@
-/* style.css - Final Demo Version (V2 Image Matched) */
+/* style.css - Final Demo Version (V3 - Final Tweaks) */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -38,6 +38,16 @@ body {
 .btn-danger { border-color: var(--danger-color); color: var(--danger-color); background: transparent; }
 .btn-danger:hover { background-color: var(--danger-color); color: #fff; }
 .btn-sm { font-size: 11px; padding: 4px 8px; }
+
+/* Action Buttons (Icons) */
+.btn-icon-action {
+    background: transparent; border: 1px solid transparent; color: #888;
+    width: 28px; height: 28px; border-radius: 4px; cursor: pointer;
+    font-size: 16px; display: inline-flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+}
+.btn-icon-action:hover { background: #333; color: #fff; border-color: #555; }
+.btn-icon-action.danger:hover { color: var(--danger-color); border-color: var(--danger-color); }
 
 .form-group { margin-bottom: 15px; }
 .form-label { display: block; color: var(--text-sub); font-size: 12px; margin-bottom: 5px; }
@@ -124,15 +134,14 @@ input:checked + .slider:before { transform: translateX(14px); }
 }
 .header-right { display: flex; align-items: center; gap: 15px; }
 .tally-indicator { background-color: #D32F2F; color: white; padding: 4px 12px; border-radius: 4px; font-weight: bold; font-size: 12px; box-shadow: 0 0 8px rgba(211, 47, 47, 0.5); }
-.header-center-group { display: flex; gap: 10px; align-items: center; margin: 0 10px; }
+.header-center-group { display: flex; gap: 12px; align-items: center; margin: 0 10px; }
 
-/* New Text Icons */
-.status-text-icon {
-    font-size: 11px; font-weight: bold; color: #aaa;
-    border: 1px solid #444; padding: 4px 8px; border-radius: 4px; cursor: help;
-    background: rgba(255,255,255,0.05);
+/* Status Text Badges (Global Header) */
+.status-text-badge {
+    font-size: 12px; font-weight: bold; color: #ccc; background: #1a1a1a;
+    border: 1px solid #444; padding: 6px 12px; border-radius: 4px; cursor: default;
+    display: flex; gap: 8px; align-items: center;
 }
-.status-text-icon:hover { color: #fff; border-color: #666; }
 
 .vertical-divider { width: 1px; height: 24px; background: #444; margin: 0 5px; }
 .settings-container { position: relative; }
@@ -197,11 +206,12 @@ input:checked + .slider:before { transform: translateX(14px); }
 
 /* Output Header */
 .output-header-bar {
-    background: #1a1a1a; padding: 8px 15px; border-bottom: 1px solid #333;
+    background: #1a1a1a; padding: 10px 15px; border-bottom: 1px solid #333;
     display: flex; justify-content: space-between; align-items: center;
 }
-.output-header-info { color: #ddd; font-weight: bold; font-size: 13px; display: flex; align-items: center; gap: 10px; }
-.res-tag { background: #333; color: var(--ptz-thumb); padding: 2px 8px; border-radius: 4px; font-size: 11px; font-family: monospace; }
+.output-header-title { color: #fff; font-weight: bold; font-size: 14px; }
+.output-header-controls { display: flex; align-items: center; gap: 15px; }
+.res-tag { color: var(--ptz-thumb); font-size: 12px; font-family: monospace; font-weight: bold; }
 
 .output-layout-single { width: 100%; height: 100%; display: flex; }
 .output-layout-quad { width: 100%; height: 100%; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 2px; background: #333; }
@@ -265,11 +275,11 @@ input:checked + .slider:before { transform: translateX(14px); }
 .src-name { font-weight: bold; font-size: 13px; display: block; color: #fff; margin-bottom: 4px; }
 .src-meta { font-size: 11px; color: #888; font-family: monospace; }
 .src-status-error { color: #FF3B30; font-weight: bold; margin-left: 5px; }
-.preset-col { width: 80px; text-align: center; }
+.preset-col { width: 100px; text-align: center; }
 .preset-badge { display: inline-block; background: #6D4C41; color: #fff; font-size: 11px; width: 20px; height: 20px; line-height: 20px; text-align: center; border-radius: 2px; }
-.action-col { width: 180px; text-align: right; padding-right: 30px !important; }
+.action-col { width: 120px; text-align: right; padding-right: 30px !important; }
 
-/* === Draggable PTZ (REMODELED V3 - Square) === */
+/* === Draggable PTZ (REMODELED V3 - Square Grid) === */
 .draggable-panel {
     display: none; position: absolute; top: 100px; right: 400px; width: 260px;
     background: var(--ptz-bg); border-radius: 8px; border: 1px solid #444;
@@ -294,7 +304,7 @@ input:checked + .slider:before { transform: translateX(14px); }
     background: transparent;
 }
 .ptz-btn {
-    aspect-ratio: 1; background: #424242; border: none;
+    aspect-ratio: 1; background: #424242; border: none; border-radius: 2px;
     color: #ccc; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center;
     transition: background 0.1s;
 }
