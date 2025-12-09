@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NC30 Pro AV Interface (Final Demo)</title>
+    <title>NC30 Pro AV Interface (Final Demo V2)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -53,9 +53,9 @@
                 <div class="tally-indicator">LIVE</div>
                 
                 <div class="header-center-group">
-                    <div class="status-circle" title="NDI Status">📡</div>
-                    <div class="status-circle" title="CPU">📊</div>
-                    <div class="status-circle" title="Network">🌐</div>
+                    <div class="status-text-icon" title="NDI Status">NDI Status</div>
+                    <div class="status-text-icon" title="CPU">CPU</div>
+                    <div class="status-text-icon" title="Network">Network</div>
                 </div>
                 
                 <div class="vertical-divider"></div>
@@ -79,7 +79,7 @@
                 </div>
 
                 <div class="settings-container">
-                    <div id="btn-settings-gear" class="settings-btn" onclick="openFullSettings('audio')">⚙️</div>
+                    <div id="btn-settings-gear" class="settings-btn" onclick="openFullSettings('system')">⚙️</div>
                 </div>
             </div>
         </div>
@@ -175,6 +175,11 @@
                 <div class="decoder-layout">
                     <div class="decoder-left-col">
                         <div class="output-container" id="outputContainer">
+                            <div class="output-header-bar">
+                                <div class="output-header-info">NC 30 Live Preview <span class="res-tag" id="preview-res-tag">Source 1: 3840x2160</span></div>
+                                <button class="btn btn-outline btn-sm" onclick="togglePTZ()">PTZ Controller</button>
+                            </div>
+
                             <div id="outputLayout" class="output-layout-single">
                                 <div class="preview-slot" ondrop="drop(event)" ondragover="allowDrop(event)" id="slot-1" onclick="selectSlot('slot-1')">
                                     <div class="slot-label">Window 1</div>
@@ -211,8 +216,7 @@
                     <div class="decoder-settings-card">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                             <span class="panel-title" style="margin:0; border:none;">DECODING SETTINGS</span>
-                            <button class="btn btn-primary" onclick="togglePTZ()" style="padding:4px 10px; font-size:12px;">🎮 Open PTZ</button>
-                        </div>
+                            </div>
                         <div class="settings-scroll-area">
                             <div>
                                 <div class="settings-group-title">
@@ -221,7 +225,7 @@
                                 <div class="form-group">
                                     <label class="form-label">Output Switch Mode</label>
                                     <select class="form-select" onchange="switchOutputMode(this.value === 'Single' ? 1 : 4)">
-                                        <option value="Single" selected>High Quality(4k) - Single</option>
+                                        <option value="Single" selected>High Quality(4k)</option>
                                         <option value="Quad">Multiview - Quad</option>
                                     </select>
                                 </div>
@@ -232,6 +236,33 @@
                                         <option selected>1920 X 1080</option>
                                         <option>1280 X 720</option>
                                     </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Color Space</label>
+                                    <select class="form-select">
+                                        <option>RGB</option>
+                                        <option>YUV 4:4:4</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Audio output source</label>
+                                    <select class="form-select">
+                                        <option>HDMI</option>
+                                        <option>Line Out</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div style="margin-top:20px;">
+                                <div class="settings-group-title">
+                                    <div class="settings-group-icon">🔌</div> USB (Theme Mode)
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">USB Output</label>
+                                    <div style="display:flex; gap:15px; align-items:center; margin-top:5px;">
+                                        <label style="color:#ccc; font-size:13px; display:flex; align-items:center; gap:6px;"><input type="radio" name="usb"> On</label>
+                                        <label style="color:#ccc; font-size:13px; display:flex; align-items:center; gap:6px;"><input type="radio" name="usb" checked> Off</label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -250,17 +281,17 @@
 
         <div class="ptz-body">
             <div class="ptz-pad-container">
-                <button class="ptz-btn" style="transform: rotate(-45deg);">▲</button>
+                <button class="ptz-btn" style="border-top-left-radius: 4px;">↖</button>
                 <button class="ptz-btn">▲</button>
-                <button class="ptz-btn" style="transform: rotate(45deg);">▲</button>
+                <button class="ptz-btn" style="border-top-right-radius: 4px;">↗</button>
                 
                 <button class="ptz-btn">◀</button>
                 <button class="ptz-btn ptz-home">🏠</button>
                 <button class="ptz-btn">▶</button>
                 
-                <button class="ptz-btn" style="transform: rotate(45deg);">▼</button>
+                <button class="ptz-btn" style="border-bottom-left-radius: 4px;">↙</button>
                 <button class="ptz-btn">▼</button>
-                <button class="ptz-btn" style="transform: rotate(-45deg);">▼</button>
+                <button class="ptz-btn" style="border-bottom-right-radius: 4px;">↘</button>
             </div>
 
             <div class="ptz-sliders">
@@ -312,10 +343,18 @@
     <div id="modal-large-settings" style="display:none;" class="modal-overlay" onclick="closeSpecificModal('modal-large-settings')">
         <div class="modal-box" onclick="event.stopPropagation()">
             <div class="settings-sidebar">
-                <div class="sidebar-category">AUDIO</div>
+                <div class="sidebar-category">Audio (音訊管理)</div>
                 <div class="sidebar-item" onclick="switchSettingsTab('audio')" id="tab-audio">Audio Settings</div>
-                <div class="sidebar-category" style="margin-top:15px;">NETWORK</div>
+                
+                <div class="sidebar-category" style="margin-top:15px;">Network (網路設定)</div>
                 <div class="sidebar-item" onclick="switchSettingsTab('network')" id="tab-network">IP Configuration</div>
+                <div class="sidebar-item" onclick="switchSettingsTab('ndi')" id="tab-ndi">Advanced NDI</div>
+                
+                <div class="sidebar-category" style="margin-top:15px;">System (系統設定)</div>
+                <div class="sidebar-item" onclick="switchSettingsTab('general')" id="tab-general">General</div>
+                <div class="sidebar-item" onclick="switchSettingsTab('account')" id="tab-account">Account</div>
+                <div class="sidebar-item" onclick="switchSettingsTab('datetime')" id="tab-datetime">Date & Time</div>
+                <div class="sidebar-item" onclick="switchSettingsTab('maintenance')" id="tab-maintenance">Maintenance</div>
             </div>
             <div class="settings-content-area">
                 <div class="settings-header">
@@ -607,10 +646,13 @@
             const el = document.getElementById(slotId);
             if(el) {
                 el.classList.add('selected-slot');
-                // PTZ Logic Update
+                // Updated PTZ/Source info in header
                 const name = el.querySelector('.slot-name') ? el.querySelector('.slot-name').innerText : "None";
-                const ptzTitle = document.querySelector('.ptz-title');
-                if(ptzTitle) ptzTitle.innerText = "PTZ Control: " + (name === "None" ? "No Target" : name);
+                const resTag = document.getElementById('preview-res-tag');
+                if(resTag) {
+                    if(name === "None" || name.includes("Drag")) resTag.innerText = "No Source Selected";
+                    else resTag.innerText = `${name}: 3840x2160`;
+                }
             }
         }
 
@@ -639,14 +681,70 @@
             setTimeout(() => div.remove(), 3000);
         }
 
-        // Settings Modal (Simplified for Demo)
+        // Settings Modal (Content updated per Excel image)
         function openFullSettings(tab) {
              document.getElementById('modal-large-settings').style.display = 'flex';
              switchSettingsTab(tab);
         }
-        function switchSettingsTab(tab) {
-            document.getElementById('settings-title').innerText = tab.toUpperCase() + " Settings";
-            document.getElementById('settings-body-content').innerHTML = `<div style="color:#888;">Demo Settings Content for ${tab}</div>`;
+        function switchSettingsTab(tabId) {
+            document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
+            const activeTab = document.getElementById('tab-' + tabId);
+            if(activeTab) activeTab.classList.add('active');
+
+            const titleEl = document.getElementById('settings-title');
+            const bodyEl = document.getElementById('settings-body-content');
+            let htmlContent = '';
+
+            // Map based on Excel sheet
+            if (tabId === 'audio') {
+                titleEl.innerText = "Audio Settings";
+                htmlContent = `<div class="settings-subsection"><div class="settings-subsection-title">Audio Settings</div>
+                    <div class="form-group"><label class="form-label">Source Select</label><select class="form-select"><option>Auto</option><option>HDMI</option><option>3.5mm</option></select></div>
+                    <div class="form-group"><label class="form-label">Volume (Gain)</label><input type="range" class="ptz-range" style="width:100%;"></div>
+                    <div class="form-group"><label class="form-label">Audio Delay (Lip-sync)</label><input type="range" min="-500" max="500" value="0" style="width:100%;"><div style="text-align:right; font-size:11px; color:#888;">0ms (-500ms ~ +500ms)</div></div></div>`;
+            } 
+            else if (tabId === 'network') {
+                titleEl.innerText = "IP Configuration";
+                htmlContent = `<div class="settings-subsection"><div class="settings-subsection-title">IP Configuration</div>
+                    <div class="form-group"><label class="form-label">Mode</label><select class="form-select"><option>DHCP</option><option>Static IP</option></select></div>
+                    <div class="form-group"><label class="form-label">Hostname</label><input type="text" class="form-input" value="NC30-Device"></div>
+                    <div class="form-group"><label class="form-label">IP Address</label><input type="text" class="form-input" value="192.168.1.100"></div>
+                    <div class="form-group"><label class="form-label">Netmask</label><input type="text" class="form-input" value="255.255.255.0"></div>
+                    <div class="form-group"><label class="form-label">Gateway</label><input type="text" class="form-input" value="192.168.1.1"></div>
+                    <div class="form-group"><label class="form-label">DNS</label><input type="text" class="form-input" value="8.8.8.8"></div></div>`;
+            }
+            else if (tabId === 'ndi') {
+                titleEl.innerText = "Advanced NDI";
+                htmlContent = `<div class="settings-subsection"><div class="settings-subsection-title">NDI Configuration</div>
+                    <div class="form-group"><label class="form-label">Connection Mode (傳輸模式)</label><select class="form-select"><option>Auto (RUDP)</option><option>TCP</option><option>Multicast</option></select></div>
+                    <div class="form-group"><label class="form-label">Discovery Server</label><input type="text" class="form-input" placeholder="IP Address"></div>
+                    <div class="form-group"><label class="form-label">Multicast Address</label><input type="text" class="form-input" placeholder="e.g. 239.255.0.1"></div></div>`;
+            }
+            else if (tabId === 'general') {
+                titleEl.innerText = "General Settings";
+                htmlContent = `<div class="form-group"><label class="form-label">Device Name</label><input type="text" class="form-input" value="AVer NC30"></div>
+                    <div class="form-group"><label class="form-label">Location</label><input type="text" class="form-input" value="Studio A"></div>
+                    <div class="form-group"><label class="form-label">Language</label><select class="form-select"><option>English</option><option>Traditional Chinese</option></select></div>`;
+            }
+            else if (tabId === 'account') {
+                titleEl.innerText = "Account";
+                htmlContent = `<div class="form-group"><label class="form-label">Admin Password</label><input type="password" class="form-input" placeholder="New Password"></div>
+                    <button class="btn btn-primary" style="margin-top:5px;">Update Password</button>`;
+            }
+            else if (tabId === 'datetime') {
+                titleEl.innerText = "Date & Time";
+                htmlContent = `<div class="form-group"><label class="form-label">Mode</label><select class="form-select"><option>NTP Server</option><option>Manual</option></select></div>
+                    <div class="form-group"><label class="form-label">NTP Server</label><input type="text" class="form-input" value="pool.ntp.org"></div>`;
+            }
+            else if (tabId === 'maintenance') {
+                titleEl.innerText = "Maintenance";
+                htmlContent = `<div class="settings-subsection"><div class="settings-subsection-title">Firmware</div><button class="btn btn-outline" style="width:100%;">Check for Updates</button></div>
+                    <div class="settings-subsection"><div class="settings-subsection-title">Config</div><div style="display:flex; gap:10px;"><button class="btn btn-outline" style="flex:1;">Export Settings</button><button class="btn btn-outline" style="flex:1;">Import Settings</button></div></div>
+                    <div class="settings-subsection"><div class="settings-subsection-title">System</div><div style="display:flex; gap:10px;"><button class="btn btn-danger" style="flex:1;">Reboot</button><button class="btn btn-danger" style="flex:1;">Factory Default</button></div></div>`;
+            }
+            else if (tabId === 'system') { switchSettingsTab('general'); return; }
+
+            bodyEl.innerHTML = htmlContent;
         }
 
         // Draggable PTZ Logic
@@ -660,7 +758,7 @@
              startY = e.clientY;
              initialLeft = ptzPanel.offsetLeft; 
              initialTop = ptzPanel.offsetTop;
-             e.preventDefault(); // Prevent text selection
+             e.preventDefault(); 
         };
 
         document.onmousemove = (e) => {
@@ -677,9 +775,11 @@
                 ptzPanel.style.display = 'none';
             } else {
                 ptzPanel.style.display = 'flex';
-                // Reset position if off screen or just center it
-                ptzPanel.style.top = '100px';
-                ptzPanel.style.left = (window.innerWidth / 2 - 130) + 'px';
+                // Reset position if needed or keep last pos
+                if(!ptzPanel.style.top) {
+                     ptzPanel.style.top = '100px';
+                     ptzPanel.style.left = (window.innerWidth / 2 - 130) + 'px';
+                }
             }
         }
 
