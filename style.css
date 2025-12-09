@@ -1,4 +1,4 @@
-/* style.css - Final Demo Version (Image Matched) */
+/* style.css - Final Demo Version (V2 Image Matched) */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -37,6 +37,7 @@ body {
 .btn-outline:hover { border-color: #fff; color: #fff; }
 .btn-danger { border-color: var(--danger-color); color: var(--danger-color); background: transparent; }
 .btn-danger:hover { background-color: var(--danger-color); color: #fff; }
+.btn-sm { font-size: 11px; padding: 4px 8px; }
 
 .form-group { margin-bottom: 15px; }
 .form-label { display: block; color: var(--text-sub); font-size: 12px; margin-bottom: 5px; }
@@ -124,7 +125,15 @@ input:checked + .slider:before { transform: translateX(14px); }
 .header-right { display: flex; align-items: center; gap: 15px; }
 .tally-indicator { background-color: #D32F2F; color: white; padding: 4px 12px; border-radius: 4px; font-weight: bold; font-size: 12px; box-shadow: 0 0 8px rgba(211, 47, 47, 0.5); }
 .header-center-group { display: flex; gap: 10px; align-items: center; margin: 0 10px; }
-.status-circle { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #888; font-size: 14px; cursor: help; }
+
+/* New Text Icons */
+.status-text-icon {
+    font-size: 11px; font-weight: bold; color: #aaa;
+    border: 1px solid #444; padding: 4px 8px; border-radius: 4px; cursor: help;
+    background: rgba(255,255,255,0.05);
+}
+.status-text-icon:hover { color: #fff; border-color: #666; }
+
 .vertical-divider { width: 1px; height: 24px; background: #444; margin: 0 5px; }
 .settings-container { position: relative; }
 .settings-btn { font-size: 18px; cursor: pointer; opacity: 0.8; padding: 8px; transition: 0.2s; color: #fff; background: transparent; border: none; }
@@ -185,6 +194,15 @@ input:checked + .slider:before { transform: translateX(14px); }
 .decoder-layout { display: grid; grid-template-columns: minmax(0, 3fr) minmax(320px, 1fr); gap: 20px; max-width: 1800px; margin: 0 auto; height: 100%; }
 .decoder-left-col { display: flex; flex-direction: column; gap: 20px; height: 100%; overflow: hidden; }
 .output-container { background: #000; border: 1px solid #333; border-radius: 8px; position: relative; overflow: hidden; display: flex; flex-direction: column; flex: 0 0 60%; min-height: 300px; }
+
+/* Output Header */
+.output-header-bar {
+    background: #1a1a1a; padding: 8px 15px; border-bottom: 1px solid #333;
+    display: flex; justify-content: space-between; align-items: center;
+}
+.output-header-info { color: #ddd; font-weight: bold; font-size: 13px; display: flex; align-items: center; gap: 10px; }
+.res-tag { background: #333; color: var(--ptz-thumb); padding: 2px 8px; border-radius: 4px; font-size: 11px; font-family: monospace; }
+
 .output-layout-single { width: 100%; height: 100%; display: flex; }
 .output-layout-quad { width: 100%; height: 100%; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 2px; background: #333; }
 .preview-slot {
@@ -250,11 +268,8 @@ input:checked + .slider:before { transform: translateX(14px); }
 .preset-col { width: 80px; text-align: center; }
 .preset-badge { display: inline-block; background: #6D4C41; color: #fff; font-size: 11px; width: 20px; height: 20px; line-height: 20px; text-align: center; border-radius: 2px; }
 .action-col { width: 180px; text-align: right; padding-right: 30px !important; }
-.btn-small { background: #333; border: none; color: #ccc; font-size: 11px; padding: 4px 8px; border-radius: 2px; cursor: pointer; margin-left: 4px; }
-.btn-small:hover { background: #444; color: #fff; }
-.btn-small.btn-danger:hover { background: #D32F2F; }
 
-/* === Draggable PTZ (REMODELED V2) === */
+/* === Draggable PTZ (REMODELED V3 - Square) === */
 .draggable-panel {
     display: none; position: absolute; top: 100px; right: 400px; width: 260px;
     background: var(--ptz-bg); border-radius: 8px; border: 1px solid #444;
@@ -279,7 +294,7 @@ input:checked + .slider:before { transform: translateX(14px); }
     background: transparent;
 }
 .ptz-btn {
-    aspect-ratio: 1; background: #424242; border: none; border-radius: 2px;
+    aspect-ratio: 1; background: #424242; border: none;
     color: #ccc; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center;
     transition: background 0.1s;
 }
