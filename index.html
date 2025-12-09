@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NC30 Pro AV Interface (Final V16)</title>
+    <title>NC30 Pro AV Interface (Final Fixed)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -504,6 +504,7 @@
             }
             else if (tabId === 'account') {
                 titleEl.innerText = "Account Settings";
+                // Updated Account Content (Admin + User)
                 htmlContent = `
                     <div class="settings-subsection">
                         <div class="settings-subsection-title">Admin Account</div>
@@ -816,10 +817,53 @@
             }, 3000);
         }
 
+        // === Toggle Logic Updated (FIXED) ===
+        function toggleVideoSource(checkbox) {
+            const videoInput = document.getElementById('videoSourceInput');
+            const audioContainer = document.getElementById('audioSourceContainer');
+            
+            const streamGroup = document.getElementById('streamOutputGroup');
+            const audioEncGroup = document.getElementById('audioEncodingGroup');
+            const ndiGroup = document.getElementById('ndiSettingsGroup'); 
+            
+            const overlay = document.getElementById('signalLostOverlay');
+            
+            const ids = ['stat-res-in', 'stat-res-out', 'stat-fps', 'stat-bitrate', 'stat-audio-fmt', 'stat-audio-src'];
+            const vals = ['3840 X 2160', '3840 X 2160', '60FPS', 'AUTO', '48kHz', 'HDMI'];
+
+            if(checkbox.checked) {
+                // Connected
+                videoInput.value = "HDMI (Auto detect)"; videoInput.style.color = "#fff";
+                audioContainer.innerHTML = `<select class="form-select" id="audioSourceSelect"><option>HDMI</option><option>Analog</option></select>`;
+                streamGroup.classList.remove('form-section-disabled'); 
+                audioEncGroup.classList.remove('form-section-disabled');
+                if(ndiGroup) ndiGroup.classList.remove('form-section-disabled'); // Ensure NDI group is re-enabled
+                overlay.style.display = 'none';
+                ids.forEach((id, i) => { if(document.getElementById(id)) document.getElementById(id).innerText = vals[i]; });
+            } else {
+                // Disconnected
+                videoInput.value = "No Source Detected"; videoInput.style.color = "#777";
+                audioContainer.innerHTML = `<span class="status-text-error">No Audio Source Detected</span>`;
+                streamGroup.classList.add('form-section-disabled'); 
+                audioEncGroup.classList.add('form-section-disabled');
+                if(ndiGroup) ndiGroup.classList.add('form-section-disabled'); // Explicitly disable NDI group
+                overlay.style.display = 'flex';
+                ids.forEach(id => { if(document.getElementById(id)) document.getElementById(id).innerText = "-"; });
+            }
+        }
+
+        function switchEncTab(tabName) {
+            document.querySelectorAll('.ctrl-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('enc-tab-video').style.display = 'none';
+            document.getElementById('enc-tab-audio').style.display = 'none';
+            event.target.classList.add('active');
+            document.getElementById('enc-tab-' + tabName).style.display = 'block';
+        }
+
         window.onclick = function(e) {
-            // Close account menu if clicked outside
-            if (!e.target.matches('#btn-account-avatar') && !e.target.matches('.settings-btn')) {
-                 document.getElementById('accountMenu').classList.remove('show');
+            if (!e.target.matches('.settings-btn')) {
+                const dropdowns = document.getElementsByClassName("settings-dropdown");
+                for (let i = 0; i < dropdowns.length; i++) if (dropdowns[i].classList.contains('show')) dropdowns[i].classList.remove('show');
             }
             if (e.target.className === 'modal-overlay') closeModal(e); 
             if (!e.target.matches('.slot-menu-btn')) document.querySelectorAll('.slot-dropdown').forEach(el => el.classList.remove('show'));
