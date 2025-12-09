@@ -1,4 +1,4 @@
-/* style.css - Final Demo Version (V7 - Unified Panel UI) */
+/* style.css - Final Demo Version (V8 - Mode Switch & PTZ Logic) */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -40,7 +40,7 @@ body {
 .btn-sm { font-size: 11px; padding: 4px 8px; }
 
 /* Disabled State */
-.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; border-color: #444; color: #666; }
 
 /* Action Buttons (Icons) */
 .btn-icon-action {
@@ -63,6 +63,21 @@ body {
 
 /* Darker Input Style */
 .darker-input { background-color: #111; border-color: #333; }
+
+/* Mode Switch Buttons (New V8) */
+.mode-switch-container {
+    display: flex; gap: 10px; width: 100%;
+}
+.mode-switch-btn {
+    flex: 1; background: #252526; border: 1px solid #444; border-radius: 4px; padding: 12px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+    cursor: pointer; color: #888; transition: all 0.2s;
+}
+.mode-switch-btn:hover { background: #333; color: #ccc; }
+.mode-switch-btn.active {
+    background: rgba(0, 122, 255, 0.1); border-color: var(--theme-color); color: #fff;
+}
+.mode-btn-icon { font-size: 18px; }
 
 /* Switch & Radio */
 .switch { position: relative; display: inline-block; width: 34px; height: 20px; }
@@ -204,7 +219,7 @@ input:checked + .slider:before { transform: translateX(14px); }
 }
 .icon-circle { width: 24px; height: 24px; background: #444; border-radius: 4px; margin-right: 8px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; font-size: 8px; color: #ccc; }
 
-/* === UNIFIED PANEL STYLING (V7) === */
+/* === UNIFIED PANEL STYLING === */
 .control-panel, .decoder-settings-card {
     background: #1E1E1E;
     border: 1px solid #333;
@@ -213,12 +228,12 @@ input:checked + .slider:before { transform: translateX(14px); }
     flex-direction: column;
     overflow: hidden;
     height: 100%;
-    padding: 0; /* Clear wrapper padding */
+    padding: 0;
 }
 
 /* Common Header */
 .panel-header {
-    padding: 20px 20px 10px 20px; /* Reduced bottom padding */
+    padding: 20px 20px 10px 20px;
     flex-shrink: 0;
 }
 
@@ -229,14 +244,14 @@ input:checked + .slider:before { transform: translateX(14px); }
     text-transform: uppercase;
     letter-spacing: 1px;
     display: block;
-    border-bottom: 1px solid #333; /* Unified Underline */
+    border-bottom: 1px solid #333;
     padding-bottom: 10px;
     margin-bottom: 0; 
 }
 
 /* Common Content Area */
 .panel-content, .settings-scroll-area {
-    padding: 15px 20px; /* Tight top padding */
+    padding: 15px 20px;
     overflow-y: auto;
     flex: 1;
 }
