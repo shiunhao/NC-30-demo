@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NC30 Pro AV Interface (Final V14)</title>
+    <title>NC30 Pro AV Interface (Final V15)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -49,10 +49,15 @@
             <div class="back-btn" onclick="goHome()"><span>🏠 Mode Select</span></div>
             <div class="mode-badge" id="current-mode-badge">ENCODER MODE</div>
             <div style="display:flex; gap:20px; align-items:center;">
-                <div class="tally-indicator">🔴 LIVE</div>
-                <div class="settings-container">
-                    <div id="btn-settings-gear" class="settings-btn" onclick="openFullSettings('audio')">⚙️</div>
+                
+                <div class="header-status-group">
+                    <div class="status-indicator"><div class="status-indicator-dot"></div>NET</div>
+                    <div class="status-indicator"><div class="status-indicator-dot"></div>CPU</div>
+                    <div class="status-indicator"><div class="status-indicator-dot"></div>NDI</div>
                 </div>
+
+                <div class="tally-indicator">🔴 LIVE</div>
+
                 <div class="settings-container">
                     <div id="btn-account-avatar" class="settings-btn" onclick="toggleAccountMenu()">👤</div>
                     <div class="settings-dropdown" id="accountMenu">
@@ -61,6 +66,10 @@
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" onclick="actionLogout()" style="color:#FF3B30;"><span>🚪</span> Logout</a>
                     </div>
+                </div>
+
+                <div class="settings-container">
+                    <div id="btn-settings-gear" class="settings-btn" onclick="toggleSettings()">⚙️</div>
                 </div>
             </div>
         </div>
@@ -495,6 +504,7 @@
             }
             else if (tabId === 'account') {
                 titleEl.innerText = "Account Settings";
+                // Updated Account Content (Admin + User)
                 htmlContent = `
                     <div class="settings-subsection">
                         <div class="settings-subsection-title">Admin Account</div>
