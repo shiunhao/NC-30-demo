@@ -1,4 +1,4 @@
-/* style.css - Final Fixed V18 (Logic Repair) */
+/* style.css - Final V20 (Bug Fixes & Logic Repair) */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -241,7 +241,7 @@ body.user-mode .ctrl-tabs, body.user-mode .sub-tabs { pointer-events: auto !impo
     background: #000; z-index: 50; display: none;
     flex-direction: column; align-items: center; justify-content: center;
 }
-.signal-lost-icon { font-size: 40px; margin-bottom: 10px; opacity: 0.5; }
+.signal-lost-icon { font-size: 14px; margin-bottom: 10px; width: 40px; height: 40px; background: #444; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #ccc; }
 .signal-lost-text { color: #666; font-weight: bold; font-size: 14px; letter-spacing: 1px; }
 
 .enc-status-bar {
@@ -361,6 +361,7 @@ body.user-mode .ctrl-tabs, body.user-mode .sub-tabs { pointer-events: auto !impo
     position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 2000;
     display: none; align-items: center; justify-content: center; backdrop-filter: blur(3px);
 }
+/* General Modal Box Style */
 .modal-box {
     background: var(--panel-color); width: 500px; border-radius: 8px; border: 1px solid #444; padding: 30px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
