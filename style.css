@@ -1,4 +1,4 @@
-/* style.css - Final Fixed V17 */
+/* style.css - Final Fixed V18 (Logic Repair) */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -229,7 +229,8 @@ body.user-mode .ctrl-tabs, body.user-mode .sub-tabs { pointer-events: auto !impo
 }
 .monitor-section { display: flex; flex-direction: column; gap: 15px; height: 100%; }
 .preview-window {
-    background: #000; width: 100%; flex: 1; 
+    background: #000; width: 100%; 
+    flex: 1; 
     border-radius: 8px; border: 1px solid #333;
     position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden;
     min-height: 250px;
@@ -319,6 +320,7 @@ body.user-mode .ctrl-tabs, body.user-mode .sub-tabs { pointer-events: auto !impo
 .preview-slot.active-slot { border: 1px solid #444; }
 .preview-slot.selected-slot { border: 2px solid var(--theme-color); z-index: 10; }
 
+/* Video/Image Layer */
 .video-layer {
     position: absolute; top: 0; left: 0; right: 0; bottom: 0;
     background-size: cover; background-position: center; background-repeat: no-repeat;
