@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NC30 Pro AV Interface (Final V12)</title>
+    <title>NC30 Pro AV Interface (Final V13)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -51,14 +51,7 @@
             <div style="display:flex; gap:20px; align-items:center;">
                 <div class="tally-indicator">🔴 LIVE</div>
                 <div class="settings-container">
-                    <div id="btn-settings-gear" class="settings-btn" onclick="toggleSettings()">⚙️</div>
-                    <div class="settings-dropdown" id="settingsMenu">
-                        <a class="dropdown-item" onclick="openFullSettings('audio')"><span>🔊</span> Audio Settings</a>
-                        <a class="dropdown-item" onclick="openFullSettings('network')"><span>🌐</span> Network Settings</a>
-                        <a class="dropdown-item" onclick="openFullSettings('system')"><span>🔧</span> System Settings</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" onclick="showModal('About Device')"><span>ℹ️</span> About</a>
-                    </div>
+                    <div id="btn-settings-gear" class="settings-btn" onclick="openFullSettings('audio')">⚙️</div>
                 </div>
                 <div class="settings-container">
                     <div id="btn-account-avatar" class="settings-btn" onclick="toggleAccountMenu()">👤</div>
@@ -384,13 +377,6 @@
         
         function toggleAccountMenu() {
             document.getElementById('accountMenu').classList.toggle('show');
-            document.getElementById('settingsMenu').classList.remove('show');
-        }
-
-        function toggleSettings() { 
-            if (currentUserRole === 'user') return; 
-            document.getElementById('settingsMenu').classList.toggle('show');
-            document.getElementById('accountMenu').classList.remove('show');
         }
 
         function goHome() {
@@ -440,20 +426,20 @@
         function confirmLogout() { location.reload(); }
         function closeSpecificModal(id) { document.getElementById(id).style.display = 'none'; }
 
-        // === NEW Settings Modal Logic ===
+        // === NEW Settings Modal Logic (Direct Open & Account Update) ===
         function openFullSettings(tab) {
+            if (currentUserRole === 'user') return; // User mode check
+            
             document.getElementById('modal-large-settings').style.display = 'flex';
-            document.getElementById('settingsMenu').classList.remove('show');
+            // No dropdown to close anymore
             switchSettingsTab(tab);
         }
 
         function switchSettingsTab(tabId) {
-            // Update Sidebar
             document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
             const activeTab = document.getElementById('tab-' + tabId);
             if(activeTab) activeTab.classList.add('active');
 
-            // Update Content
             const titleEl = document.getElementById('settings-title');
             const bodyEl = document.getElementById('settings-body-content');
             
@@ -503,10 +489,21 @@
             }
             else if (tabId === 'account') {
                 titleEl.innerText = "Account Settings";
+                // Updated Account Content (Admin + User)
                 htmlContent = `
-                    <div class="form-group"><label class="form-label">New Admin Password</label><input type="password" class="form-input"></div>
-                    <div class="form-group"><label class="form-label">Confirm Password</label><input type="password" class="form-input"></div>
-                    <button class="btn btn-primary">Update Password</button>`;
+                    <div class="settings-subsection">
+                        <div class="settings-subsection-title">Admin Account</div>
+                        <div class="form-group"><label class="form-label">New Password</label><input type="password" class="form-input"></div>
+                        <div class="form-group"><label class="form-label">Confirm Password</label><input type="password" class="form-input"></div>
+                        <button class="btn btn-primary" style="margin-top:5px;">Update Admin Password</button>
+                    </div>
+                    <div class="settings-subsection">
+                        <div class="settings-subsection-title">User Account</div>
+                        <div class="form-group"><label class="form-label">Username</label><input type="text" class="form-input" value="user"></div>
+                        <div class="form-group"><label class="form-label">New Password</label><input type="password" class="form-input"></div>
+                        <div class="form-group"><label class="form-label">Confirm Password</label><input type="password" class="form-input"></div>
+                        <button class="btn btn-primary" style="margin-top:5px;">Update User Account</button>
+                    </div>`;
             }
             else if (tabId === 'datetime') {
                 titleEl.innerText = "Date & Time";
@@ -521,7 +518,6 @@
                     <div class="settings-subsection"><div class="settings-subsection-title">Config</div><div style="display:flex; gap:10px;"><button class="btn btn-outline" style="flex:1;">Export Settings</button><button class="btn btn-outline" style="flex:1;">Import Settings</button></div></div>
                     <div class="settings-subsection"><div class="settings-subsection-title">Power</div><div style="display:flex; gap:10px;"><button class="btn btn-danger" style="flex:1;">Reboot Device</button><button class="btn btn-danger" style="flex:1;">Factory Reset</button></div></div>`;
             }
-            // Add default system handler if tab 'system' is clicked (default to general)
             else if (tabId === 'system') {
                 switchSettingsTab('general');
                 return; 
@@ -921,9 +917,9 @@
         }
 
         window.onclick = function(e) {
-            if (!e.target.matches('.settings-btn')) {
-                const dropdowns = document.getElementsByClassName("settings-dropdown");
-                for (let i = 0; i < dropdowns.length; i++) if (dropdowns[i].classList.contains('show')) dropdowns[i].classList.remove('show');
+            // Close account menu if clicked outside
+            if (!e.target.matches('#btn-account-avatar') && !e.target.matches('.settings-btn')) {
+                 document.getElementById('accountMenu').classList.remove('show');
             }
             if (e.target.className === 'modal-overlay') closeModal(e); 
             if (!e.target.matches('.slot-menu-btn')) document.querySelectorAll('.slot-dropdown').forEach(el => el.classList.remove('show'));
