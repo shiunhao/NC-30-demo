@@ -1,0 +1,278 @@
+/* mobile.css - Mobile Responsive Overrides */
+
+/* 只有在螢幕寬度小於 768px (手機/平板直向) 時生效 */
+@media screen and (max-width: 768px) {
+
+    /* === 1. 基礎佈局重置 === */
+    body {
+        height: auto; /* 手機版允許捲動，不再鎖定 100vh */
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+    .app-layout {
+        display: flex;
+        flex-direction: column;
+        height: auto;
+        overflow: visible;
+    }
+
+    .main-content {
+        padding: 10px;
+        overflow: visible;
+    }
+
+    /* === 2. Top Bar (頂部導航) === */
+    .top-bar {
+        padding: 0 10px;
+        height: 50px;
+        position: sticky;
+        top: 0;
+        z-index: 100; /* 確保在最上層 */
+    }
+
+    .back-btn span {
+        display: none; /* 手機版隱藏 "Mode Select" 文字，只留 Icon */
+    }
+    .back-btn::after {
+        content: "Back"; /* 用更短的文字代替 */
+        margin-left: 5px;
+    }
+
+    .mode-badge {
+        font-size: 10px;
+        padding: 4px 8px;
+    }
+
+    /* 隱藏較不重要的狀態資訊以節省空間 */
+    .header-center-group {
+        display: none; 
+    }
+
+    .tally-indicator {
+        font-size: 10px;
+        padding: 2px 6px;
+    }
+
+    /* === 3. Encoder Mode (編碼模式) === */
+    .encoder-grid {
+        grid-template-columns: 1fr; /* 改為單欄 */
+        gap: 15px;
+        height: auto;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .monitor-section {
+        height: auto;
+    }
+
+    .preview-window {
+        min-height: 220px; /* 手機上維持適當高度 */
+    }
+
+    .enc-status-bar {
+        height: auto;
+        flex-direction: column; /* 狀態列改為垂直排列 */
+    }
+
+    .mode-indicator {
+        width: 100%;
+        flex-direction: row;
+        gap: 10px;
+        padding: 5px;
+        border-right: none;
+        border-bottom: 1px solid #333;
+        height: 40px;
+    }
+
+    .status-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* 改為兩欄顯示資訊 */
+    }
+
+    .control-panel {
+        height: auto; /* 讓內容撐開高度 */
+        overflow: visible;
+    }
+
+    .panel-content {
+        max-height: none; /* 取消內部捲動，改用頁面捲動 */
+        padding: 15px;
+    }
+
+    /* === 4. Decoder Mode (解碼模式) === */
+    .decoder-layout {
+        grid-template-columns: 1fr; /* 改為單欄 */
+        gap: 15px;
+        height: auto;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .decoder-left-col {
+        height: auto;
+        overflow: visible;
+    }
+
+    .output-container {
+        flex: none;
+        min-height: 220px;
+        /* 強制維持 16:9 比例，避免在手機上太扁或太高 */
+        aspect-ratio: 16/9; 
+    }
+
+    /* Source List (來源列表) */
+    .source-list-panel {
+        flex: none;
+        height: 300px; /* 固定一個高度讓它可以內部捲動 */
+    }
+
+    .source-list-header th:nth-child(4), /* 隱藏 Preset 標題 */
+    .source-row td:nth-child(4) {      /* 隱藏 Preset 內容 */
+        display: none; 
+    }
+    
+    .source-list-header th:nth-child(2) { width: 80px; } /* 縮小預覽圖欄寬 */
+    .thumb-box { width: 70px; height: 40px; } /* 縮小縮圖 */
+
+    .btn-icon-action {
+        width: 32px; height: 32px; /* 加大觸控區 */
+    }
+
+    /* === 5. PTZ Panel (改為底部滑出式 Bottom Sheet) === */
+    .draggable-panel {
+        display: none; /* JS 切換 display:flex */
+        position: fixed;
+        top: auto !important; /* 強制覆蓋 JS 的定位 */
+        left: 0 !important;
+        bottom: 0 !important;
+        width: 100% !important;
+        border-radius: 16px 16px 0 0; /* 只有上方圓角 */
+        border: none;
+        border-top: 1px solid #444;
+        box-shadow: 0 -5px 30px rgba(0,0,0,0.8);
+        z-index: 2000;
+        animation: slideUp 0.3s ease-out;
+    }
+
+    @keyframes slideUp {
+        from { transform: translateY(100%); }
+        to { transform: translateY(0); }
+    }
+
+    .ptz-header {
+        justify-content: center;
+        padding: 15px;
+        border-bottom: 1px solid #333;
+    }
+    
+    .ptz-drag-handle { display: none; } /* 手機版不拖曳，隱藏把手 */
+    .ptz-close {
+        position: absolute;
+        right: 20px;
+        top: 15px;
+        font-size: 20px;
+        padding: 5px; /* 加大觸控區 */
+    }
+
+    .ptz-body {
+        padding: 20px;
+        gap: 25px;
+        padding-bottom: 40px; /* 避開手機底部 Home Bar */
+    }
+
+    .ptz-pad-container button {
+        height: 50px; /* 加大方向鍵 */
+    }
+
+    /* === 6. Modals (全螢幕彈窗) === */
+    .modal-box {
+        width: 95% !important;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    /* Large Settings Modal (RWD) */
+    #modal-large-settings .modal-box {
+        flex-direction: column; /* 改為垂直排列 */
+        height: 90vh;
+    }
+
+    .settings-sidebar {
+        width: 100%;
+        flex-shrink: 0;
+        border-right: none;
+        border-bottom: 1px solid #333;
+        flex-direction: row; /* 選單改為橫向滑動 */
+        overflow-x: auto;
+        padding: 10px;
+        white-space: nowrap;
+    }
+
+    .sidebar-category {
+        display: none; /* 手機版隱藏分類標題，直接顯示項目 */
+    }
+
+    .sidebar-item {
+        border-left: none;
+        border-bottom: 3px solid transparent;
+        padding: 8px 15px;
+        background: #252526;
+        margin-right: 10px;
+        border-radius: 4px;
+    }
+
+    .sidebar-item.active {
+        border-left-color: transparent;
+        border-bottom-color: var(--theme-color);
+        background: #444;
+    }
+
+    .settings-content-area {
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    /* Auto Search Modal */
+    #modal-auto-search .modal-box {
+        height: 60vh !important;
+    }
+
+    /* === 7. Login & Home === */
+    .login-box {
+        width: 90%;
+        padding: 30px 20px;
+    }
+
+    .card-container {
+        flex-direction: column;
+        gap: 20px;
+        width: 90%;
+    }
+
+    .mode-card {
+        width: 100%;
+        height: auto;
+        padding: 20px;
+        flex-direction: row; /* 卡片內容改為橫向，比較省空間 */
+        justify-content: flex-start;
+        gap: 20px;
+    }
+
+    .card-icon {
+        width: 60px; height: 60px;
+        margin-bottom: 0;
+        font-size: 24px;
+    }
+
+    .card-title {
+        font-size: 20px;
+        margin-bottom: 5px;
+    }
+    
+    .card-desc {
+        text-align: left;
+        font-size: 12px;
+    }
+}
