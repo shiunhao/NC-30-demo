@@ -1,4 +1,4 @@
-/* style.css - Final Fixed V34 (PTZ Align, Icons BG, Loading Restore) */
+/* style.css - Final Fixed V35 (Add Source UI Fix) */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -44,7 +44,7 @@ body {
 .btn-icon:hover { color: #fff; background: rgba(255,255,255,0.1); border-radius: 4px; }
 .btn-square { width: 36px; padding: 0; font-size: 18px; font-weight: bold; }
 
-/* Icon Placeholders with Background (FIX 1) */
+/* Icon Placeholders with Background */
 .icon-bg {
     background-color: #333; border-radius: 50%; width: 24px; height: 24px;
     display: inline-flex; align-items: center; justify-content: center;
@@ -187,7 +187,7 @@ input:checked + .slider:before { transform: translateX(14px); }
     background: rgba(0,0,0,0.3); border: 1px solid var(--theme-color); color: var(--theme-color); text-transform: uppercase;
 }
 
-/* === TOP BAR RIGHT SIDE UPDATES (FIX 4) === */
+/* === TOP BAR RIGHT SIDE === */
 .header-right { display: flex; align-items: center; gap: 15px; }
 
 .tally-indicator {
@@ -412,7 +412,7 @@ body.user-mode .ctrl-tabs, body.user-mode .sub-tabs { pointer-events: auto !impo
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     pointer-events: none;
 }
-.offline-icon { font-size: 24px; margin-bottom: 5px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); color:#ccc;}
+.offline-icon { font-size: 24px; margin-bottom: 5px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
 .offline-text { 
     color: #fff; font-weight: 900; font-size: 14px; letter-spacing: 1px;
     background: #D32F2F; padding: 2px 8px; border-radius: 2px;
@@ -470,8 +470,7 @@ body.user-mode .ctrl-tabs, body.user-mode .sub-tabs { pointer-events: auto !impo
 .source-row { border-bottom: 1px solid #2a2a2a; transition: background 0.1s; cursor: grab; }
 .source-row:active { cursor: grabbing; background: #2a2a2a; }
 .source-row:hover { background-color: #252525; }
-/* V31 FIX: REMOVED ORANGE BORDER */
-.source-row.selected { background: #2a2a2a; }
+.source-row.selected { background: #2a2a2a; } /* Orange border removed per V31 */
 
 .source-row td { padding: 10px; vertical-align: middle; }
 
@@ -509,7 +508,7 @@ body.user-mode .ctrl-tabs, body.user-mode .sub-tabs { pointer-events: auto !impo
 .btn-small:hover { background: #444; color: #fff; }
 
 
-/* === 8. Draggable Floating Panels (PTZ FIX V34) === */
+/* === 8. Draggable Floating Panels (PTZ SIMPLIFIED) === */
 .draggable-panel {
     display: none; position: absolute;
     top: 100px; right: 400px; 
@@ -522,7 +521,7 @@ body.user-mode .ctrl-tabs, body.user-mode .sub-tabs { pointer-events: auto !impo
 
 /* V34 FIX: Floating Close Button Position Left */
 .ptz-floating-close {
-    position: absolute; top: 12px; right: 15px; /* Adjusted position */
+    position: absolute; top: 12px; right: 15px;
     background: rgba(0,0,0,0.5); color: #ccc;
     width: 24px; height: 24px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
@@ -593,6 +592,18 @@ input[type=range].ptz-range::-moz-range-thumb {
     cursor: pointer; color: #888; font-size: 20px; line-height: 1;
 }
 .modal-close-x:hover { color: #fff; }
+
+/* V35 FIX: Add Source Modal Footer Buttons */
+.modal-footer {
+    display: flex; gap: 10px; padding-top: 20px; margin-top: 20px; border-top: 1px solid #333;
+}
+.modal-btn-white {
+    background: #eee; color: #333; border: none; padding: 8px 16px; 
+    border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold;
+    transition: background 0.2s;
+}
+.modal-btn-white:hover { background: #fff; }
+
 
 #toast-container {
     position: fixed; top: 80px; right: 20px; z-index: 3000;
