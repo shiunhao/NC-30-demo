@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NC30 Pro AV Interface (Final Fixed V34)</title>
+    <title>NC30 Pro AV Interface (Final Fixed V35)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -690,8 +690,7 @@
 
         function confirmReboot(targetMode) {
             closeModal();
-            document.getElementById('reboot-overlay').style.display = 'flex'; // Ensure flex
-            
+            document.getElementById('reboot-overlay').style.display = 'flex';
             setTimeout(() => {
                 document.getElementById('reboot-overlay').style.display = 'none';
                 performSwitch(targetMode);
@@ -985,8 +984,8 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button class="modal-footer-btn" onclick="closeModal()">Cancel</button>
-                        <button class="modal-footer-btn" onclick="addSourceReal()">Confirm</button>
+                        <button class="modal-btn-white" onclick="closeModal()">Cancel</button>
+                        <button class="modal-btn-white" onclick="addSourceReal()">Confirm</button>
                     </div>
                 `;
             } else {
