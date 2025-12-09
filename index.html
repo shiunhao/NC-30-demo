@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NC30 Pro AV Interface (Final Fixed V36)</title>
+    <title>NC30 Pro AV Interface (Final Fixed V33)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -32,12 +32,12 @@
         </div>
         <div class="card-container">
             <div id="card-enc" class="mode-card card-enc" onclick="checkModeSwitch('encoder')">
-                <div class="card-icon"><div class="icon-bg">Icon</div></div>
+                <div class="card-icon">Icon</div>
                 <div class="card-title">ENCODER</div>
                 <div class="card-desc">Transmit HDMI/SDI sources<br>to the NDI network.</div>
             </div>
             <div id="card-dec" class="mode-card card-dec" onclick="checkModeSwitch('decoder')">
-                <div class="card-icon"><div class="icon-bg">Icon</div></div>
+                <div class="card-icon">Icon</div>
                 <div class="card-title">DECODER</div>
                 <div class="card-desc">Receive and display NDI streams<br>from the network.</div>
             </div>
@@ -92,7 +92,7 @@
                             <div class="video-layer" style="background-image: url('https://picsum.photos/id/10/800/600');"></div>
                             <div class="video-overlay-gradient"></div>
                             <div id="signalLostOverlay" class="signal-lost-overlay">
-                                <div class="signal-lost-icon"><div class="icon-bg" style="width:40px; height:40px;">⚠️</div></div>
+                                <div class="signal-lost-icon">Icon</div>
                                 <div class="signal-lost-text">No Source Detected</div>
                             </div>
                             <div class="preview-label">HDMI 4K</div>
@@ -103,17 +103,17 @@
                         </div>
                         <div class="enc-status-bar">
                             <div class="mode-indicator">
-                                <div class="mode-circle"><div class="icon-bg">Icon</div></div>
+                                <div class="mode-circle">Icon</div>
                                 <span>Current Mode:</span>
                                 <span class="mode-val">Encoder</span>
                             </div>
                             <div class="status-grid">
-                                <div class="status-cell"><div class="icon-circle"><div class="icon-bg">Icon</div></div>Input Resolution: <span id="stat-res-in" style="margin-left:5px;">3840 X 2160</span></div>
-                                <div class="status-cell"><div class="icon-circle"><div class="icon-bg">Icon</div></div>Streaming Resolution: <span id="stat-res-out" style="margin-left:5px;">3840 X 2160</span></div>
-                                <div class="status-cell"><div class="icon-circle"><div class="icon-bg">Icon</div></div>Framerate: <span id="stat-fps" style="margin-left:5px;">60FPS</span></div>
-                                <div class="status-cell"><div class="icon-circle"><div class="icon-bg">Icon</div></div>Bitrate: <span id="stat-bitrate" style="margin-left:5px;">AUTO</span></div>
-                                <div class="status-cell"><div class="icon-circle"><div class="icon-bg">Icon</div></div>Audio Format: <span id="stat-audio-fmt" style="margin-left:5px;">48kHz</span></div>
-                                <div class="status-cell"><div class="icon-circle"><div class="icon-bg">Icon</div></div>Audio Source: <span id="stat-audio-src" style="margin-left:5px;">HDMI</span></div>
+                                <div class="status-cell"><div class="icon-circle">Icon</div>Input Resolution: <span id="stat-res-in" style="margin-left:5px;">3840 X 2160</span></div>
+                                <div class="status-cell"><div class="icon-circle">Icon</div>Streaming Resolution: <span id="stat-res-out" style="margin-left:5px;">3840 X 2160</span></div>
+                                <div class="status-cell"><div class="icon-circle">Icon</div>Framerate: <span id="stat-fps" style="margin-left:5px;">60FPS</span></div>
+                                <div class="status-cell"><div class="icon-circle">Icon</div>Bitrate: <span id="stat-bitrate" style="margin-left:5px;">AUTO</span></div>
+                                <div class="status-cell"><div class="icon-circle">Icon</div>Audio Format: <span id="stat-audio-fmt" style="margin-left:5px;">48kHz</span></div>
+                                <div class="status-cell"><div class="icon-circle">Icon</div>Audio Source: <span id="stat-audio-src" style="margin-left:5px;">HDMI</span></div>
                             </div>
                         </div>
                     </div>
@@ -124,7 +124,7 @@
                         <div class="panel-content">
                             <div class="enc-settings-group">
                                 <div class="enc-group-header">
-                                    <div class="enc-icon-circle"><div class="icon-bg">Icon</div></div> <span style="margin-left:10px;">Input Source</span>
+                                    <div class="enc-icon-circle">Icon</div> <span style="margin-left:10px;">Input Source</span>
                                 </div>
                                 <div class="form-group">
                                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
@@ -153,7 +153,7 @@
                             <div id="enc-tab-video" style="margin-top:10px;">
                                 <div class="enc-settings-group" id="streamOutputGroup">
                                     <div class="enc-group-header">
-                                        <div class="enc-icon-circle"><div class="icon-bg">Icon</div></div> <span style="margin-left:10px;">Stream Video Output</span>
+                                        <div class="enc-icon-circle">Icon</div> <span style="margin-left:10px;">Stream Video Output</span>
                                     </div>
                                     <div class="form-group"><label class="form-label">Resolution</label><select class="form-select"><option>3840 x 2160</option><option>1920 x 1080</option><option>1280 x 720</option></select></div>
                                     <div class="form-group"><label class="form-label">Framerate</label><select class="form-select"><option>60 FPS</option><option>30 FPS</option><option>24 FPS</option></select></div>
@@ -166,7 +166,7 @@
                             <div id="enc-tab-audio" style="display:none; margin-top:10px;">
                                 <div class="enc-settings-group" id="audioEncodingGroup">
                                     <div class="enc-group-header">
-                                        <div class="enc-icon-circle"><div class="icon-bg">Icon</div></div> <span style="margin-left:10px;">Audio Encoding</span>
+                                        <div class="enc-icon-circle">Icon</div> <span style="margin-left:10px;">Audio Encoding</span>
                                     </div>
                                     <div class="form-group"><label class="form-label">Audio Format</label><select class="form-select"><option>AAC</option><option>MP3</option></select></div>
                                     <div class="form-group"><label class="form-label">Sample Rate</label><select class="form-select"><option>48 kHz</option><option>44.1 kHz</option></select></div>
@@ -175,7 +175,7 @@
                             </div>
                             <div class="enc-settings-group" id="ndiSettingsGroup">
                                 <div class="enc-group-header">
-                                    <div class="enc-icon-circle"><div class="icon-bg">Icon</div></div> <span style="margin-left:10px;">NDI Settings</span>
+                                    <div class="enc-icon-circle">Icon</div> <span style="margin-left:10px;">NDI Settings</span>
                                 </div>
                                 <div class="form-group"><div style="display:flex; justify-content:space-between;"><label class="form-label">Local Device Name</label><span style="font-size:12px; color:#007AFF;">AVer NC30</span></div></div>
                                 <div class="form-group"><label class="form-label">Group Name</label><input type="text" class="form-input" value="NDI Group Name"></div>
@@ -250,7 +250,7 @@
                                         </tr>
                                         <tr class="source-row" draggable="true" ondragstart="drag(event)" data-name="Source name" data-ip="0000.000.000.0000" data-status="offline">
                                             <td class="drag-col"><span class="drag-handle-icon">⋮⋮</span></td>
-                                            <td class="thumb-col"><div class="thumb-box offline"><span>Offline</span><span><div class="icon-bg">Icon</div></span></div></td>
+                                            <td class="thumb-col"><div class="thumb-box offline"><span>Offline</span><span>Icon</span></div></td>
                                             <td class="info-col">
                                                 <div class="src-name" style="color:#888;">Source name</div>
                                                 <div class="src-meta">0000.000.000.0000 | Group Name | Offline</div>
@@ -267,12 +267,12 @@
                     <div class="decoder-settings-card">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                             <span class="panel-title" style="margin:0; border:none;">DECODING SETTINGS</span>
-                            <button class="btn btn-primary" onclick="togglePTZ()" style="padding:4px 10px; font-size:12px;"><div class="icon-bg" style="width:16px;height:16px;">Icon</div> Open PTZ</button>
+                            <button class="btn btn-primary" onclick="togglePTZ()" style="padding:4px 10px; font-size:12px;">🕹️ Open PTZ</button>
                         </div>
                         <div class="settings-scroll-area">
                             <div>
                                 <div class="settings-group-title">
-                                    <div class="settings-group-icon"><div class="icon-bg" style="width:16px;height:16px;">Icon</div></div> Output Settings
+                                    <div class="settings-group-icon">Icon</div> Output Settings
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Output Switch Mode</label>
@@ -308,7 +308,7 @@
 
                             <div>
                                 <div class="settings-group-title">
-                                    <div class="settings-group-icon"><div class="icon-bg" style="width:16px;height:16px;">Icon</div></div> USB(Theme Mode)
+                                    <div class="settings-group-icon">Icon</div> USB(Theme Mode)
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label" style="margin-bottom:10px;">USB Output</label>
@@ -326,13 +326,7 @@
     </div>
 
     <div id="ptz-panel" class="draggable-panel">
-        <div class="panel-header-drag" id="ptz-header">
-            <div>PTZ Control Panel<span id="ptz-target-display">(Target:Preview1)</span></div>
-            <div class="ptz-header-icons">
-                <span class="ptz-drag-handle">:::</span>
-                <button class="close-btn" onclick="togglePTZ()">×</button>
-            </div>
-        </div>
+        <div class="ptz-floating-close" onclick="togglePTZ()">✕</div>
         <div class="ptz-content">
             <div class="ptz-dir-pad">
                 <button class="ptz-btn">↖</button>
@@ -423,12 +417,12 @@
             <div class="upgrade-modal-input-group">
                 <label class="form-label">Username</label>
                 <input type="text" class="form-input" id="upgradeUser" placeholder="">
-                <span class="upgrade-modal-icon"><div class="icon-bg">Icon</div></span>
+                <span class="upgrade-modal-icon">👤</span>
             </div>
             <div class="upgrade-modal-input-group">
                 <label class="form-label">Password</label>
                 <input type="password" class="form-input" id="upgradePass" placeholder="">
-                <span class="upgrade-modal-icon"><div class="icon-bg">Icon</div></span>
+                <span class="upgrade-modal-icon">🔒</span>
             </div>
             <div class="modal-footer">
                 <button class="modal-footer-btn" onclick="closeSpecificModal('modal-upgrade-permission')">Cancel</button>
@@ -568,13 +562,27 @@
 
             if (tabId === 'audio') {
                 titleEl.innerText = "Audio Settings";
-                htmlContent = `<div class="settings-subsection"><div class="settings-subsection-title">Basic Audio</div><div class="form-group"><label class="form-label">Source Select</label><select class="form-select"><option>Auto</option><option>HDMI</option><option>3.5mm</option></select></div><div class="form-group"><label class="form-label">Volume (Gain)</label><input type="range" style="width:100%;"></div><div class="form-group"><label class="form-label">Audio Delay</label><input type="range" min="-500" max="500" value="0" style="width:100%;"></div></div>`;
-            } else if (tabId === 'network') {
+                htmlContent = `<div class="settings-subsection"><div class="settings-subsection-title">Basic Audio</div><div class="form-group"><label class="form-label">Source Select</label><select class="form-select"><option>Auto</option><option>HDMI</option><option>3.5mm</option></select></div><div class="form-group"><label class="form-label">Volume (Gain)</label><input type="range" style="width:100%;"></div><div class="form-group"><label class="form-label">Audio Delay (Lip-sync)</label><input type="range" min="-500" max="500" value="0" style="width:100%;"><div style="text-align:right; font-size:11px; color:#888;">0ms</div></div>
+                    </div>`;
+            } 
+            else if (tabId === 'network') {
                 titleEl.innerText = "IP Configuration";
                 htmlContent = `<div class="settings-subsection"><div class="settings-subsection-title">IPv4</div><div class="form-group"><label class="form-label">Mode</label><select class="form-select"><option>DHCP</option><option>Static IP</option></select></div><div class="form-group"><label class="form-label">IP Address</label><input type="text" class="form-input" value="192.168.1.100"></div></div>`;
             } else if (tabId === 'datetime') {
                 titleEl.innerText = "Date & Time";
                 htmlContent = `<div class="settings-subsection"><div class="form-group" style="display:flex; justify-content:space-between; align-items:center;"><label class="form-label" style="margin:0;">NC30 System Time</label><span style="color:#fff; font-family:monospace;">2025-12-09 10:26:52 AM</span></div><div class="form-group" style="display:flex; justify-content:space-between; align-items:center;"><label class="form-label" style="margin:0;">NTP</label><label class="switch"><input type="checkbox" checked id="ntpSwitch" onchange="toggleNTP(this)"><span class="slider"></span></label></div><div class="form-group"><label class="form-label">NTP Server</label><input type="text" class="form-input" id="ntpServerInput" value="pool.ntp.org"></div><div class="settings-subsection-title" style="margin-top:20px;">Manual Settings</div><div class="form-group"><label class="form-label">Date (yyyy-mm-dd)</label><input type="date" class="form-input" id="manualDate" disabled></div></div>`;
+            } else if (tabId === 'ndi') {
+                titleEl.innerText = "Advanced NDI";
+                htmlContent = `<div class="settings-subsection"><div class="settings-subsection-title">Transport</div><div class="form-group"><label class="form-label">Connection Mode</label><select class="form-select"><option>Auto (RUDP)</option><option>TCP</option><option>Multicast</option></select></div><div class="form-group"><label class="form-label">Multicast Address</label><input type="text" class="form-input" placeholder="e.g. 239.255.0.1"></div></div>`;
+            } else if (tabId === 'general') {
+                titleEl.innerText = "General Settings";
+                htmlContent = `<div class="form-group"><label class="form-label">Device Name</label><input type="text" class="form-input" value="AVer NC30"></div><div class="form-group"><label class="form-label">Location</label><input type="text" class="form-input" value="Studio A"></div>`;
+            } else if (tabId === 'account') {
+                titleEl.innerText = "Account Settings";
+                htmlContent = `<div class="settings-subsection"><div class="settings-subsection-title">Admin Account</div><div class="form-group"><label class="form-label">New Password</label><input type="password" class="form-input"></div><button class="btn btn-primary">Update</button></div>`;
+            } else if (tabId === 'maintenance') {
+                titleEl.innerText = "Maintenance";
+                htmlContent = `<div class="settings-subsection"><div class="settings-subsection-title">Firmware</div><button class="btn btn-outline" style="width:100%;">Check for Updates</button></div>`;
             } else {
                  titleEl.innerText = "Settings"; htmlContent = "<div>Content Placeholder</div>";
             }
@@ -759,9 +767,184 @@
             if (!e.target.matches('.slot-menu-btn')) document.querySelectorAll('.slot-dropdown').forEach(el => el.classList.remove('show'));
         }
 
+        // === 互動功能擴充：Decoder Drag & Drop ===
+
+        function allowDrop(ev) {
+            ev.preventDefault();
+            // 當拖曳進入時，給予視覺回饋 (CSS class: drag-over)
+            if (ev.target.classList.contains('preview-slot') || ev.target.closest('.preview-slot')) {
+                const slot = ev.target.classList.contains('preview-slot') ? ev.target : ev.target.closest('.preview-slot');
+                slot.classList.add('drag-over');
+            }
+        }
+
+        // 處理拖曳離開，移除視覺回饋
+        document.addEventListener('dragleave', (ev) => {
+             if (ev.target.classList.contains('preview-slot')) {
+                ev.target.classList.remove('drag-over');
+             }
+        });
+
+        function drag(ev) {
+            // 抓取來源資料
+            const row = ev.target.closest('tr');
+            const name = row.getAttribute('data-name');
+            const ip = row.getAttribute('data-ip');
+            const status = row.getAttribute('data-status');
+            
+            ev.dataTransfer.setData("text/name", name);
+            ev.dataTransfer.setData("text/ip", ip);
+            ev.dataTransfer.setData("text/status", status);
+        }
+
+        function drop(ev) {
+            ev.preventDefault();
+            // 找到放置的目標 Slot
+            let slot = ev.target;
+            if (!slot.classList.contains('preview-slot')) {
+                slot = slot.closest('.preview-slot');
+            }
+            if(!slot) return;
+
+            slot.classList.remove('drag-over');
+
+            const name = ev.dataTransfer.getData("text/name");
+            const ip = ev.dataTransfer.getData("text/ip");
+            const status = ev.dataTransfer.getData("text/status");
+
+            // 更新 Slot UI
+            updateSlotContent(slot, name, ip, status);
+            
+            // 自動選取該視窗
+            selectSlot(slot.id);
+        }
+
+        function updateSlotContent(slotEl, name, ip, status) {
+            // 清除舊內容
+            slotEl.innerHTML = ''; 
+            slotEl.classList.remove('offline-state');
+
+            // 建立標籤與內容
+            const label = document.createElement('div');
+            label.className = 'slot-label';
+            label.innerText = slotEl.id.replace('slot-', 'Window ');
+
+            const content = document.createElement('div');
+            content.className = 'slot-content';
+            content.innerHTML = `<div class="slot-name">${name}</div><div class="slot-meta">${ip} | ${status === 'online' ? '1080p60' : 'Connecting...'}</div>`;
+
+            // 模擬視訊畫面 (隨機圖片或黑畫面)
+            const bgLayer = document.createElement('div');
+            bgLayer.className = 'video-layer';
+            
+            if (status === 'offline') {
+                slotEl.classList.add('offline-state');
+                bgLayer.style.backgroundImage = 'none';
+                bgLayer.innerHTML = `<div class="offline-overlay"><div class="offline-icon">⚠️</div><div class="offline-text">NO SIGNAL</div><div class="offline-source-name">${name}</div></div>`;
+            } else {
+                // 使用假圖模擬視訊
+                const randomId = Math.floor(Math.random() * 50) + 10;
+                bgLayer.style.backgroundImage = `url('https://picsum.photos/id/${randomId}/800/600')`;
+            }
+
+            const gradient = document.createElement('div');
+            gradient.className = 'video-overlay-gradient';
+
+            // 加入元素
+            slotEl.appendChild(bgLayer);
+            slotEl.appendChild(gradient);
+            slotEl.appendChild(label);
+            slotEl.appendChild(content);
+            
+            // 加入選單按鈕 (依據你的 CSS)
+            const menuBtn = document.createElement('div');
+            menuBtn.className = 'slot-menu-btn';
+            menuBtn.innerText = '•••';
+            slotEl.appendChild(menuBtn);
+        }
+
+        // === 互動功能擴充：PTZ Controller & Slot Selection ===
+
+        function togglePTZ() {
+            const ptzPanel = document.getElementById('ptz-panel');
+            if (ptzPanel.style.display === 'block') {
+                ptzPanel.style.display = 'none';
+            } else {
+                ptzPanel.style.display = 'block';
+            }
+        }
+
+        function selectSlot(slotId) {
+            // 移除其他 Slot 的選取狀態
+            document.querySelectorAll('.preview-slot').forEach(el => el.classList.remove('selected-slot'));
+            
+            // 加入當前 Slot 選取狀態
+            const slot = document.getElementById(slotId);
+            if(slot) {
+                slot.classList.add('selected-slot');
+                
+                // 更新 PTZ 面板的目標顯示
+                const ptzDisplay = document.getElementById('ptz-target-display');
+                if(ptzDisplay) ptzDisplay.innerText = `Target: ${slotId.replace('slot-', 'Window ')}`;
+            }
+        }
+
+        // === 讓 PTZ 面板可拖曳 (Draggable Logic) ===
+        const ptzPanel = document.getElementById('ptz-panel');
+        const ptzHeader = document.getElementById('ptz-header');
+        let isDragging = false;
+        let startX, startY, initialLeft, initialTop;
+
+        ptzHeader.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            
+            // 取得當前計算後的樣式位置
+            const rect = ptzPanel.getBoundingClientRect();
+            initialLeft = rect.left;
+            initialTop = rect.top;
+            
+            // 防止選取文字
+            e.preventDefault();
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            
+            // 改為 Fixed 或 Absolute 定位更新
+            ptzPanel.style.top = `${initialTop + dy}px`;
+            ptzPanel.style.left = `${initialLeft + dx}px`;
+            ptzPanel.style.right = 'auto'; // 清除 right 屬性以免衝突
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+
+        // === FIX 1: LAYOUT SWITCHING LOGIC (RESTORED V33) ===
+        function switchOutputMode(count, btn) {
+            document.querySelectorAll('.mode-opt').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const layout = document.getElementById('outputLayout');
+            layout.innerHTML = '';
+            if(count === 1) {
+                layout.className = 'output-layout-single';
+                layout.innerHTML = createSlot(1);
+            } else {
+                layout.className = 'output-layout-quad';
+                for(let i=1; i<=4; i++) layout.innerHTML += createSlot(i);
+            }
+            selectSlot('slot-1');
+        }
+        
+        function createSlot(num) {
+            return `<div class="preview-slot" id="slot-${num}" onclick="selectSlot('slot-${num}')" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="this.classList.remove('drag-over')"><div class="slot-label">Window ${num}</div><div class="slot-content" style="text-align:center;"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div></div>`;
+        }
+
         document.addEventListener('DOMContentLoaded', () => { if(document.getElementById('view-decoder').style.display !== 'none') selectSlot('slot-1'); });
     </script>
 </body>
 </html>
-
-}
