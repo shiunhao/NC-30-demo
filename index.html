@@ -650,6 +650,163 @@
             if (!e.target.matches('.slot-menu-btn')) document.querySelectorAll('.slot-dropdown').forEach(el => el.classList.remove('show'));
         }
 
+        // === 互動功能擴充：Decoder Drag & Drop ===
+
+        function allowDrop(ev) {
+            ev.preventDefault();
+            // 當拖曳進入時，給予視覺回饋 (CSS class: drag-over)
+            if (ev.target.classList.contains('preview-slot') || ev.target.closest('.preview-slot')) {
+                const slot = ev.target.classList.contains('preview-slot') ? ev.target : ev.target.closest('.preview-slot');
+                slot.classList.add('drag-over');
+            }
+        }
+
+        // 處理拖曳離開，移除視覺回饋
+        document.addEventListener('dragleave', (ev) => {
+             if (ev.target.classList.contains('preview-slot')) {
+                ev.target.classList.remove('drag-over');
+             }
+        });
+
+        function drag(ev) {
+            // 抓取來源資料
+            const row = ev.target.closest('tr');
+            const name = row.getAttribute('data-name');
+            const ip = row.getAttribute('data-ip');
+            const status = row.getAttribute('data-status');
+            
+            ev.dataTransfer.setData("text/name", name);
+            ev.dataTransfer.setData("text/ip", ip);
+            ev.dataTransfer.setData("text/status", status);
+        }
+
+        function drop(ev) {
+            ev.preventDefault();
+            // 找到放置的目標 Slot
+            let slot = ev.target;
+            if (!slot.classList.contains('preview-slot')) {
+                slot = slot.closest('.preview-slot');
+            }
+            if(!slot) return;
+
+            slot.classList.remove('drag-over');
+
+            const name = ev.dataTransfer.getData("text/name");
+            const ip = ev.dataTransfer.getData("text/ip");
+            const status = ev.dataTransfer.getData("text/status");
+
+            // 更新 Slot UI
+            updateSlotContent(slot, name, ip, status);
+            
+            // 自動選取該視窗
+            selectSlot(slot.id);
+        }
+
+        function updateSlotContent(slotEl, name, ip, status) {
+            // 清除舊內容
+            slotEl.innerHTML = ''; 
+            slotEl.classList.remove('offline-state');
+
+            // 建立標籤與內容
+            const label = document.createElement('div');
+            label.className = 'slot-label';
+            label.innerText = slotEl.id.replace('slot-', 'Window ');
+
+            const content = document.createElement('div');
+            content.className = 'slot-content';
+            content.innerHTML = `<div class="slot-name">${name}</div><div class="slot-meta">${ip} | ${status === 'online' ? '1080p60' : 'Connecting...'}</div>`;
+
+            // 模擬視訊畫面 (隨機圖片或黑畫面)
+            const bgLayer = document.createElement('div');
+            bgLayer.className = 'video-layer';
+            
+            if (status === 'offline') {
+                slotEl.classList.add('offline-state');
+                bgLayer.style.backgroundImage = 'none';
+                bgLayer.innerHTML = `<div class="offline-overlay"><div class="offline-icon">⚠️</div><div class="offline-text">NO SIGNAL</div><div class="offline-source-name">${name}</div></div>`;
+            } else {
+                // 使用假圖模擬視訊
+                const randomId = Math.floor(Math.random() * 50) + 10;
+                bgLayer.style.backgroundImage = `url('https://picsum.photos/id/${randomId}/800/600')`;
+            }
+
+            const gradient = document.createElement('div');
+            gradient.className = 'video-overlay-gradient';
+
+            // 加入元素
+            slotEl.appendChild(bgLayer);
+            slotEl.appendChild(gradient);
+            slotEl.appendChild(label);
+            slotEl.appendChild(content);
+            
+            // 加入選單按鈕 (依據你的 CSS)
+            const menuBtn = document.createElement('div');
+            menuBtn.className = 'slot-menu-btn';
+            menuBtn.innerText = '•••';
+            slotEl.appendChild(menuBtn);
+        }
+
+        // === 互動功能擴充：PTZ Controller & Slot Selection ===
+
+        function togglePTZ() {
+            const ptzPanel = document.getElementById('ptz-panel');
+            if (ptzPanel.style.display === 'block') {
+                ptzPanel.style.display = 'none';
+            } else {
+                ptzPanel.style.display = 'block';
+            }
+        }
+
+        function selectSlot(slotId) {
+            // 移除其他 Slot 的選取狀態
+            document.querySelectorAll('.preview-slot').forEach(el => el.classList.remove('selected-slot'));
+            
+            // 加入當前 Slot 選取狀態
+            const slot = document.getElementById(slotId);
+            if(slot) {
+                slot.classList.add('selected-slot');
+                
+                // 更新 PTZ 面板的目標顯示
+                const ptzDisplay = document.getElementById('ptz-target-display');
+                if(ptzDisplay) ptzDisplay.innerText = `Target: ${slotId.replace('slot-', 'Window ')}`;
+            }
+        }
+
+        // === 讓 PTZ 面板可拖曳 (Draggable Logic) ===
+        const ptzPanel = document.getElementById('ptz-panel');
+        const ptzHeader = document.getElementById('ptz-header');
+        let isDragging = false;
+        let startX, startY, initialLeft, initialTop;
+
+        ptzHeader.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            
+            // 取得當前計算後的樣式位置
+            const rect = ptzPanel.getBoundingClientRect();
+            initialLeft = rect.left;
+            initialTop = rect.top;
+            
+            // 防止選取文字
+            e.preventDefault();
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            
+            // 改為 Fixed 或 Absolute 定位更新
+            ptzPanel.style.top = `${initialTop + dy}px`;
+            ptzPanel.style.left = `${initialLeft + dx}px`;
+            ptzPanel.style.right = 'auto'; // 清除 right 屬性以免衝突
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+
         document.addEventListener('DOMContentLoaded', () => { if(document.getElementById('view-decoder').style.display !== 'none') selectSlot('slot-1'); });
     </script>
 </body>
