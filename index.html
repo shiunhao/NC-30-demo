@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NC30 Pro AV Interface (Final V10)</title>
+    <title>NC30 Pro AV Interface (Final V11)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -51,7 +51,7 @@
             <div style="display:flex; gap:20px; align-items:center;">
                 <div class="tally-indicator">🔴 LIVE</div>
                 <div class="settings-container">
-                    <div class="settings-btn" onclick="toggleSettings()">⚙️</div>
+                    <div id="btn-settings-gear" class="settings-btn" onclick="toggleSettings()">⚙️</div>
                     <div class="settings-dropdown" id="settingsMenu">
                         <a class="dropdown-item" onclick="showModal('Network Settings')"><span>🌐</span> Network Settings</a>
                         <a class="dropdown-item" onclick="showModal('System Settings')"><span>🔧</span> System Settings</a>
@@ -61,7 +61,7 @@
                     </div>
                 </div>
                 <div class="settings-container">
-                    <div class="settings-btn" onclick="toggleAccountMenu()">👤</div>
+                    <div id="btn-account-avatar" class="settings-btn" onclick="toggleAccountMenu()">👤</div>
                     <div class="settings-dropdown" id="accountMenu">
                         <a class="dropdown-item" onclick="actionAdminMode()"><span>🔑</span> Admin</a>
                         <a class="dropdown-item" onclick="actionUserMode()"><span>👤</span> User</a>
@@ -349,7 +349,7 @@
                 setTimeout(() => {
                     document.getElementById('page-login').style.display = 'none';
                     document.getElementById('page-home').style.display = 'flex';
-                    updateHomeUI(); // Update selection state on login
+                    updateHomeUI(); 
                 }, 500);
             }, 800);
         }
@@ -358,6 +358,19 @@
         function toggleAccountMenu() {
             document.getElementById('accountMenu').classList.toggle('show');
             document.getElementById('settingsMenu').classList.remove('show');
+        }
+
+        function toggleSettings() { 
+            if (currentUserRole === 'user') return; // Disable for User Mode
+            document.getElementById('settingsMenu').classList.toggle('show');
+            document.getElementById('accountMenu').classList.remove('show');
+        }
+
+        function goHome() {
+            if (currentUserRole === 'user') return; // Disable for User Mode
+            document.getElementById('app-shell').style.display = 'none';
+            document.getElementById('page-home').style.display = 'flex';
+            updateHomeUI();
         }
 
         function actionUserMode() {
@@ -402,7 +415,7 @@
         }
 
         function confirmLogout() {
-            location.reload(); // Simple reload to reset everything
+            location.reload(); 
         }
 
         function closeSpecificModal(id) {
@@ -478,12 +491,6 @@
                 badge.innerText = 'DECODER MODE';
                 badge.style.color = '#FF9500'; badge.style.borderColor = '#FF9500';
             }
-        }
-
-        function goHome() {
-            document.getElementById('app-shell').style.display = 'none';
-            document.getElementById('page-home').style.display = 'flex';
-            updateHomeUI();
         }
 
         function updateHomeUI() {
@@ -657,11 +664,6 @@
                 toast.style.animation = 'fadeOut 0.3s forwards';
                 setTimeout(() => toast.remove(), 300);
             }, 3000);
-        }
-
-        function toggleSettings() { 
-            document.getElementById('settingsMenu').classList.toggle('show');
-            document.getElementById('accountMenu').classList.remove('show');
         }
 
         // === Modal System (Updated Logic) ===
