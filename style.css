@@ -1,4 +1,4 @@
-/* style.css - Final V11 (Header Fix for User Mode) */
+/* style.css - Final V12 (Full System Settings Menu) */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -201,30 +201,23 @@ input:checked + .slider:before { transform: translateX(14px); }
     background-color: #121212; padding: 20px 40px; overflow-y: auto;
 }
 
-/* === USER MODE STYLES (Update: Visually disabled but visible) === */
-/* Disable Header Navigation items */
+/* === USER MODE STYLES === */
 body.user-mode .back-btn,
 body.user-mode #btn-settings-gear {
     opacity: 0.5; 
     cursor: not-allowed;
-    /* We handle clicks via JS to ensure they don't do anything */
 }
-
-/* Ensure Account Menu stays active */
 body.user-mode #btn-account-avatar {
     opacity: 1; 
     cursor: pointer;
     pointer-events: auto;
 }
-
-/* Disable Content Interaction */
 body.user-mode .control-panel,
 body.user-mode .decoder-settings-card,
 body.user-mode .source-list-panel {
     pointer-events: none;
     opacity: 0.7;
 }
-/* Ensure inner form elements don't get events */
 body.user-mode .control-panel input,
 body.user-mode .control-panel select,
 body.user-mode .control-panel button,
@@ -235,7 +228,6 @@ body.user-mode .source-list-panel button {
     pointer-events: none !important;
     opacity: 0.5;
 }
-/* Allow tabs switching for viewing */
 body.user-mode .ctrl-tabs, body.user-mode .sub-tabs {
     pointer-events: auto !important;
     opacity: 1;
@@ -354,6 +346,7 @@ body.user-mode .ctrl-tabs, body.user-mode .sub-tabs {
 .preview-slot.active-slot { border: 1px solid #444; }
 .preview-slot.selected-slot { border: 2px solid var(--theme-color); z-index: 10; }
 
+/* Video/Image Layer */
 .video-layer {
     position: absolute; top: 0; left: 0; right: 0; bottom: 0;
     background-size: cover; background-position: center; background-repeat: no-repeat;
@@ -489,9 +482,11 @@ body.user-mode .ctrl-tabs, body.user-mode .sub-tabs {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 2000;
     display: none; align-items: center; justify-content: center; backdrop-filter: blur(3px);
 }
+/* General Modal Box Style */
 .modal-box {
     background: var(--panel-color); width: 500px; border-radius: 8px; border: 1px solid #444; padding: 30px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    display: flex; flex-direction: column;
 }
 
 #toast-container {
@@ -617,4 +612,46 @@ body.user-mode .ctrl-tabs, body.user-mode .sub-tabs {
 }
 .upgrade-modal-icon {
     position: absolute; right: 10px; top: 32px; color: #777; font-size: 16px;
+}
+
+/* === NEW: Settings Modal System Layout === */
+/* Override default modal-box specifically for the large settings modal */
+#modal-large-settings .modal-box {
+    width: 800px; height: 550px; padding: 0; overflow: hidden; display: flex; flex-direction: row;
+}
+
+/* Left Sidebar */
+.settings-sidebar {
+    width: 200px; background: #1a1a1a; border-right: 1px solid #333;
+    display: flex; flex-direction: column; padding: 20px 0;
+}
+.sidebar-category {
+    padding: 10px 20px 5px 20px; color: #666; font-size: 11px; text-transform: uppercase; font-weight: bold; letter-spacing: 1px;
+}
+.sidebar-item {
+    padding: 10px 20px; color: #ccc; font-size: 13px; cursor: pointer; transition: 0.2s; border-left: 3px solid transparent;
+}
+.sidebar-item:hover { background: #252526; color: #fff; }
+.sidebar-item.active { background: #252526; color: #fff; border-left-color: var(--theme-color); font-weight: bold; }
+
+/* Right Content Area */
+.settings-content-area {
+    flex: 1; display: flex; flex-direction: column; background: var(--panel-color);
+}
+.settings-header {
+    height: 60px; border-bottom: 1px solid #333; display: flex; align-items: center; justify-content: space-between; padding: 0 30px;
+}
+.settings-title { font-size: 18px; font-weight: bold; color: #fff; }
+.settings-close-btn { cursor: pointer; font-size: 20px; color: #888; }
+.settings-close-btn:hover { color: #fff; }
+
+.settings-body {
+    flex: 1; padding: 30px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px;
+}
+.settings-subsection {
+    margin-bottom: 20px;
+}
+.settings-subsection-title {
+    font-size: 14px; font-weight: bold; color: var(--theme-color); border-bottom: 1px solid #333;
+    padding-bottom: 8px; margin-bottom: 15px;
 }
