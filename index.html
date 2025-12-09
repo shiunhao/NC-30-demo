@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NC30 Pro AV Interface (Final V9)</title>
+    <title>NC30 Pro AV Interface (Final V10)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -58,11 +58,17 @@
                         <a class="dropdown-item" onclick="showModal('Firmware Update')"><span>⬆️</span> Firmware Update</a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" onclick="showModal('About Device')"><span>ℹ️</span> About</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" onclick="doLogout()" style="color:#FF3B30;"><span>🚪</span> Logout</a>
                     </div>
                 </div>
-                <span style="font-size:20px; cursor:pointer; opacity:0.7;">👤</span>
+                <div class="settings-container">
+                    <div class="settings-btn" onclick="toggleAccountMenu()">👤</div>
+                    <div class="settings-dropdown" id="accountMenu">
+                        <a class="dropdown-item" onclick="actionAdminMode()"><span>🔑</span> Admin</a>
+                        <a class="dropdown-item" onclick="actionUserMode()"><span>👤</span> User</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" onclick="actionLogout()" style="color:#FF3B30;"><span>🚪</span> Logout</a>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -280,6 +286,40 @@
         <div class="modal-box" id="modalContentBox"></div>
     </div>
 
+    <div id="modal-upgrade-permission" style="display:none;" class="modal-overlay">
+        <div class="modal-box" style="width:400px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+                <h3 style="margin:0; color:#fff; font-size:16px;">Upgrade Permission</h3>
+                <span onclick="closeSpecificModal('modal-upgrade-permission')" style="cursor:pointer; color:#888;">✕</span>
+            </div>
+            <div class="upgrade-modal-input-group">
+                <label class="form-label">Username</label>
+                <input type="text" class="form-input" id="upgradeUser" placeholder="">
+                <span class="upgrade-modal-icon">👤</span>
+            </div>
+            <div class="upgrade-modal-input-group">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-input" id="upgradePass" placeholder="">
+                <span class="upgrade-modal-icon">🔒</span>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-footer-btn" onclick="closeSpecificModal('modal-upgrade-permission')">Cancel</button>
+                <button class="modal-footer-btn" onclick="verifyAdmin()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-logout-confirm" style="display:none;" class="modal-overlay">
+        <div class="modal-box" style="width:350px; text-align:center;">
+            <h3 style="color:#fff; margin-bottom:10px;">Logout?</h3>
+            <p style="color:#ccc; font-size:14px; margin-bottom:25px;">Are you sure you want to log out?</p>
+            <div style="display:flex; justify-content:center; gap:10px;">
+                <button class="btn btn-outline" onclick="closeSpecificModal('modal-logout-confirm')">Cancel</button>
+                <button class="btn btn-danger" onclick="confirmLogout()">Logout</button>
+            </div>
+        </div>
+    </div>
+
     <div id="searchOverlay" onclick="this.style.display='none'">
         <div class="search-modal-box" onclick="event.stopPropagation()">
             <div class="search-header">Select Network Source</div>
@@ -299,6 +339,7 @@
 
     <script>
         let currentSystemMode = null; // null, 'encoder', or 'decoder'
+        let currentUserRole = 'admin'; // 'admin' or 'user'
 
         function doLogin() {
             const btn = document.querySelector('#page-login .btn-primary');
@@ -312,23 +353,72 @@
                 }, 500);
             }, 800);
         }
-        function doLogout() { location.reload(); }
+        
+        // --- Account Menu Logic ---
+        function toggleAccountMenu() {
+            document.getElementById('accountMenu').classList.toggle('show');
+            document.getElementById('settingsMenu').classList.remove('show');
+        }
 
-        // Mode Switching Logic with Reboot Simulation
+        function actionUserMode() {
+            currentUserRole = 'user';
+            document.body.classList.add('user-mode');
+            showToast("Switched to User Mode (View Only)", "success");
+            document.getElementById('accountMenu').classList.remove('show');
+        }
+
+        function actionAdminMode() {
+            if(currentUserRole === 'admin') {
+                showToast("You are already Admin", "info");
+                document.getElementById('accountMenu').classList.remove('show');
+                return;
+            }
+            // Show Upgrade Modal
+            document.getElementById('modal-upgrade-permission').style.display = 'flex';
+            document.getElementById('accountMenu').classList.remove('show');
+        }
+
+        function verifyAdmin() {
+            const u = document.getElementById('upgradeUser').value;
+            const p = document.getElementById('upgradePass').value;
+            
+            // Mock Login
+            if(u && p) {
+                currentUserRole = 'admin';
+                document.body.classList.remove('user-mode');
+                closeSpecificModal('modal-upgrade-permission');
+                showToast("Permissions Upgraded to Admin", "success");
+                // Clear inputs
+                document.getElementById('upgradeUser').value = '';
+                document.getElementById('upgradePass').value = '';
+            } else {
+                showToast("Please enter Username and Password", "error");
+            }
+        }
+
+        function actionLogout() {
+            document.getElementById('modal-logout-confirm').style.display = 'flex';
+            document.getElementById('accountMenu').classList.remove('show');
+        }
+
+        function confirmLogout() {
+            location.reload(); // Simple reload to reset everything
+        }
+
+        function closeSpecificModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        // --- Mode Switching Logic ---
         function checkModeSwitch(targetMode) {
-            // Case 1: First time user (no current mode)
             if (currentSystemMode === null) {
                 performSwitch(targetMode);
                 return;
             }
-
-            // Case 2: Same mode clicked (Just enter)
             if (currentSystemMode === targetMode) {
                 enterView(targetMode);
                 return;
             }
-
-            // Case 3: Different mode clicked (Warning + Reboot)
             showRebootWarning(targetMode);
         }
 
@@ -355,10 +445,7 @@
 
         function confirmReboot(targetMode) {
             closeModal();
-            // Show Reboot Overlay
             document.getElementById('reboot-overlay').style.display = 'flex';
-            
-            // Simulate 3s delay
             setTimeout(() => {
                 document.getElementById('reboot-overlay').style.display = 'none';
                 performSwitch(targetMode);
@@ -400,10 +487,7 @@
         }
 
         function updateHomeUI() {
-            // Remove selection from all
             document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('selected-mode'));
-            
-            // Add selection to current mode if exists
             if (currentSystemMode === 'encoder') {
                 document.getElementById('card-enc').classList.add('selected-mode');
             } else if (currentSystemMode === 'decoder') {
@@ -411,7 +495,7 @@
             }
         }
 
-        // --- Existing Logic Below ---
+        // --- Existing Logic ---
 
         dragElement(document.getElementById("ptz-panel"));
         function dragElement(elmnt) {
@@ -575,9 +659,12 @@
             }, 3000);
         }
 
-        function toggleSettings() { document.getElementById('settingsMenu').classList.toggle('show'); }
+        function toggleSettings() { 
+            document.getElementById('settingsMenu').classList.toggle('show');
+            document.getElementById('accountMenu').classList.remove('show');
+        }
 
-        // === Modal System ===
+        // === Modal System (Updated Logic) ===
         function showModal(type) {
             const box = document.getElementById('modalContentBox');
             const overlay = document.getElementById('modalOverlay');
@@ -605,7 +692,6 @@
             overlay.style.display = 'flex';
         }
 
-        // Auto Search
         function showSearchOverlay() { document.getElementById('searchOverlay').style.display = 'flex'; }
         function selectSearchItem(name, ip) {
             document.getElementById('inputSrcName').value = name;
@@ -613,7 +699,6 @@
             document.getElementById('searchOverlay').style.display = 'none';
         }
 
-        // Real Add Source
         function addSourceReal() {
             const name = document.getElementById('inputSrcName').value || "New Source";
             const ip = document.getElementById('inputSrcIP').value || "192.168.x.x";
@@ -650,7 +735,6 @@
             const audioEncGroup = document.getElementById('audioEncodingGroup');
             const overlay = document.getElementById('signalLostOverlay');
             
-            // Status Bar Elements
             const ids = ['stat-res-in', 'stat-res-out', 'stat-fps', 'stat-bitrate', 'stat-audio-fmt', 'stat-audio-src'];
             const vals = ['3840 X 2160', '3840 X 2160', '60FPS', 'AUTO', '48kHz', 'HDMI'];
 
@@ -676,16 +760,6 @@
             event.target.classList.add('active');
             document.getElementById('enc-tab-' + tabName).style.display = 'block';
         }
-
-        document.querySelectorAll('.btn-primary').forEach(btn => {
-            if(btn.innerText === 'Apply' || btn.innerText === 'Apply Changes') {
-                btn.onclick = function() {
-                    const originalText = btn.innerText;
-                    btn.innerText = 'Saving...';
-                    setTimeout(() => { btn.innerText = originalText; showToast('Settings applied successfully!', 'success'); }, 800);
-                };
-            }
-        });
 
         window.onclick = function(e) {
             if (!e.target.matches('.settings-btn')) {
