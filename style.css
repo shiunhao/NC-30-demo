@@ -1,4 +1,4 @@
-/* style.css - Final Fixed Version V24 */
+/* style.css - Final Fixed Version V25 */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -306,6 +306,10 @@ body.user-mode .ctrl-tabs, body.user-mode .sub-tabs { pointer-events: auto !impo
     display: grid; grid-template-columns: 2fr 1fr; gap: 20px; 
     height: 60%; min-height: 400px;
 }
+.decoder-settings-card {
+    background: #1E1E1E; border: 1px solid #333; border-radius: 8px;
+    padding: 20px; display: flex; flex-direction: column;
+}
 
 .source-list-panel {
     display: flex; flex-direction: column;
@@ -333,15 +337,12 @@ body.user-mode .ctrl-tabs, body.user-mode .sub-tabs { pointer-events: auto !impo
 .source-row:hover { background: #252526; }
 .source-row td { padding: 10px; vertical-align: middle; }
 
-/* === FIX: Source Name & Detail Styles === */
+/* Source Name & Detail Styles */
 .src-name {
-    display: block; /* Force new line */
-    font-weight: bold; color: #eee; font-size: 13px;
-    margin-bottom: 4px;
+    display: block; font-weight: bold; color: #eee; font-size: 13px; margin-bottom: 4px;
 }
 .src-detail {
-    display: block; /* Force new line */
-    font-size: 11px; color: #888; font-family: monospace;
+    display: block; font-size: 11px; color: #888; font-family: monospace;
 }
 .thumb-box {
     width: 80px; height: 45px; background: #333; border-radius: 4px;
@@ -658,3 +659,23 @@ body.user-mode .ctrl-tabs, body.user-mode .sub-tabs { pointer-events: auto !impo
     padding: 6px 0; font-size: 11px; border-radius: 3px; cursor: pointer;
 }
 .preset-btn:hover { border-color: #666; color: #fff; }
+
+/* Settings Button Mode Option Styles */
+.mode-selector {
+    display: flex; gap: 10px;
+}
+.mode-opt {
+    flex: 1;
+    background: #252526; border: 1px solid #444;
+    padding: 10px; border-radius: 4px; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
+    font-size: 12px; color: #888;
+    transition: all 0.2s;
+}
+.mode-opt:hover { background: #333; color: #fff; }
+.mode-opt.active {
+    background: rgba(0,122,255,0.15); 
+    border-color: var(--theme-color); 
+    color: var(--theme-color);
+    font-weight: bold;
+}
