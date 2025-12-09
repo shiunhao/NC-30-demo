@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NC30 Pro AV Interface (Final Fixed V27)</title>
+    <title>NC30 Pro AV Interface (Final Fixed V29)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -185,77 +185,115 @@
                             </div>
                             <div class="settings-scroll-area">
                                 <div>
-                                    <div class="settings-group-title">Layout & Routing</div>
+                                    <div class="settings-group-title">
+                                        <div class="settings-group-icon">Icon</div> Output Settings
+                                    </div>
                                     <div class="form-group">
-                                        <label class="form-label">Output Mode</label>
-                                        <div class="mode-selector">
-                                            <div class="mode-opt active" id="btn-mode-single" onclick="switchOutputMode(1)">
-                                                <span style="font-size:16px;">⬜</span> Single
-                                            </div>
-                                            <div class="mode-opt" id="btn-mode-quad" onclick="switchOutputMode(4)">
-                                                <span style="font-size:16px;">田</span> Quad
-                                            </div>
+                                        <label class="form-label">Output Switch Mode</label>
+                                        <select class="form-select" onchange="switchOutputMode(this.value === 'Single' ? 1 : 4)">
+                                            <option value="Single" selected>High Quality(4k) - Single</option>
+                                            <option value="Quad">Multiview - Quad</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Resolution</label>
+                                        <select class="form-select">
+                                            <option>3840 X 2160</option>
+                                            <option selected>1920 X 1080</option>
+                                            <option>1280 X 720</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Color Space</label>
+                                        <select class="form-select">
+                                            <option selected>RGB</option>
+                                            <option>YUV 4:4:4</option>
+                                            <option>YUV 4:2:2</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Audio output source</label>
+                                        <select class="form-select">
+                                            <option selected>HDMI</option>
+                                            <option>Line Out</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="settings-group-title">
+                                        <div class="settings-group-icon">Icon</div> USB(Theme Mode)
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" style="margin-bottom:10px;">USB Output</label>
+                                        <div class="radio-group">
+                                            <label class="radio-label"><input type="radio" name="usb_out"> On</label>
+                                            <label class="radio-label"><input type="radio" name="usb_out" checked> Off</label>
                                         </div>
                                     </div>
-                                    <div class="form-group"><label class="form-label">Audio Follows</label><select class="form-select"><option selected>Window 1 (Main)</option><option>Window 2</option></select></div>
-                                </div>
-                                <div>
-                                    <div class="settings-group-title">Output Format</div>
-                                    <div class="form-group"><label class="form-label">Resolution</label><select class="form-select"><option>Auto</option><option selected>1080p60</option></select></div>
-                                    <div class="form-group"><label class="form-label">Frame Rate</label><select class="form-select"><option>60 fps</option></select></div>
-                                </div>
-                                <div>
-                                    <div class="settings-group-title">Audio Output</div>
-                                    <div class="form-group"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;"><label class="form-label" style="margin:0;">HDMI Embedded</label><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></div></div>
-                                    <div class="form-group"><div style="display:flex; justify-content:space-between;"><label class="form-label">Line Out Volume</label><span style="font-size:11px; color:#aaa;">80%</span></div><input type="range" style="width:100%;" min="0" max="100" value="80"></div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="source-list-panel">
                         <div class="list-toolbar">
-                            <span style="font-weight:bold; font-size:14px; color:#ddd;">Source List (3)</span>
+                            <span style="font-weight:bold; font-size:14px; color:#ddd;">Source List</span>
                             <div style="display:flex; gap:10px;">
-                                <button class="btn btn-primary" onclick="showModal('Add Manual Source')">➕ Add Source</button>
-                                <button class="btn btn-outline">🔄 Refresh</button>
+                                <button class="btn btn-primary" onclick="showModal('Add Manual Source')">Add Source</button>
+                                <button class="btn btn-outline">Refresh</button>
                             </div>
                         </div>
                         <div class="source-list-scroll">
                             <table class="source-list-table">
                                 <thead class="source-list-header">
                                     <tr>
-                                        <th style="width:50px; text-align:center;">Loop</th>
-                                        <th style="width:100px;">Preview</th>
-                                        <th>Source Info</th>
+                                        <th style="width:40px;"></th>
+                                        <th style="width:120px;">Preview</th>
+                                        <th>Details</th>
                                         <th style="width:60px; text-align:center;">Preset</th>
-                                        <th style="width:120px;">Status</th>
-                                        <th style="width:100px; text-align:right;">Actions</th>
+                                        <th style="width:120px; text-align:right;">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr class="source-row" draggable="true" ondragstart="drag(event)" data-name="Studio Cam 01" data-ip="192.168.1.101" data-status="online">
-                                        <td style="text-align:center;"><input type="checkbox" checked class="loop-chk"></td>
-                                        <td><div class="thumb-box" style="background:#222; color:#fff;">CAM 01</div></td>
-                                        <td><span class="src-name">Studio Cam 01</span><span class="src-detail">192.168.1.101</span></td>
-                                        <td style="text-align:center; font-weight:bold; color:#666;">1</td>
-                                        <td><div class="status-badge status-ok">● Ready</div></td>
-                                        <td style="text-align:right;"><button class="btn-icon">✏️</button><button class="btn-icon" style="color:#d32f2f;">🗑️</button></td>
+                                    <tr class="source-row selected" draggable="true" ondragstart="drag(event)" data-name="Source name" data-ip="0000.000.000.0000" data-status="online">
+                                        <td class="drag-col"><span class="drag-handle-icon">⋮⋮</span></td>
+                                        <td class="thumb-col"><div class="thumb-box"><img src="https://picsum.photos/id/64/100/56"></div></td>
+                                        <td class="info-col">
+                                            <div class="src-name">Source name</div>
+                                            <div class="src-meta">0000.000.000.0000 | Group Name | Status:Online</div>
+                                        </td>
+                                        <td class="preset-col"><span class="preset-badge">1</span></td>
+                                        <td class="action-col"><button class="btn-small">Edit</button><button class="btn-small">Remove</button></td>
                                     </tr>
-                                    <tr class="source-row" draggable="true" ondragstart="drag(event)" data-name="PTZ Camera 03" data-ip="192.168.1.52" data-status="online">
-                                        <td style="text-align:center;"><input type="checkbox" class="loop-chk"></td>
-                                        <td><div class="thumb-box">PTZ 03</div></td>
-                                        <td><span class="src-name">PTZ Camera 03</span><span class="src-detail">192.168.1.52</span></td>
-                                        <td style="text-align:center; font-weight:bold; color:#666;">2</td>
-                                        <td><div class="status-badge status-warn">▲ Warning</div></td>
-                                        <td style="text-align:right;"><button class="btn-icon">✏️</button><button class="btn-icon" style="color:#d32f2f;">🗑️</button></td>
+                                    <tr class="source-row" draggable="true" ondragstart="drag(event)" data-name="Source name" data-ip="0000.000.000.0000" data-status="online">
+                                        <td class="drag-col"><span class="drag-handle-icon">⋮⋮</span></td>
+                                        <td class="thumb-col"><div class="thumb-box"><img src="https://picsum.photos/id/1/100/56"></div></td>
+                                        <td class="info-col">
+                                            <div class="src-name">Source name</div>
+                                            <div class="src-meta">0000.000.000.0000 | Group Name | Status:Online</div>
+                                        </td>
+                                        <td class="preset-col"></td>
+                                        <td class="action-col"><button class="btn-small">Edit</button><button class="btn-small">Remove</button></td>
                                     </tr>
-                                    <tr class="source-row" draggable="true" ondragstart="drag(event)" data-name="Remote Guest PC" data-ip="10.0.0.5" data-status="offline">
-                                        <td style="text-align:center;"><input type="checkbox" class="loop-chk"></td>
-                                        <td><div class="thumb-box" style="border:1px dashed #666; color:#666;">NO SIG</div></td>
-                                        <td><span class="src-name">Remote Guest PC</span><span class="src-detail">10.0.0.5</span></td>
-                                        <td style="text-align:center; font-weight:bold; color:#666;">-</td>
-                                        <td><div class="status-badge" style="color:#d32f2f;">✕ Offline</div></td>
-                                        <td style="text-align:right;"><button class="btn-icon">✏️</button><button class="btn-icon" style="color:#d32f2f;">🗑️</button></td>
+                                    <tr class="source-row" draggable="true" ondragstart="drag(event)" data-name="Source name" data-ip="0000.000.000.0000" data-status="error">
+                                        <td class="drag-col"><span class="drag-handle-icon">⋮⋮</span></td>
+                                        <td class="thumb-col"><div class="thumb-box"><img src="https://picsum.photos/id/48/100/56"></div></td>
+                                        <td class="info-col">
+                                            <div class="src-name">Source name</div>
+                                            <div class="src-meta">0000.000.000.0000 | Group Name | Status:<span class="src-status-error">No support 4k▲</span></div>
+                                        </td>
+                                        <td class="preset-col"></td>
+                                        <td class="action-col"><button class="btn-small">Edit</button><button class="btn-small">Remove</button></td>
+                                    </tr>
+                                    <tr class="source-row" draggable="true" ondragstart="drag(event)" data-name="Source name" data-ip="0000.000.000.0000" data-status="offline">
+                                        <td class="drag-col"><span class="drag-handle-icon">⋮⋮</span></td>
+                                        <td class="thumb-col"><div class="thumb-box offline"><span>Offline</span><span>Icon</span></div></td>
+                                        <td class="info-col">
+                                            <div class="src-name" style="color:#888;">Source name</div>
+                                            <div class="src-meta">0000.000.000.0000 | Group Name | Offline</div>
+                                        </td>
+                                        <td class="preset-col"></td>
+                                        <td class="action-col"><button class="btn-small">Edit</button><button class="btn-small">Remove</button></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -543,7 +581,6 @@
             }
             else if (tabId === 'account') {
                 titleEl.innerText = "Account Settings";
-                // Updated Account Content (Admin + User)
                 htmlContent = `
                     <div class="settings-subsection">
                         <div class="settings-subsection-title">Admin Account</div>
@@ -580,23 +617,20 @@
             bodyEl.innerHTML = htmlContent;
         }
 
-        // --- Mode Switch Logic (BUG FIX 3) ---
+        // --- Mode Switch Logic ---
         function checkModeSwitch(targetMode) {
             console.log("Current:", currentSystemMode, "Target:", targetMode);
 
-            // 1. Initial State: Directly Enter
             if (!currentSystemMode) {
                 performSwitch(targetMode);
                 return;
             }
 
-            // 2. Same Mode: Directly Enter (No Warning)
             if (currentSystemMode === targetMode) {
                 enterView(targetMode);
                 return;
             }
 
-            // 3. Different Mode: Show Reboot Warning
             if (currentSystemMode !== targetMode) {
                 showRebootWarning(targetMode);
                 return;
@@ -802,9 +836,8 @@
             const container = document.getElementById('outputLayout');
             
             // UI Button Active State
-            document.querySelectorAll('.mode-opt').forEach(b => b.classList.remove('active'));
-            if(count === 1) document.getElementById('btn-mode-single').classList.add('active');
-            else document.getElementById('btn-mode-quad').classList.add('active');
+            // Note: In V29 UI this is handled by select dropdown, so no button classes to toggle here
+            // But if we had buttons, we'd toggle them. The Select `onchange` calls this directly.
             
             if (count === 1) {
                 container.className = 'output-layout-single';
@@ -818,26 +851,29 @@
             } 
             else if (count === 4) {
                 container.className = 'output-layout-quad';
-                // Ensure Slot 1 exists and preserve it
                 let slot1 = document.getElementById('slot-1');
-                if(!slot1) {
-                    slot1Content = createSlot(1); // string
+                
+                if(slot1) {
+                    // Temporarily detach slot 1 to re-append
+                    slot1.remove(); 
                 } else {
-                    slot1Content = slot1.outerHTML;
+                    slot1 = document.createElement('div'); // Dummy, will be replaced by createSlot string
                 }
-                
+
                 container.innerHTML = '';
-                // Check if slot1 was detached or just string, simple rebuild:
-                // For simplicity in this demo, we rebuild slot 1 if it's not complex state
-                // Ideally appendChild(slot1) but mixed with innerHTML strings is messy.
-                // Let's just rebuild all slots to ensure clean state, or carefully append.
                 
-                if(slot1) container.appendChild(slot1);
-                else container.innerHTML += createSlot(1);
-                
-                if(!document.getElementById('slot-2')) container.innerHTML += createSlot(2);
-                if(!document.getElementById('slot-3')) container.innerHTML += createSlot(3);
-                if(!document.getElementById('slot-4')) container.innerHTML += createSlot(4);
+                // Re-append Slot 1 (if existed) or create new
+                if(document.getElementById('slot-1')) {
+                     // If it somehow survived in DOM, move it. 
+                     // Simplest way for this demo:
+                     container.innerHTML += createSlot(1); // Reset content for stability
+                } else {
+                     container.innerHTML += createSlot(1);
+                }
+
+                container.innerHTML += createSlot(2);
+                container.innerHTML += createSlot(3);
+                container.innerHTML += createSlot(4);
             }
             selectSlot('slot-1');
         }
@@ -893,7 +929,10 @@
 
             if (type === 'Add Manual Source') {
                 content = `
-                    <h3 style="margin-top:0; color:#fff; font-size:16px; border-bottom:1px solid #333; padding-bottom:15px; margin-bottom:20px;">Source Configuration</h3>
+                    <div class="modal-header-row">
+                        <h3 style="margin:0; color:#fff; font-size:16px;">Add Source</h3>
+                        <span class="modal-close-x" onclick="closeModal()">✕</span>
+                    </div>
                     
                     <div class="modal-body-add-source">
                         <div class="form-group">
@@ -948,7 +987,7 @@
             const name = nameInput.value || "New Source";
             const ip = ipInput.value || "192.168.x.x";
 
-            // Create new row
+            // Create new row in V28 format
             const tbody = document.querySelector('.source-list-table tbody');
             const newRow = document.createElement('tr');
             newRow.className = "source-row";
@@ -959,12 +998,14 @@
             newRow.setAttribute('data-status', 'online'); 
 
             newRow.innerHTML = `
-                <td style="text-align:center;"><input type="checkbox" checked class="loop-chk"></td>
-                <td><div class="thumb-box" style="background:#222; color:#fff;">NEW</div></td>
-                <td><span class="src-name">${name}</span><span class="src-detail">${ip}</span></td>
-                <td style="text-align:center; font-weight:bold; color:#666;">-</td>
-                <td><div class="status-badge status-ok">● Ready</div></td>
-                <td style="text-align:right;"><button class="btn-icon">✏️</button><button class="btn-icon" style="color:#d32f2f;">🗑️</button></td>
+                <td class="drag-col"><span class="drag-handle-icon">⋮⋮</span></td>
+                <td class="thumb-col"><div class="thumb-box"><img src="https://picsum.photos/id/10/100/56"></div></td>
+                <td class="info-col">
+                    <div class="src-name">${name}</div>
+                    <div class="src-meta">${ip} | Group Name | Status:Online</div>
+                </td>
+                <td class="preset-col"></td>
+                <td class="action-col"><button class="btn-small">Edit</button><button class="btn-small">Remove</button></td>
             `;
 
             tbody.appendChild(newRow);
@@ -976,7 +1017,7 @@
         // === FIX 2: MODAL CLOSE LOGIC (Stop Propagation) ===
         function closeModal(event) { 
             // If the event exists AND the target clicked is NOT the overlay (meaning it's a child element), do nothing
-            if (event && event.target !== document.getElementById('modalOverlay')) return;
+            if (event && event.target !== document.getElementById('modalOverlay') && !event.target.classList.contains('modal-close-x')) return;
             document.getElementById('modalOverlay').style.display = 'none'; 
         }
 
