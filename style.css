@@ -1,4 +1,4 @@
-/* style.css - Restored V33 (PTZ No Header, List Balanced, Flex Fix) */
+/* style.css - Restored V33 (Strict) */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -190,7 +190,7 @@ input:checked + .slider:before { transform: translateX(14px); }
 
 .header-center-group { display: flex; gap: 10px; align-items: center; margin: 0 10px; }
 .status-circle {
-    width: 32px; height: 32px; border-radius: 50%; /* background: #333; removed in V34, restore in V33 was just unicode */
+    width: 32px; height: 32px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
     color: #888; font-size: 14px; cursor: help;
 }
@@ -462,7 +462,6 @@ body.user-mode .ctrl-tabs, body.user-mode .sub-tabs { pointer-events: auto !impo
 .source-row { border-bottom: 1px solid #2a2a2a; transition: background 0.1s; cursor: grab; }
 .source-row:active { cursor: grabbing; background: #2a2a2a; }
 .source-row:hover { background-color: #252525; }
-/* V31 FIX: REMOVED ORANGE BORDER */
 .source-row.selected { background: #2a2a2a; }
 
 .source-row td { padding: 10px; vertical-align: middle; }
