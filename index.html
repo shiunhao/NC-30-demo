@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NC30 Pro AV Interface (Final Fixed V32)</title>
+    <title>NC30 Pro AV Interface (Final Fixed V33)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -53,33 +53,33 @@
                 <div class="tally-indicator">LIVE</div>
                 
                 <div class="header-center-group">
-                    <div class="status-circle" title="NDI Status">Icon</div>
-                    <div class="status-circle" title="CPU">Icon</div>
-                    <div class="status-circle" title="Network">Icon</div>
+                    <div class="status-circle" title="NDI Status">📡</div>
+                    <div class="status-circle" title="CPU">📊</div>
+                    <div class="status-circle" title="Network">🌐</div>
                 </div>
                 
                 <div class="vertical-divider"></div>
 
                 <div class="settings-container">
                     <div id="btn-account-avatar" class="account-pill" onclick="toggleAccountMenu()">
-                        <span id="current-user-label">Admin</span> <span>Icon</span>
+                        <span id="current-user-label">Admin</span> <span>👤</span>
                     </div>
                     <div class="settings-dropdown" id="accountMenu">
                         <div class="dropdown-item active" id="role-admin" onclick="actionAdminMode()">
-                            <span>Icon</span> Admin
+                            <span>👤</span> Admin
                         </div>
                         <div class="dropdown-item" id="role-user" onclick="actionUserMode()">
-                            <span>Icon</span> User
+                            <span>👤</span> User
                         </div>
                         <div class="dropdown-divider"></div>
                         <div class="dropdown-item" onclick="actionLogout()" style="color:#FF3B30;">
-                            <span>Icon</span> Logout
+                            <span>🚪</span> Logout
                         </div>
                     </div>
                 </div>
 
                 <div class="settings-container">
-                    <div id="btn-settings-gear" class="settings-btn" onclick="openFullSettings('audio')">Icon</div>
+                    <div id="btn-settings-gear" class="settings-btn" onclick="openFullSettings('audio')">⚙️</div>
                 </div>
             </div>
         </div>
@@ -213,8 +213,8 @@
                                             <th style="width:40px;"></th>
                                             <th style="width:120px;">Preview</th>
                                             <th>Details</th>
-                                            <th style="width:60px; text-align:center;">Preset</th>
-                                            <th style="width:120px; text-align:right;">Action</th>
+                                            <th style="width:80px; text-align:center;">Preset</th>
+                                            <th style="width:180px; text-align:right;">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -267,7 +267,7 @@
                     <div class="decoder-settings-card">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                             <span class="panel-title" style="margin:0; border:none;">DECODING SETTINGS</span>
-                            <button class="btn btn-primary" onclick="togglePTZ()" style="padding:4px 10px; font-size:12px;">Icon Open PTZ</button>
+                            <button class="btn btn-primary" onclick="togglePTZ()" style="padding:4px 10px; font-size:12px;">🕹️ Open PTZ</button>
                         </div>
                         <div class="settings-scroll-area">
                             <div>
@@ -326,13 +326,7 @@
     </div>
 
     <div id="ptz-panel" class="draggable-panel">
-        <div class="panel-header-drag" id="ptz-header">
-            <div>PTZ Control Panel<span id="ptz-target-display">(Target:Preview1)</span></div>
-            <div class="ptz-header-icons">
-                <span class="ptz-drag-handle">:::</span>
-                <button class="close-btn" onclick="togglePTZ()">×</button>
-            </div>
-        </div>
+        <div class="ptz-floating-close" onclick="togglePTZ()">✕</div>
         <div class="ptz-content">
             <div class="ptz-dir-pad">
                 <button class="ptz-btn">↖</button>
@@ -423,12 +417,12 @@
             <div class="upgrade-modal-input-group">
                 <label class="form-label">Username</label>
                 <input type="text" class="form-input" id="upgradeUser" placeholder="">
-                <span class="upgrade-modal-icon">Icon</span>
+                <span class="upgrade-modal-icon">👤</span>
             </div>
             <div class="upgrade-modal-input-group">
                 <label class="form-label">Password</label>
                 <input type="password" class="form-input" id="upgradePass" placeholder="">
-                <span class="upgrade-modal-icon">Icon</span>
+                <span class="upgrade-modal-icon">🔒</span>
             </div>
             <div class="modal-footer">
                 <button class="modal-footer-btn" onclick="closeSpecificModal('modal-upgrade-permission')">Cancel</button>
@@ -647,23 +641,20 @@
             bodyEl.innerHTML = htmlContent;
         }
 
-        // --- Mode Switch Logic (BUG FIX 3) ---
+        // --- Mode Switch Logic ---
         function checkModeSwitch(targetMode) {
             console.log("Current:", currentSystemMode, "Target:", targetMode);
 
-            // 1. Initial State: Directly Enter
             if (!currentSystemMode) {
                 performSwitch(targetMode);
                 return;
             }
 
-            // 2. Same Mode: Directly Enter (No Warning)
             if (currentSystemMode === targetMode) {
                 enterView(targetMode);
                 return;
             }
 
-            // 3. Different Mode: Show Reboot Warning
             if (currentSystemMode !== targetMode) {
                 showRebootWarning(targetMode);
                 return;
@@ -741,10 +732,25 @@
         dragElement(document.getElementById("ptz-panel"));
         function dragElement(elmnt) {
             var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-            if (document.getElementById(elmnt.id + "-header")) document.getElementById(elmnt.id + "-header").onmousedown = dragMouseDown;
-            else elmnt.onmousedown = dragMouseDown;
-            function dragMouseDown(e) { e = e || window.event; e.preventDefault(); pos3 = e.clientX; pos4 = e.clientY; document.onmouseup = closeDragElement; document.onmousemove = elementDrag; }
-            function elementDrag(e) { e = e || window.event; e.preventDefault(); pos1 = pos3 - e.clientX; pos2 = pos4 - e.clientY; pos3 = e.clientX; pos4 = e.clientY; elmnt.style.top = (elmnt.offsetTop - pos2) + "px"; elmnt.style.left = (elmnt.offsetLeft - pos1) + "px"; }
+            // Removed header drag logic, now dragging by body
+            elmnt.onmousedown = dragMouseDown;
+
+            function dragMouseDown(e) { 
+                // Only allow dragging if clicking on empty space or specific areas, not buttons/sliders
+                if(e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') return;
+                
+                e = e || window.event; e.preventDefault(); 
+                pos3 = e.clientX; pos4 = e.clientY; 
+                document.onmouseup = closeDragElement; 
+                document.onmousemove = elementDrag; 
+            }
+            function elementDrag(e) { 
+                e = e || window.event; e.preventDefault(); 
+                pos1 = pos3 - e.clientX; pos2 = pos4 - e.clientY; 
+                pos3 = e.clientX; pos4 = e.clientY; 
+                elmnt.style.top = (elmnt.offsetTop - pos2) + "px"; 
+                elmnt.style.left = (elmnt.offsetLeft - pos1) + "px"; 
+            }
             function closeDragElement() { document.onmouseup = null; document.onmousemove = null; }
         }
         function togglePTZ() {
@@ -782,7 +788,7 @@
                 contentHTML = `
                     <div class="slot-label">Window ${windowNum}</div>
                     <div class="offline-overlay">
-                        <div class="offline-icon">Icon</div>
+                        <div class="offline-icon">⚠️</div>
                         <div class="offline-text">No Source Detected</div>
                         <div class="offline-source-name">${data.name}</div>
                     </div>
@@ -814,9 +820,9 @@
             return `
                 <button class="slot-menu-btn" onclick="toggleSlotMenu('${slotId}', event)">•••</button>
                 <div class="slot-dropdown" id="menu-${slotId}">
-                    <button class="slot-action" onclick="alert('Edit functionality coming soon!')">Icon Edit</button>
+                    <button class="slot-action" onclick="alert('Edit functionality coming soon!')">✏️ Edit</button>
                     <div style="height:1px; background:#444; margin:2px 0;"></div>
-                    <button class="slot-action danger" onclick="removeSource('${slotId}')">Icon Remove</button>
+                    <button class="slot-action danger" onclick="removeSource('${slotId}')">🗑️ Remove</button>
                 </div>
             `;
         }
@@ -869,9 +875,8 @@
             const container = document.getElementById('outputLayout');
             
             // UI Button Active State
-            document.querySelectorAll('.mode-opt').forEach(b => b.classList.remove('active'));
-            if(count === 1) document.getElementById('btn-mode-single').classList.add('active');
-            else document.getElementById('btn-mode-quad').classList.add('active');
+            // Note: In V29 UI this is handled by select dropdown, so no button classes to toggle here
+            // But if we had buttons, we'd toggle them. The Select `onchange` calls this directly.
             
             if (count === 1) {
                 container.className = 'output-layout-single';
@@ -983,7 +988,7 @@
                             <label class="form-label" style="color:#aaa;">* IP</label>
                             <div class="input-group-row">
                                 <input type="text" id="inputSrcIP" class="form-input input-with-btn" placeholder="rtsp:// or 192.168.x.x">
-                                <button class="btn btn-outline" onclick="showSearchOverlay()">Icon Auto Search</button>
+                                <button class="btn btn-outline" onclick="showSearchOverlay()">🔍 Auto Search</button>
                             </div>
                         </div>
                     </div>
