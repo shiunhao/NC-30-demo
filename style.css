@@ -1,4 +1,4 @@
-/* style.css - Final Demo Version */
+/* style.css - Final Demo Version (Image Matched) */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -13,7 +13,8 @@
     --theme-hover: #005bb5;
     --danger-color: #D32F2F;
     --success-color: #4CAF50;
-    --ptz-orange: #E67E22;
+    --ptz-bg: #222222;
+    --ptz-thumb: #C69C6D; /* Gold/Tan color from image */
 }
 
 body {
@@ -204,7 +205,7 @@ input:checked + .slider:before { transform: translateX(14px); }
 .offline-icon { font-size: 24px; margin-bottom: 5px; }
 .offline-text { color: #fff; font-weight: 900; font-size: 14px; background: #D32F2F; padding: 2px 8px; border-radius: 2px; }
 
-/* Slot Menu (Added Fixed) */
+/* Slot Menu */
 .slot-menu-btn {
     position: absolute; top: 10px; right: 10px;
     background: rgba(0,0,0,0.5); border: none; color: #fff;
@@ -253,20 +254,91 @@ input:checked + .slider:before { transform: translateX(14px); }
 .btn-small:hover { background: #444; color: #fff; }
 .btn-small.btn-danger:hover { background: #D32F2F; }
 
-/* Draggable PTZ */
+/* === Draggable PTZ (REMODELED V2) === */
 .draggable-panel {
-    display: none; position: absolute; top: 100px; right: 400px; width: 260px; background: #252526; border: 1px solid #444; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); z-index: 1000;
+    display: none; position: absolute; top: 100px; right: 400px; width: 260px;
+    background: var(--ptz-bg); border-radius: 8px; border: 1px solid #444;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.8); z-index: 1000;
+    flex-direction: column; overflow: hidden;
 }
-.ptz-floating-close { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.5); color: #ccc; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid #555; font-size: 12px; z-index: 10; }
-.ptz-floating-close:hover { background: #d32f2f; color: #fff; border-color: #d32f2f; }
-.ptz-content { padding: 15px; display: flex; flex-direction: column; gap: 15px; }
-.ptz-dir-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; width: 100%; aspect-ratio: 4/3; background: #222; border-radius: 4px; padding: 4px; border: 1px solid #333; }
-.ptz-btn { background: #333; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 4px; font-size: 16px; color: #ccc; transition: background 0.1s; }
-.ptz-btn:hover { background: #444; color: #fff; }
-.ptz-btn:active { background: var(--theme-color); color: #fff; }
-.ptz-slider-group label { display: block; color: #ccc; font-size: 11px; margin-bottom: 5px; }
-input[type=range].ptz-range { -webkit-appearance: none; width: 100%; height: 4px; background: #444; border-radius: 2px; outline: none; }
-input[type=range].ptz-range::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--ptz-orange); cursor: pointer; border: 2px solid #222; }
+
+/* Header */
+.ptz-header {
+    background: transparent; padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; cursor: move;
+}
+.ptz-drag-handle { color: #888; letter-spacing: 2px; font-size: 12px; cursor: move; }
+.ptz-title { font-size: 13px; color: #ddd; font-weight: 500; }
+.ptz-close { cursor: pointer; color: #888; font-size: 16px; font-weight: bold; line-height: 1; }
+.ptz-close:hover { color: #fff; }
+
+.ptz-body { padding: 15px; display: flex; flex-direction: column; gap: 20px; }
+
+/* Direction Pad */
+.ptz-pad-container {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;
+    background: transparent;
+}
+.ptz-btn {
+    aspect-ratio: 1; background: #424242; border: none; border-radius: 2px;
+    color: #ccc; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: background 0.1s;
+}
+.ptz-btn:hover { background: #555; color: #fff; }
+.ptz-btn:active { background: #666; }
+.ptz-home { font-size: 18px; color: #fff; font-weight: bold; }
+
+/* Sliders */
+.ptz-sliders { display: flex; flex-direction: column; gap: 15px; }
+.ptz-slider-group label { display: block; color: #bbb; font-size: 12px; margin-bottom: 6px; }
+.slider-wrapper { display: flex; align-items: center; gap: 8px; }
+.slider-icon { color: #888; font-weight: bold; font-size: 14px; cursor: pointer; }
+.slider-icon:hover { color: #fff; }
+
+/* Custom Range Styling */
+input[type=range].ptz-range {
+    -webkit-appearance: none; width: 100%; background: transparent; margin: 0;
+}
+input[type=range].ptz-range:focus { outline: none; }
+
+/* Webkit Slider Track */
+input[type=range].ptz-range::-webkit-slider-runnable-track {
+    width: 100%; height: 2px; cursor: pointer; background: #666; border-radius: 0;
+}
+/* Webkit Slider Thumb */
+input[type=range].ptz-range::-webkit-slider-thumb {
+    height: 14px; width: 14px; border-radius: 50%;
+    background: var(--ptz-thumb); cursor: pointer;
+    -webkit-appearance: none; margin-top: -6px; /* center on track */
+    border: 2px solid #444; /* dark border inside */
+    box-shadow: 0 0 0 1px var(--ptz-thumb); /* outer glow effect */
+}
+/* Firefox styles just in case */
+input[type=range].ptz-range::-moz-range-track {
+    width: 100%; height: 2px; cursor: pointer; background: #666;
+}
+input[type=range].ptz-range::-moz-range-thumb {
+    height: 14px; width: 14px; border: 2px solid #444; border-radius: 50%;
+    background: var(--ptz-thumb); cursor: pointer;
+}
+
+/* Presets */
+.ptz-preset-section { display: flex; flex-direction: column; gap: 5px; }
+.ptz-preset-section label { display: block; color: #bbb; font-size: 12px; }
+.preset-controls { display: flex; align-items: center; gap: 6px; }
+.ptz-arrow-btn {
+    background: transparent; border: none; color: #888; font-size: 16px; cursor: pointer; padding: 0 4px;
+}
+.ptz-arrow-btn:hover { color: #fff; }
+
+.preset-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; flex: 1;
+}
+.preset-grid button {
+    background: #424242; border: none; color: #bbb; font-size: 12px; padding: 10px 0;
+    cursor: pointer; border-radius: 2px;
+}
+.preset-grid button:hover { background: #555; color: #fff; }
+.preset-grid button:active { background: var(--ptz-thumb); color: #000; }
 
 /* Modals */
 .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(3px); }
