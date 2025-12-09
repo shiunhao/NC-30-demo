@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NC30 Pro AV Interface (Final Demo V7 - Unified UI)</title>
+    <title>NC30 Pro AV Interface (Final Demo V8)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -209,7 +209,7 @@
                                 <div class="header-info-container" id="live-header-info">
                                     </div>
                                 <div class="header-right-ctrl">
-                                    <button class="btn btn-outline btn-sm" onclick="togglePTZ()">🎮 PTZ Controller</button>
+                                    <button id="btn-ptz-ctrl" class="btn btn-outline btn-sm" onclick="togglePTZ()" disabled>🎮 PTZ Controller</button>
                                 </div>
                             </div>
 
@@ -255,7 +255,19 @@
                                 <div class="settings-group-title">
                                     <div class="settings-group-icon">📺</div> Output Settings
                                 </div>
-                                <div class="form-group"><label class="form-label">Output Switch Mode</label><select class="form-select" onchange="switchOutputMode(this.value === 'Single' ? 1 : 4)"><option value="Single" selected>High Quality(4k)</option><option value="Quad">Multiview - Quad</option></select></div>
+                                <div class="form-group">
+                                    <label class="form-label">Output Switch Mode</label>
+                                    <div class="mode-switch-container">
+                                        <div class="mode-switch-btn active" id="mode-single" onclick="switchOutputMode(1)">
+                                            <div class="mode-btn-icon">⬛</div>
+                                            <span>High Quality (4K)</span>
+                                        </div>
+                                        <div class="mode-switch-btn" id="mode-quad" onclick="switchOutputMode(4)">
+                                            <div class="mode-btn-icon">田</div>
+                                            <span>Multiview - Quad</span>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="form-group"><label class="form-label">Resolution</label><select class="form-select"><option>3840 X 2160</option><option selected>1920 X 1080</option></select></div>
                                 <div class="form-group"><label class="form-label">Color Space</label><select class="form-select"><option>RGB</option><option>YUV 4:4:4</option></select></div>
                                 <div class="form-group"><label class="form-label">Audio output source</label><select class="form-select"><option>HDMI</option><option>Line Out</option></select></div>
@@ -297,6 +309,18 @@
 
     <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
         <div class="modal-box" id="modalContentBox"></div>
+    </div>
+
+    <div id="modal-remove-confirm" class="modal-overlay">
+        <div class="modal-box" style="width:350px; text-align:center;">
+            <div style="font-size:40px; margin-bottom:10px;">⚠️</div>
+            <h3 style="color:#fff; margin-bottom:10px;">Remove Source?</h3>
+            <p style="color:#ccc; font-size:13px; margin-bottom:20px;">Are you sure you want to remove this source?</p>
+            <div style="display:flex; justify-content:center; gap:10px;">
+                <button class="btn btn-outline" onclick="cancelRemoveSource()">Cancel</button>
+                <button class="btn btn-danger" onclick="confirmRemoveSource()">Remove</button>
+            </div>
+        </div>
     </div>
 
     <div id="modal-auto-search" class="modal-overlay" onclick="if(event.target===this) closeAutoSearch()">
