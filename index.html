@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NC30 Pro AV Interface (Final V11)</title>
+    <title>NC30 Pro AV Interface (Final V12)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -53,9 +53,9 @@
                 <div class="settings-container">
                     <div id="btn-settings-gear" class="settings-btn" onclick="toggleSettings()">⚙️</div>
                     <div class="settings-dropdown" id="settingsMenu">
-                        <a class="dropdown-item" onclick="showModal('Network Settings')"><span>🌐</span> Network Settings</a>
-                        <a class="dropdown-item" onclick="showModal('System Settings')"><span>🔧</span> System Settings</a>
-                        <a class="dropdown-item" onclick="showModal('Firmware Update')"><span>⬆️</span> Firmware Update</a>
+                        <a class="dropdown-item" onclick="openFullSettings('audio')"><span>🔊</span> Audio Settings</a>
+                        <a class="dropdown-item" onclick="openFullSettings('network')"><span>🌐</span> Network Settings</a>
+                        <a class="dropdown-item" onclick="openFullSettings('system')"><span>🔧</span> System Settings</a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" onclick="showModal('About Device')"><span>ℹ️</span> About</a>
                     </div>
@@ -286,6 +286,34 @@
         <div class="modal-box" id="modalContentBox"></div>
     </div>
 
+    <div id="modal-large-settings" style="display:none;" class="modal-overlay" onclick="closeSpecificModal('modal-large-settings')">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <div class="settings-sidebar">
+                <div class="sidebar-category">AUDIO</div>
+                <div class="sidebar-item" onclick="switchSettingsTab('audio')" id="tab-audio">Audio Settings</div>
+                
+                <div class="sidebar-category" style="margin-top:15px;">NETWORK</div>
+                <div class="sidebar-item" onclick="switchSettingsTab('network')" id="tab-network">IP Configuration</div>
+                <div class="sidebar-item" onclick="switchSettingsTab('ndi')" id="tab-ndi">Advanced NDI</div>
+                
+                <div class="sidebar-category" style="margin-top:15px;">SYSTEM</div>
+                <div class="sidebar-item" onclick="switchSettingsTab('general')" id="tab-general">General</div>
+                <div class="sidebar-item" onclick="switchSettingsTab('account')" id="tab-account">Account</div>
+                <div class="sidebar-item" onclick="switchSettingsTab('datetime')" id="tab-datetime">Date & Time</div>
+                <div class="sidebar-item" onclick="switchSettingsTab('maintenance')" id="tab-maintenance">Maintenance</div>
+            </div>
+            
+            <div class="settings-content-area">
+                <div class="settings-header">
+                    <span class="settings-title" id="settings-title">General Settings</span>
+                    <span class="settings-close-btn" onclick="closeSpecificModal('modal-large-settings')">✕</span>
+                </div>
+                <div class="settings-body" id="settings-body-content">
+                    </div>
+            </div>
+        </div>
+    </div>
+
     <div id="modal-upgrade-permission" style="display:none;" class="modal-overlay">
         <div class="modal-box" style="width:400px;">
             <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
@@ -338,8 +366,8 @@
     </div>
 
     <script>
-        let currentSystemMode = null; // null, 'encoder', or 'decoder'
-        let currentUserRole = 'admin'; // 'admin' or 'user'
+        let currentSystemMode = null; 
+        let currentUserRole = 'admin'; 
 
         function doLogin() {
             const btn = document.querySelector('#page-login .btn-primary');
@@ -354,20 +382,19 @@
             }, 800);
         }
         
-        // --- Account Menu Logic ---
         function toggleAccountMenu() {
             document.getElementById('accountMenu').classList.toggle('show');
             document.getElementById('settingsMenu').classList.remove('show');
         }
 
         function toggleSettings() { 
-            if (currentUserRole === 'user') return; // Disable for User Mode
+            if (currentUserRole === 'user') return; 
             document.getElementById('settingsMenu').classList.toggle('show');
             document.getElementById('accountMenu').classList.remove('show');
         }
 
         function goHome() {
-            if (currentUserRole === 'user') return; // Disable for User Mode
+            if (currentUserRole === 'user') return; 
             document.getElementById('app-shell').style.display = 'none';
             document.getElementById('page-home').style.display = 'flex';
             updateHomeUI();
@@ -386,7 +413,6 @@
                 document.getElementById('accountMenu').classList.remove('show');
                 return;
             }
-            // Show Upgrade Modal
             document.getElementById('modal-upgrade-permission').style.display = 'flex';
             document.getElementById('accountMenu').classList.remove('show');
         }
@@ -394,14 +420,11 @@
         function verifyAdmin() {
             const u = document.getElementById('upgradeUser').value;
             const p = document.getElementById('upgradePass').value;
-            
-            // Mock Login
             if(u && p) {
                 currentUserRole = 'admin';
                 document.body.classList.remove('user-mode');
                 closeSpecificModal('modal-upgrade-permission');
                 showToast("Permissions Upgraded to Admin", "success");
-                // Clear inputs
                 document.getElementById('upgradeUser').value = '';
                 document.getElementById('upgradePass').value = '';
             } else {
@@ -414,15 +437,100 @@
             document.getElementById('accountMenu').classList.remove('show');
         }
 
-        function confirmLogout() {
-            location.reload(); 
+        function confirmLogout() { location.reload(); }
+        function closeSpecificModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        // === NEW Settings Modal Logic ===
+        function openFullSettings(tab) {
+            document.getElementById('modal-large-settings').style.display = 'flex';
+            document.getElementById('settingsMenu').classList.remove('show');
+            switchSettingsTab(tab);
         }
 
-        function closeSpecificModal(id) {
-            document.getElementById(id).style.display = 'none';
+        function switchSettingsTab(tabId) {
+            // Update Sidebar
+            document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
+            const activeTab = document.getElementById('tab-' + tabId);
+            if(activeTab) activeTab.classList.add('active');
+
+            // Update Content
+            const titleEl = document.getElementById('settings-title');
+            const bodyEl = document.getElementById('settings-body-content');
+            
+            let htmlContent = '';
+
+            if (tabId === 'audio') {
+                titleEl.innerText = "Audio Settings";
+                htmlContent = `
+                    <div class="settings-subsection">
+                        <div class="settings-subsection-title">Basic Audio</div>
+                        <div class="form-group"><label class="form-label">Source Select</label><select class="form-select"><option>Auto</option><option>HDMI</option><option>3.5mm</option></select></div>
+                        <div class="form-group"><label class="form-label">Volume (Gain)</label><input type="range" style="width:100%;"></div>
+                        <div class="form-group"><label class="form-label">Audio Delay (Lip-sync)</label><input type="range" min="-500" max="500" value="0" style="width:100%;"><div style="text-align:right; font-size:11px; color:#888;">0ms</div></div>
+                    </div>`;
+            } 
+            else if (tabId === 'network') {
+                titleEl.innerText = "IP Configuration";
+                htmlContent = `
+                    <div class="settings-subsection">
+                        <div class="settings-subsection-title">IPv4</div>
+                        <div class="form-group"><label class="form-label">Mode</label><select class="form-select"><option>DHCP</option><option>Static IP</option></select></div>
+                        <div class="form-group"><label class="form-label">IP Address</label><input type="text" class="form-input" value="192.168.1.100"></div>
+                        <div class="form-group"><label class="form-label">Subnet Mask</label><input type="text" class="form-input" value="255.255.255.0"></div>
+                        <div class="form-group"><label class="form-label">Gateway</label><input type="text" class="form-input" value="192.168.1.1"></div>
+                        <div class="form-group"><label class="form-label">DNS</label><input type="text" class="form-input" value="8.8.8.8"></div>
+                    </div>`;
+            }
+            else if (tabId === 'ndi') {
+                titleEl.innerText = "Advanced NDI";
+                htmlContent = `
+                    <div class="settings-subsection">
+                        <div class="settings-subsection-title">Transport</div>
+                        <div class="form-group"><label class="form-label">Connection Mode</label><select class="form-select"><option>Auto (RUDP)</option><option>TCP</option><option>Multicast</option></select></div>
+                        <div class="form-group"><label class="form-label">Multicast Address</label><input type="text" class="form-input" placeholder="e.g. 239.255.0.1"></div>
+                    </div>
+                    <div class="settings-subsection">
+                        <div class="settings-subsection-title">Discovery</div>
+                        <div class="form-group"><label class="form-label">Discovery Server IP</label><input type="text" class="form-input"></div>
+                    </div>`;
+            }
+            else if (tabId === 'general') {
+                titleEl.innerText = "General Settings";
+                htmlContent = `
+                    <div class="form-group"><label class="form-label">Device Name</label><input type="text" class="form-input" value="AVer NC30"></div>
+                    <div class="form-group"><label class="form-label">Location</label><input type="text" class="form-input" value="Studio A"></div>
+                    <div class="form-group"><label class="form-label">Language</label><select class="form-select"><option>English</option><option>Traditional Chinese</option></select></div>`;
+            }
+            else if (tabId === 'account') {
+                titleEl.innerText = "Account Settings";
+                htmlContent = `
+                    <div class="form-group"><label class="form-label">New Admin Password</label><input type="password" class="form-input"></div>
+                    <div class="form-group"><label class="form-label">Confirm Password</label><input type="password" class="form-input"></div>
+                    <button class="btn btn-primary">Update Password</button>`;
+            }
+            else if (tabId === 'datetime') {
+                titleEl.innerText = "Date & Time";
+                htmlContent = `
+                    <div class="form-group"><label class="form-label">NTP Server</label><input type="text" class="form-input" value="pool.ntp.org"></div>
+                    <div class="form-group"><label class="form-label">Time Zone</label><select class="form-select"><option>(GMT+08:00) Taipei</option></select></div>`;
+            }
+            else if (tabId === 'maintenance') {
+                titleEl.innerText = "Maintenance";
+                htmlContent = `
+                    <div class="settings-subsection"><div class="settings-subsection-title">Firmware</div><button class="btn btn-outline" style="width:100%;">Check for Updates</button></div>
+                    <div class="settings-subsection"><div class="settings-subsection-title">Config</div><div style="display:flex; gap:10px;"><button class="btn btn-outline" style="flex:1;">Export Settings</button><button class="btn btn-outline" style="flex:1;">Import Settings</button></div></div>
+                    <div class="settings-subsection"><div class="settings-subsection-title">Power</div><div style="display:flex; gap:10px;"><button class="btn btn-danger" style="flex:1;">Reboot Device</button><button class="btn btn-danger" style="flex:1;">Factory Reset</button></div></div>`;
+            }
+            // Add default system handler if tab 'system' is clicked (default to general)
+            else if (tabId === 'system') {
+                switchSettingsTab('general');
+                return; 
+            }
+
+            bodyEl.innerHTML = htmlContent;
         }
 
-        // --- Mode Switching Logic ---
+        // --- Mode Switch Logic ---
         function checkModeSwitch(targetMode) {
             if (currentSystemMode === null) {
                 performSwitch(targetMode);
@@ -501,8 +609,6 @@
                 document.getElementById('card-dec').classList.add('selected-mode');
             }
         }
-
-        // --- Existing Logic ---
 
         dragElement(document.getElementById("ptz-panel"));
         function dragElement(elmnt) {
@@ -666,8 +772,27 @@
             }, 3000);
         }
 
-        // === Modal System (Updated Logic) ===
+        // === Modal System (Add Source) ===
         function showModal(type) {
+            // Intercept 'About Device' separately
+            if(type === 'About Device') {
+                const box = document.getElementById('modalContentBox');
+                const overlay = document.getElementById('modalOverlay');
+                box.innerHTML = `
+                    <h3 style="margin-top:0; color:#fff;">About Device</h3>
+                    <div style="padding:20px; text-align:center; color:#ccc; line-height:1.6;">
+                        <strong>NC30 4K NDI Converter</strong><br>
+                        Firmware Version: 1.0.2<br>
+                        Serial Number: 5392019922<br><br>
+                        &copy; 2023 AVer Information Inc.
+                    </div>
+                    <div style="margin-top:20px; text-align:right;">
+                        <button class="btn btn-primary" onclick="closeModal()">Close</button>
+                    </div>`;
+                overlay.style.display = 'flex';
+                return;
+            }
+
             const box = document.getElementById('modalContentBox');
             const overlay = document.getElementById('modalOverlay');
             
@@ -676,20 +801,42 @@
             if (type === 'Add Manual Source') {
                 content = `
                     <h3 style="margin-top:0; color:#fff; font-size:16px; border-bottom:1px solid #333; padding-bottom:15px; margin-bottom:20px;">Source Configuration</h3>
+                    
                     <div class="modal-body-add-source">
-                        <div class="form-group"><label class="form-label" style="color:#aaa;">Source Name</label><input type="text" id="inputSrcName" class="form-input" placeholder="e.g. My Camera 01"></div>
-                        <div class="form-group"><label class="form-label" style="color:#aaa;">Group</label><div class="tag-input-container"><input type="text" class="tag-input-field" placeholder="Add group tags..."></div></div>
-                        <div class="form-group"><label class="form-label" style="color:#aaa;">* IP</label><div class="input-group-row"><input type="text" id="inputSrcIP" class="form-input input-with-btn" placeholder="rtsp:// or 192.168.x.x"><button class="btn btn-outline" onclick="showSearchOverlay()">🔍 Auto Search</button></div></div>
+                        <div class="form-group">
+                            <label class="form-label" style="color:#aaa;">Source Name</label>
+                            <input type="text" id="inputSrcName" class="form-input" placeholder="e.g. My Camera 01">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" style="color:#aaa;">Group</label>
+                            <div class="tag-input-container">
+                                <input type="text" class="tag-input-field" placeholder="Add group tags...">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" style="color:#aaa;">* IP</label>
+                            <div class="input-group-row">
+                                <input type="text" id="inputSrcIP" class="form-input input-with-btn" placeholder="rtsp:// or 192.168.x.x">
+                                <button class="btn btn-outline" onclick="showSearchOverlay()">🔍 Auto Search</button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="modal-footer"><button class="modal-footer-btn" onclick="closeModal()">Cancel</button><button class="modal-footer-btn" onclick="addSourceReal()">Confirm</button></div>
+                    <div class="modal-footer">
+                        <button class="modal-footer-btn" onclick="closeModal()">Cancel</button>
+                        <button class="modal-footer-btn" onclick="addSourceReal()">Confirm</button>
+                    </div>
                 `;
             } else {
+                // Fallback for unexpected calls
                 content = `
                     <h3 style="margin-top:0; color:#fff;">${type}</h3>
                     <div style="height:100px; display:flex; align-items:center; justify-content:center; color:#666;">Settings content for ${type}...</div>
-                    <div style="margin-top:20px; text-align:right;"><button class="btn btn-primary" onclick="closeModal()">Close</button></div>
+                    <div style="margin-top:20px; text-align:right;">
+                        <button class="btn btn-primary" onclick="closeModal()">Close</button>
+                    </div>
                 `;
             }
+
             box.innerHTML = content;
             overlay.style.display = 'flex';
         }
@@ -702,8 +849,13 @@
         }
 
         function addSourceReal() {
-            const name = document.getElementById('inputSrcName').value || "New Source";
-            const ip = document.getElementById('inputSrcIP').value || "192.168.x.x";
+            const nameInput = document.getElementById('inputSrcName');
+            const ipInput = document.getElementById('inputSrcIP');
+            
+            const name = nameInput.value || "New Source";
+            const ip = ipInput.value || "192.168.x.x";
+
+            // Create new row
             const tbody = document.querySelector('.source-list-table tbody');
             const newRow = document.createElement('tr');
             newRow.className = "source-row";
@@ -712,6 +864,7 @@
             newRow.setAttribute('data-name', name);
             newRow.setAttribute('data-ip', ip);
             newRow.setAttribute('data-status', 'online'); 
+
             newRow.innerHTML = `
                 <td style="text-align:center;"><input type="checkbox" checked class="loop-chk"></td>
                 <td><div class="thumb-box" style="background:#222; color:#fff;">NEW</div></td>
@@ -720,6 +873,7 @@
                 <td><div class="status-badge status-ok">● Ready</div></td>
                 <td style="text-align:right;"><button class="btn-icon">✏️</button><button class="btn-icon" style="color:#d32f2f;">🗑️</button></td>
             `;
+
             tbody.appendChild(newRow);
             closeModal();
             showToast(`Added source: ${name}`, "success");
@@ -733,8 +887,11 @@
         function toggleVideoSource(checkbox) {
             const videoInput = document.getElementById('videoSourceInput');
             const audioContainer = document.getElementById('audioSourceContainer');
+            
             const streamGroup = document.getElementById('streamOutputGroup');
             const audioEncGroup = document.getElementById('audioEncodingGroup');
+            const ndiGroup = document.getElementById('ndiSettingsGroup'); 
+            
             const overlay = document.getElementById('signalLostOverlay');
             
             const ids = ['stat-res-in', 'stat-res-out', 'stat-fps', 'stat-bitrate', 'stat-audio-fmt', 'stat-audio-src'];
