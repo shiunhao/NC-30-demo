@@ -1,4 +1,4 @@
-/* style.css - Stable Desktop Version (No RWD) */
+/* style.css - Final Fixed Version V24 */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -297,7 +297,7 @@ body.user-mode .ctrl-tabs, body.user-mode .sub-tabs { pointer-events: auto !impo
 }
 .form-section-disabled { opacity: 0.4; pointer-events: none; filter: grayscale(100%); }
 
-/* === 7. View: DECODER === */
+/* === 7. View: DECODER (Fixed Layout) === */
 .decoder-layout { 
     display: flex; flex-direction: column; gap: 20px; 
     max-width: 1800px; margin: 0 auto; height: 100%; 
@@ -306,6 +306,53 @@ body.user-mode .ctrl-tabs, body.user-mode .sub-tabs { pointer-events: auto !impo
     display: grid; grid-template-columns: 2fr 1fr; gap: 20px; 
     height: 60%; min-height: 400px;
 }
+
+.source-list-panel {
+    display: flex; flex-direction: column;
+    background: #1E1E1E; border: 1px solid #333; border-radius: 8px; overflow: hidden;
+    height: 40%;
+}
+
+.list-toolbar {
+    padding: 12px 20px; background: #252526; border-bottom: 1px solid #333;
+    display: flex; justify-content: space-between; align-items: center;
+}
+
+.source-list-scroll {
+    flex: 1; overflow-y: auto; padding: 0;
+}
+.source-list-table {
+    width: 100%; border-collapse: collapse;
+}
+.source-list-header th {
+    background: #1a1a1a; padding: 12px 10px; text-align: left;
+    font-size: 12px; color: #888; border-bottom: 1px solid #333;
+    position: sticky; top: 0; z-index: 5;
+}
+.source-row { transition: background 0.1s; border-bottom: 1px solid #2a2a2a; }
+.source-row:hover { background: #252526; }
+.source-row td { padding: 10px; vertical-align: middle; }
+
+/* === FIX: Source Name & Detail Styles === */
+.src-name {
+    display: block; /* Force new line */
+    font-weight: bold; color: #eee; font-size: 13px;
+    margin-bottom: 4px;
+}
+.src-detail {
+    display: block; /* Force new line */
+    font-size: 11px; color: #888; font-family: monospace;
+}
+.thumb-box {
+    width: 80px; height: 45px; background: #333; border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; color: #aaa; overflow: hidden;
+}
+.status-badge {
+    display: inline-block; font-size: 11px; font-weight: bold;
+}
+.status-ok { color: #4CAF50; }
+.status-warn { color: #FFC107; }
 
 /* Output Preview */
 .output-container {
