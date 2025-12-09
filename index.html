@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NC30 Pro AV Interface (Final Demo V3)</title>
+    <title>NC30 Pro AV Interface (Final Demo V4)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -176,9 +176,12 @@
                     <div class="decoder-left-col">
                         <div class="output-container" id="outputContainer">
                             <div class="output-header-bar">
-                                <div class="output-header-title">NC 30 Live Preview</div>
-                                <div class="output-header-controls">
-                                    <span class="res-tag" id="preview-res-tag">Source: 3840x2160</span>
+                                <div class="header-left">
+                                    <div class="header-title">NC 30 Live Preview</div>
+                                </div>
+                                <div class="header-info-container" id="live-header-info">
+                                    </div>
+                                <div class="header-right-ctrl">
                                     <button class="btn btn-outline btn-sm" onclick="togglePTZ()">🎮 PTZ Controller</button>
                                 </div>
                             </div>
@@ -219,7 +222,7 @@
                     <div class="decoder-settings-card">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                             <span class="panel-title" style="margin:0; border:none;">DECODING SETTINGS</span>
-                            </div>
+                        </div>
                         <div class="settings-scroll-area">
                             <div>
                                 <div class="settings-group-title">
@@ -281,22 +284,18 @@
             <div class="ptz-title">PTZ Control Panel</div>
             <div class="ptz-close" onclick="togglePTZ()">✕</div>
         </div>
-
         <div class="ptz-body">
             <div class="ptz-pad-container">
                 <button class="ptz-btn" style="border-top-left-radius: 4px;">↖</button>
                 <button class="ptz-btn">▲</button>
                 <button class="ptz-btn" style="border-top-right-radius: 4px;">↗</button>
-                
                 <button class="ptz-btn">◀</button>
                 <button class="ptz-btn ptz-home">🏠</button>
                 <button class="ptz-btn">▶</button>
-                
                 <button class="ptz-btn" style="border-bottom-left-radius: 4px;">↙</button>
                 <button class="ptz-btn">▼</button>
                 <button class="ptz-btn" style="border-bottom-right-radius: 4px;">↘</button>
             </div>
-
             <div class="ptz-sliders">
                 <div class="ptz-slider-group">
                     <label>Pan Speed</label>
@@ -323,7 +322,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="ptz-preset-section">
                 <label>Preset Setting</label>
                 <div class="preset-controls">
@@ -410,6 +408,7 @@
         // === 1. Data State Management ===
         let currentSystemMode = null; 
         let currentUserRole = 'admin'; 
+        let currentOutputMode = 'Single'; // Single or Quad
         
         // Mock Database
         let sourcesData = [
@@ -424,11 +423,54 @@
         document.addEventListener('DOMContentLoaded', () => {
             if(document.getElementById('view-decoder').style.display !== 'none') {
                 renderSourceList();
-                selectSlot('slot-1');
+                updateLiveHeader(); // Init header
             }
         });
 
-        // === 2. Core Logic: Render List (Updated with Icons) ===
+        // === 2. Live Header Dynamic Update ===
+        function updateLiveHeader() {
+            const container = document.getElementById('live-header-info');
+            container.innerHTML = ''; // Clear
+
+            // Common block: Current Mode
+            const modeBlock = document.createElement('div');
+            modeBlock.className = 'header-info-block';
+            modeBlock.innerHTML = `
+                <div class="info-label">Current Mode</div>
+                <div class="info-value">Decoder</div>
+            `;
+            container.appendChild(modeBlock);
+
+            // Source blocks based on layout
+            const count = currentOutputMode === 'Single' ? 1 : 4;
+            for(let i=1; i<=count; i++) {
+                const slot = document.getElementById(`slot-${i}`);
+                let name = '-';
+                let res = '';
+
+                if(slot) {
+                    const nameEl = slot.querySelector('.slot-name');
+                    const text = nameEl ? nameEl.innerText : '';
+                    if(text && !text.includes('Drag')) {
+                        name = text;
+                        res = '<span style="color:#FF9500">1920x1080</span>'; // Mock resolution
+                    }
+                }
+
+                const block = document.createElement('div');
+                block.className = 'header-info-block';
+                block.innerHTML = `
+                    <div class="info-label">Source${i}</div>
+                    <div class="info-value-row">
+                        <span style="color:#bbb">${name}</span>
+                        ${res}
+                    </div>
+                `;
+                container.appendChild(block);
+            }
+        }
+
+        // === 3. Core Logic: Render List ===
         function renderSourceList() {
             const tbody = document.querySelector('#source-list-body');
             if(!tbody) return;
@@ -449,7 +491,6 @@
                     ? `<div class="thumb-box offline"><span>Offline</span></div>` 
                     : `<div class="thumb-box"><img src="${src.thumb}"></div>`;
 
-                // 修改: Action Column 使用 Icon Button
                 tr.innerHTML = `
                     <td class="drag-col"><span class="drag-handle-icon">⋮⋮</span></td>
                     <td class="thumb-col">${thumbHtml}</td>
@@ -467,7 +508,7 @@
             });
         }
 
-        // === 3. Add / Edit Source Logic ===
+        // === 4. Add / Edit Source Logic ===
         function showModal(type) {
             if(type === 'Add Manual Source') {
                 editingSourceId = null;
@@ -509,7 +550,6 @@
             const group = document.getElementById('inputSrcGroup').value || "Default";
 
             if(editingSourceId) {
-                // Edit
                 const idx = sourcesData.findIndex(s => s.id === editingSourceId);
                 if(idx !== -1) {
                     sourcesData[idx].name = name; sourcesData[idx].ip = ip; sourcesData[idx].group = group;
@@ -517,13 +557,13 @@
                     showToast(`Updated: ${name}`, "success");
                 }
             } else {
-                // Add
                 const newId = 'src_' + Date.now();
                 sourcesData.push({ id: newId, name: name, ip: ip, group: group, status: 'online', thumb: 'https://picsum.photos/id/237/100/56' });
                 showToast(`Added: ${name}`, "success");
             }
             renderSourceList();
             closeModal();
+            updateLiveHeader(); // Refresh header
         }
 
         function removeSourceData(id) {
@@ -540,9 +580,10 @@
                     if(nameEl) nameEl.innerText = newName;
                 }
             });
+            updateLiveHeader(); // Update header names
         }
 
-        // === 4. Drag and Drop ===
+        // === 5. Drag and Drop ===
         function drag(ev) { ev.dataTransfer.setData("application/json", ev.currentTarget.getAttribute("data-json")); }
         function allowDrop(ev) { ev.preventDefault(); ev.currentTarget.classList.add('drag-over'); }
         
@@ -570,6 +611,7 @@
             }
             slot.classList.add('active-slot');
             selectSlot(slot.id);
+            updateLiveHeader(); // Update header
         }
 
         function renderSlotMenu(slotId) {
@@ -591,26 +633,50 @@
             delete slot.dataset.sourceId;
             slot.classList.remove('active-slot', 'offline-state');
             slot.innerHTML = `<div class="slot-label">Window ${slotId.split('-')[1]}</div><div class="slot-content" style="text-align:center;"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div>`;
+            updateLiveHeader(); // Update header
         }
 
-        // === 5. Layout & Navigation ===
+        // === 6. Layout & Navigation ===
         function doLogin() {
             document.querySelector('#page-login .btn-primary').innerHTML = "Logging in...";
             setTimeout(() => {
                 document.getElementById('page-login').style.display = 'none';
                 document.getElementById('page-home').style.display = 'flex';
-                updateHomeUI();
+                // No card selected on fresh login
             }, 800);
         }
 
         function checkModeSwitch(targetMode) {
-            if (!currentSystemMode) { performSwitch(targetMode); return; }
-            if (currentSystemMode !== targetMode) showRebootWarning(targetMode);
-            else enterView(targetMode);
+            if (!currentSystemMode) { 
+                // First time selection
+                performSwitch(targetMode); 
+                return; 
+            }
+            
+            if (currentSystemMode === targetMode) {
+                // Just enter if already selected
+                enterView(targetMode);
+            } else {
+                // Warning if switching modes
+                showRebootWarning(targetMode);
+            }
         }
 
         function showRebootWarning(targetMode) {
-            document.getElementById('modalContentBox').innerHTML = `<div style="text-align:center;"><h3 style="color:#fff;">Reboot Required</h3><button class="btn btn-danger" onclick="confirmReboot('${targetMode}')">Reboot</button></div>`;
+            const box = document.getElementById('modalContentBox');
+            // Custom dark modal style
+            box.style.background = "#1a1a1a";
+            box.style.border = "1px solid #333";
+            box.style.width = "400px";
+            box.style.textAlign = "center";
+            
+            box.innerHTML = `
+                <h3 style="color:#fff; margin-bottom:20px; font-size:18px;">Reboot Required</h3>
+                <div style="display:flex; justify-content:center; gap:15px;">
+                    <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+                    <button class="btn btn-danger" style="background:transparent; border:1px solid #D32F2F;" onclick="confirmReboot('${targetMode}')">Reboot</button>
+                </div>
+            `;
             document.getElementById('modalOverlay').style.display = 'flex';
         }
 
@@ -622,6 +688,7 @@
 
         function performSwitch(mode) {
             currentSystemMode = mode;
+            updateHomeUI(); // Mark card as selected
             enterView(mode);
         }
 
@@ -632,11 +699,17 @@
             document.getElementById('view-decoder').style.display = (mode === 'decoder') ? 'block' : 'none';
             document.getElementById('current-mode-badge').innerText = mode.toUpperCase() + ' MODE';
             document.documentElement.style.setProperty('--theme-color', mode === 'encoder' ? '#007AFF' : '#FF9500');
-            if(mode === 'decoder') renderSourceList();
+            
+            if(mode === 'decoder') {
+                renderSourceList();
+                updateLiveHeader();
+            }
         }
 
         function updateHomeUI() {
-             // Simple visual update
+             document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('selected-mode'));
+             if(currentSystemMode === 'encoder') document.getElementById('card-enc').classList.add('selected-mode');
+             if(currentSystemMode === 'decoder') document.getElementById('card-dec').classList.add('selected-mode');
         }
 
         function goHome() {
@@ -647,19 +720,11 @@
         function selectSlot(slotId) {
             document.querySelectorAll('.preview-slot').forEach(el => el.classList.remove('selected-slot'));
             const el = document.getElementById(slotId);
-            if(el) {
-                el.classList.add('selected-slot');
-                // Updated Header Info
-                const name = el.querySelector('.slot-name') ? el.querySelector('.slot-name').innerText : "None";
-                const resTag = document.getElementById('preview-res-tag');
-                if(resTag) {
-                    if(name === "None" || name.includes("Drag")) resTag.innerText = "No Source Selected";
-                    else resTag.innerText = `${name}: 3840x2160`;
-                }
-            }
+            if(el) el.classList.add('selected-slot');
         }
 
         function switchOutputMode(count) {
+            currentOutputMode = count === 1 ? 'Single' : 'Quad';
             const layout = document.getElementById('outputLayout');
             layout.className = count === 1 ? 'output-layout-single' : 'output-layout-quad';
             layout.innerHTML = '';
@@ -667,6 +732,7 @@
                 layout.innerHTML += `<div class="preview-slot" id="slot-${i}" onclick="selectSlot('slot-${i}')" ondrop="drop(event)" ondragover="allowDrop(event)"><div class="slot-label">Window ${i}</div><div class="slot-content" style="text-align:center;"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div></div>`;
             }
             selectSlot('slot-1');
+            updateLiveHeader(); // Re-draw header
         }
 
         // Utils
