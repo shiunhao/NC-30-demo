@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NC30 Pro AV Interface (Final Fixed V33)</title>
+    <title>NC30 Pro AV Interface (Final Fixed V34)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -32,12 +32,12 @@
         </div>
         <div class="card-container">
             <div id="card-enc" class="mode-card card-enc" onclick="checkModeSwitch('encoder')">
-                <div class="card-icon">Icon</div>
+                <div class="card-icon"><div class="icon-bg">Icon</div></div>
                 <div class="card-title">ENCODER</div>
                 <div class="card-desc">Transmit HDMI/SDI sources<br>to the NDI network.</div>
             </div>
             <div id="card-dec" class="mode-card card-dec" onclick="checkModeSwitch('decoder')">
-                <div class="card-icon">Icon</div>
+                <div class="card-icon"><div class="icon-bg">Icon</div></div>
                 <div class="card-title">DECODER</div>
                 <div class="card-desc">Receive and display NDI streams<br>from the network.</div>
             </div>
@@ -92,7 +92,7 @@
                             <div class="video-layer" style="background-image: url('https://picsum.photos/id/10/800/600');"></div>
                             <div class="video-overlay-gradient"></div>
                             <div id="signalLostOverlay" class="signal-lost-overlay">
-                                <div class="signal-lost-icon">Icon</div>
+                                <div class="signal-lost-icon"><div class="icon-bg" style="width:40px; height:40px;">⚠️</div></div>
                                 <div class="signal-lost-text">No Source Detected</div>
                             </div>
                             <div class="preview-label">HDMI 4K</div>
@@ -103,17 +103,17 @@
                         </div>
                         <div class="enc-status-bar">
                             <div class="mode-indicator">
-                                <div class="mode-circle">Icon</div>
+                                <div class="mode-circle"><div class="icon-bg">Icon</div></div>
                                 <span>Current Mode:</span>
                                 <span class="mode-val">Encoder</span>
                             </div>
                             <div class="status-grid">
-                                <div class="status-cell"><div class="icon-circle">Icon</div>Input Resolution: <span id="stat-res-in" style="margin-left:5px;">3840 X 2160</span></div>
-                                <div class="status-cell"><div class="icon-circle">Icon</div>Streaming Resolution: <span id="stat-res-out" style="margin-left:5px;">3840 X 2160</span></div>
-                                <div class="status-cell"><div class="icon-circle">Icon</div>Framerate: <span id="stat-fps" style="margin-left:5px;">60FPS</span></div>
-                                <div class="status-cell"><div class="icon-circle">Icon</div>Bitrate: <span id="stat-bitrate" style="margin-left:5px;">AUTO</span></div>
-                                <div class="status-cell"><div class="icon-circle">Icon</div>Audio Format: <span id="stat-audio-fmt" style="margin-left:5px;">48kHz</span></div>
-                                <div class="status-cell"><div class="icon-circle">Icon</div>Audio Source: <span id="stat-audio-src" style="margin-left:5px;">HDMI</span></div>
+                                <div class="status-cell"><div class="icon-circle"><div class="icon-bg">Icon</div></div>Input Resolution: <span id="stat-res-in" style="margin-left:5px;">3840 X 2160</span></div>
+                                <div class="status-cell"><div class="icon-circle"><div class="icon-bg">Icon</div></div>Streaming Resolution: <span id="stat-res-out" style="margin-left:5px;">3840 X 2160</span></div>
+                                <div class="status-cell"><div class="icon-circle"><div class="icon-bg">Icon</div></div>Framerate: <span id="stat-fps" style="margin-left:5px;">60FPS</span></div>
+                                <div class="status-cell"><div class="icon-circle"><div class="icon-bg">Icon</div></div>Bitrate: <span id="stat-bitrate" style="margin-left:5px;">AUTO</span></div>
+                                <div class="status-cell"><div class="icon-circle"><div class="icon-bg">Icon</div></div>Audio Format: <span id="stat-audio-fmt" style="margin-left:5px;">48kHz</span></div>
+                                <div class="status-cell"><div class="icon-circle"><div class="icon-bg">Icon</div></div>Audio Source: <span id="stat-audio-src" style="margin-left:5px;">HDMI</span></div>
                             </div>
                         </div>
                     </div>
@@ -124,7 +124,7 @@
                         <div class="panel-content">
                             <div class="enc-settings-group">
                                 <div class="enc-group-header">
-                                    <div class="enc-icon-circle">Icon</div> <span style="margin-left:10px;">Input Source</span>
+                                    <div class="enc-icon-circle"><div class="icon-bg">Icon</div></div> <span style="margin-left:10px;">Input Source</span>
                                 </div>
                                 <div class="form-group">
                                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
@@ -153,7 +153,7 @@
                             <div id="enc-tab-video" style="margin-top:10px;">
                                 <div class="enc-settings-group" id="streamOutputGroup">
                                     <div class="enc-group-header">
-                                        <div class="enc-icon-circle">Icon</div> <span style="margin-left:10px;">Stream Video Output</span>
+                                        <div class="enc-icon-circle"><div class="icon-bg">Icon</div></div> <span style="margin-left:10px;">Stream Video Output</span>
                                     </div>
                                     <div class="form-group"><label class="form-label">Resolution</label><select class="form-select"><option>3840 x 2160</option><option>1920 x 1080</option><option>1280 x 720</option></select></div>
                                     <div class="form-group"><label class="form-label">Framerate</label><select class="form-select"><option>60 FPS</option><option>30 FPS</option><option>24 FPS</option></select></div>
@@ -166,7 +166,7 @@
                             <div id="enc-tab-audio" style="display:none; margin-top:10px;">
                                 <div class="enc-settings-group" id="audioEncodingGroup">
                                     <div class="enc-group-header">
-                                        <div class="enc-icon-circle">Icon</div> <span style="margin-left:10px;">Audio Encoding</span>
+                                        <div class="enc-icon-circle"><div class="icon-bg">Icon</div></div> <span style="margin-left:10px;">Audio Encoding</span>
                                     </div>
                                     <div class="form-group"><label class="form-label">Audio Format</label><select class="form-select"><option>AAC</option><option>MP3</option></select></div>
                                     <div class="form-group"><label class="form-label">Sample Rate</label><select class="form-select"><option>48 kHz</option><option>44.1 kHz</option></select></div>
@@ -175,7 +175,7 @@
                             </div>
                             <div class="enc-settings-group" id="ndiSettingsGroup">
                                 <div class="enc-group-header">
-                                    <div class="enc-icon-circle">Icon</div> <span style="margin-left:10px;">NDI Settings</span>
+                                    <div class="enc-icon-circle"><div class="icon-bg">Icon</div></div> <span style="margin-left:10px;">NDI Settings</span>
                                 </div>
                                 <div class="form-group"><div style="display:flex; justify-content:space-between;"><label class="form-label">Local Device Name</label><span style="font-size:12px; color:#007AFF;">AVer NC30</span></div></div>
                                 <div class="form-group"><label class="form-label">Group Name</label><input type="text" class="form-input" value="NDI Group Name"></div>
@@ -250,7 +250,7 @@
                                         </tr>
                                         <tr class="source-row" draggable="true" ondragstart="drag(event)" data-name="Source name" data-ip="0000.000.000.0000" data-status="offline">
                                             <td class="drag-col"><span class="drag-handle-icon">⋮⋮</span></td>
-                                            <td class="thumb-col"><div class="thumb-box offline"><span>Offline</span><span>Icon</span></div></td>
+                                            <td class="thumb-col"><div class="thumb-box offline"><span>Offline</span><span><div class="icon-bg">Icon</div></span></div></td>
                                             <td class="info-col">
                                                 <div class="src-name" style="color:#888;">Source name</div>
                                                 <div class="src-meta">0000.000.000.0000 | Group Name | Offline</div>
@@ -267,12 +267,12 @@
                     <div class="decoder-settings-card">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                             <span class="panel-title" style="margin:0; border:none;">DECODING SETTINGS</span>
-                            <button class="btn btn-primary" onclick="togglePTZ()" style="padding:4px 10px; font-size:12px;">🕹️ Open PTZ</button>
+                            <button class="btn btn-primary" onclick="togglePTZ()" style="padding:4px 10px; font-size:12px;"><div class="icon-bg" style="width:16px;height:16px;">Icon</div> Open PTZ</button>
                         </div>
                         <div class="settings-scroll-area">
                             <div>
                                 <div class="settings-group-title">
-                                    <div class="settings-group-icon">Icon</div> Output Settings
+                                    <div class="settings-group-icon"><div class="icon-bg" style="width:16px;height:16px;">Icon</div></div> Output Settings
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Output Switch Mode</label>
@@ -308,7 +308,7 @@
 
                             <div>
                                 <div class="settings-group-title">
-                                    <div class="settings-group-icon">Icon</div> USB(Theme Mode)
+                                    <div class="settings-group-icon"><div class="icon-bg" style="width:16px;height:16px;">Icon</div></div> USB(Theme Mode)
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label" style="margin-bottom:10px;">USB Output</label>
@@ -326,7 +326,13 @@
     </div>
 
     <div id="ptz-panel" class="draggable-panel">
-        <div class="ptz-floating-close" onclick="togglePTZ()">✕</div>
+        <div class="panel-header-drag" id="ptz-header">
+            <div>PTZ Control Panel<span id="ptz-target-display">(Target:Preview1)</span></div>
+            <div class="ptz-header-icons">
+                <span class="ptz-drag-handle">:::</span>
+                <button class="close-btn" onclick="togglePTZ()">×</button>
+            </div>
+        </div>
         <div class="ptz-content">
             <div class="ptz-dir-pad">
                 <button class="ptz-btn">↖</button>
@@ -417,12 +423,12 @@
             <div class="upgrade-modal-input-group">
                 <label class="form-label">Username</label>
                 <input type="text" class="form-input" id="upgradeUser" placeholder="">
-                <span class="upgrade-modal-icon">👤</span>
+                <span class="upgrade-modal-icon"><div class="icon-bg">Icon</div></span>
             </div>
             <div class="upgrade-modal-input-group">
                 <label class="form-label">Password</label>
                 <input type="password" class="form-input" id="upgradePass" placeholder="">
-                <span class="upgrade-modal-icon">🔒</span>
+                <span class="upgrade-modal-icon"><div class="icon-bg">Icon</div></span>
             </div>
             <div class="modal-footer">
                 <button class="modal-footer-btn" onclick="closeSpecificModal('modal-upgrade-permission')">Cancel</button>
@@ -684,7 +690,8 @@
 
         function confirmReboot(targetMode) {
             closeModal();
-            document.getElementById('reboot-overlay').style.display = 'flex';
+            document.getElementById('reboot-overlay').style.display = 'flex'; // Ensure flex
+            
             setTimeout(() => {
                 document.getElementById('reboot-overlay').style.display = 'none';
                 performSwitch(targetMode);
@@ -732,25 +739,10 @@
         dragElement(document.getElementById("ptz-panel"));
         function dragElement(elmnt) {
             var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-            // Removed header drag logic, now dragging by body
-            elmnt.onmousedown = dragMouseDown;
-
-            function dragMouseDown(e) { 
-                // Only allow dragging if clicking on empty space or specific areas, not buttons/sliders
-                if(e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') return;
-                
-                e = e || window.event; e.preventDefault(); 
-                pos3 = e.clientX; pos4 = e.clientY; 
-                document.onmouseup = closeDragElement; 
-                document.onmousemove = elementDrag; 
-            }
-            function elementDrag(e) { 
-                e = e || window.event; e.preventDefault(); 
-                pos1 = pos3 - e.clientX; pos2 = pos4 - e.clientY; 
-                pos3 = e.clientX; pos4 = e.clientY; 
-                elmnt.style.top = (elmnt.offsetTop - pos2) + "px"; 
-                elmnt.style.left = (elmnt.offsetLeft - pos1) + "px"; 
-            }
+            if (document.getElementById(elmnt.id + "-header")) document.getElementById(elmnt.id + "-header").onmousedown = dragMouseDown;
+            else elmnt.onmousedown = dragMouseDown;
+            function dragMouseDown(e) { e = e || window.event; e.preventDefault(); pos3 = e.clientX; pos4 = e.clientY; document.onmouseup = closeDragElement; document.onmousemove = elementDrag; }
+            function elementDrag(e) { e = e || window.event; e.preventDefault(); pos1 = pos3 - e.clientX; pos2 = pos4 - e.clientY; pos3 = e.clientX; pos4 = e.clientY; elmnt.style.top = (elmnt.offsetTop - pos2) + "px"; elmnt.style.left = (elmnt.offsetLeft - pos1) + "px"; }
             function closeDragElement() { document.onmouseup = null; document.onmousemove = null; }
         }
         function togglePTZ() {
@@ -788,7 +780,7 @@
                 contentHTML = `
                     <div class="slot-label">Window ${windowNum}</div>
                     <div class="offline-overlay">
-                        <div class="offline-icon">⚠️</div>
+                        <div class="offline-icon"><div class="icon-bg">Icon</div></div>
                         <div class="offline-text">No Source Detected</div>
                         <div class="offline-source-name">${data.name}</div>
                     </div>
@@ -820,9 +812,9 @@
             return `
                 <button class="slot-menu-btn" onclick="toggleSlotMenu('${slotId}', event)">•••</button>
                 <div class="slot-dropdown" id="menu-${slotId}">
-                    <button class="slot-action" onclick="alert('Edit functionality coming soon!')">✏️ Edit</button>
+                    <button class="slot-action" onclick="alert('Edit functionality coming soon!')"><div class="icon-bg" style="width:16px;height:16px;">Icon</div> Edit</button>
                     <div style="height:1px; background:#444; margin:2px 0;"></div>
-                    <button class="slot-action danger" onclick="removeSource('${slotId}')">🗑️ Remove</button>
+                    <button class="slot-action danger" onclick="removeSource('${slotId}')"><div class="icon-bg" style="width:16px;height:16px;">Icon</div> Remove</button>
                 </div>
             `;
         }
@@ -988,7 +980,7 @@
                             <label class="form-label" style="color:#aaa;">* IP</label>
                             <div class="input-group-row">
                                 <input type="text" id="inputSrcIP" class="form-input input-with-btn" placeholder="rtsp:// or 192.168.x.x">
-                                <button class="btn btn-outline" onclick="showSearchOverlay()">🔍 Auto Search</button>
+                                <button class="btn btn-outline" onclick="showSearchOverlay()"><div class="icon-bg" style="width:16px;height:16px;">Icon</div> Auto Search</button>
                             </div>
                         </div>
                     </div>
