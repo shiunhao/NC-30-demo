@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NC30 Pro AV Interface (Final Fixed V19)</title>
+    <title>NC30 Pro AV Interface (Final Fixed V21)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -478,9 +478,25 @@
 
         // === FIXED MODE SWITCH LOGIC ===
         function checkModeSwitch(targetMode) {
-            if (currentSystemMode === null) { performSwitch(targetMode); return; }
-            if (currentSystemMode === targetMode) { enterView(targetMode); return; }
-            showRebootWarning(targetMode);
+            console.log("Current:", currentSystemMode, "Target:", targetMode);
+
+            // 1. Initial State
+            if (!currentSystemMode) {
+                performSwitch(targetMode);
+                return;
+            }
+
+            // 2. Different Mode -> Reboot
+            if (currentSystemMode !== targetMode) {
+                showRebootWarning(targetMode);
+                return;
+            }
+
+            // 3. Same Mode -> Enter directly
+            if (currentSystemMode === targetMode) {
+                enterView(targetMode);
+                return;
+            }
         }
 
         function showRebootWarning(targetMode) {
