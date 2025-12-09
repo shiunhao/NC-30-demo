@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NC30 Pro AV Interface (Final V13)</title>
+    <title>NC30 Pro AV Interface (Final Fixed V27)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -186,7 +186,17 @@
                             <div class="settings-scroll-area">
                                 <div>
                                     <div class="settings-group-title">Layout & Routing</div>
-                                    <div class="form-group"><label class="form-label">Output Mode</label><div class="mode-selector"><div class="mode-opt active" onclick="switchOutputMode(1, this)"><span style="font-size:16px;">⬜</span> Single</div><div class="mode-opt" onclick="switchOutputMode(4, this)"><span style="font-size:16px;">田</span> Quad</div></div></div>
+                                    <div class="form-group">
+                                        <label class="form-label">Output Mode</label>
+                                        <div class="mode-selector">
+                                            <div class="mode-opt active" id="btn-mode-single" onclick="switchOutputMode(1)">
+                                                <span style="font-size:16px;">⬜</span> Single
+                                            </div>
+                                            <div class="mode-opt" id="btn-mode-quad" onclick="switchOutputMode(4)">
+                                                <span style="font-size:16px;">田</span> Quad
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div class="form-group"><label class="form-label">Audio Follows</label><select class="form-select"><option selected>Window 1 (Main)</option><option>Window 2</option></select></div>
                                 </div>
                                 <div>
@@ -258,20 +268,64 @@
 
     <div id="ptz-panel" class="draggable-panel">
         <div class="panel-header-drag" id="ptz-header">
-            <div style="display:flex; flex-direction:column; line-height:1.2;">
-                <span>🕹️ PTZ Controller</span>
-                <span id="ptz-target-display" style="font-size:10px; color:#00e676; font-weight:normal;">Target: Window 1</span>
+            <div>PTZ Control Panel<span id="ptz-target-display">(Target:Preview1)</span></div>
+            <div class="ptz-header-icons">
+                <span class="ptz-drag-handle">:::</span>
+                <button class="close-btn" onclick="togglePTZ()">×</button>
             </div>
-            <button class="close-btn" onclick="togglePTZ()">×</button>
         </div>
         <div class="ptz-content">
-            <div class="ptz-joystick-area"><div class="joystick-base"><div class="joystick-stick"></div></div></div>
-            <div class="ptz-controls-grid">
-                <div class="control-group"><span class="control-label">Zoom</span><div class="btn-group"><button class="btn-mini">In</button><button class="btn-mini">Out</button></div></div>
-                <div class="control-group"><span class="control-label">Focus</span><div class="btn-group"><button class="btn-mini">Auto</button><button class="btn-mini">Man</button></div></div>
+            <div class="ptz-dir-pad">
+                <button class="ptz-btn"><div class="arrow-up-left"></div></button>
+                <button class="ptz-btn"><div class="arrow-up"></div></button>
+                <button class="ptz-btn"><div class="arrow-up-right"></div></button>
+                
+                <button class="ptz-btn"><div class="arrow-left"></div></button>
+                <button class="ptz-btn" style="font-size:20px; color:#ccc;">🏠</button>
+                <button class="ptz-btn"><div class="arrow-right"></div></button>
+                
+                <button class="ptz-btn"><div class="arrow-down-left"></div></button>
+                <button class="ptz-btn"><div class="arrow-down"></div></button>
+                <button class="ptz-btn"><div class="arrow-down-right"></div></button>
             </div>
-            <div class="control-group"><span class="control-label">Speed</span><input type="range" style="width:100%;"></div>
-            <div class="control-group"><span class="control-label">Presets</span><div class="preset-grid"><button class="preset-btn">1</button><button class="preset-btn">2</button><button class="preset-btn">3</button><button class="preset-btn">4</button><button class="preset-btn">5</button><button class="preset-btn">6</button><button class="preset-btn">7</button><button class="preset-btn">8</button></div></div>
+
+            <div class="ptz-slider-group">
+                <label>Pan Speed</label>
+                <div class="slider-row">
+                    <button class="slider-btn">-</button>
+                    <input type="range" class="ptz-range" min="1" max="100" value="50">
+                    <button class="slider-btn">+</button>
+                </div>
+            </div>
+            <div class="ptz-slider-group">
+                <label>Tilt Speed</label>
+                <div class="slider-row">
+                    <button class="slider-btn">-</button>
+                    <input type="range" class="ptz-range" min="1" max="100" value="50">
+                    <button class="slider-btn">+</button>
+                </div>
+            </div>
+            <div class="ptz-slider-group">
+                <label>Zoom Speed</label>
+                <div class="slider-row">
+                    <button class="slider-btn">-</button>
+                    <input type="range" class="ptz-range" min="1" max="100" value="50">
+                    <button class="slider-btn">+</button>
+                </div>
+            </div>
+
+            <div class="ptz-preset-area">
+                <label style="display:block; color:#888; font-size:12px; margin-bottom:5px;">Preset Setting</label>
+                <div style="display:flex; align-items:center; gap:5px;">
+                    <button class="ptz-nav-btn">◀</button>
+                    <div class="preset-num-grid">
+                        <button>1</button><button>2</button><button>3</button>
+                        <button>4</button><button>5</button><button>6</button>
+                        <button>7</button><button>8</button><button>9</button>
+                    </div>
+                    <button class="ptz-nav-btn">▶</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -526,17 +580,27 @@
             bodyEl.innerHTML = htmlContent;
         }
 
-        // --- Mode Switch Logic ---
+        // --- Mode Switch Logic (BUG FIX 3) ---
         function checkModeSwitch(targetMode) {
-            if (currentSystemMode === null) {
+            console.log("Current:", currentSystemMode, "Target:", targetMode);
+
+            // 1. Initial State: Directly Enter
+            if (!currentSystemMode) {
                 performSwitch(targetMode);
                 return;
             }
+
+            // 2. Same Mode: Directly Enter (No Warning)
             if (currentSystemMode === targetMode) {
                 enterView(targetMode);
                 return;
             }
-            showRebootWarning(targetMode);
+
+            // 3. Different Mode: Show Reboot Warning
+            if (currentSystemMode !== targetMode) {
+                showRebootWarning(targetMode);
+                return;
+            }
         }
 
         function showRebootWarning(targetMode) {
@@ -606,6 +670,7 @@
             }
         }
 
+        // Draggable PTZ
         dragElement(document.getElementById("ptz-panel"));
         function dragElement(elmnt) {
             var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
@@ -720,27 +785,59 @@
                 const sourceName = sourceNameEl ? sourceNameEl.innerText : "Empty";
                 const targetText = document.getElementById('ptz-target-display');
                 
-                if(sourceName.includes("Drag") || sourceName.includes("No Source")) {
-                    targetText.innerText = `Target: Window ${windowNum} (No Source)`;
-                    targetText.style.color = "#888";
-                } else {
-                    targetText.innerText = `Target: Window ${windowNum} (${sourceName})`;
-                    targetText.style.color = "#00e676"; 
+                if(targetText) {
+                    if(sourceName.includes("Drag") || sourceName.includes("No Source")) {
+                        targetText.innerHTML = `(Target: Window ${windowNum} - No Source)`;
+                        targetText.style.color = "#888";
+                    } else {
+                        targetText.innerHTML = `(Target:<span style="color:#007AFF">Window ${windowNum}</span>)`;
+                        targetText.style.color = "#ccc"; 
+                    }
                 }
             }
         }
 
-        function switchOutputMode(count, btn) {
+        // === FIX 1: LAYOUT SWITCHING LOGIC ===
+        function switchOutputMode(count) {
+            const container = document.getElementById('outputLayout');
+            
+            // UI Button Active State
             document.querySelectorAll('.mode-opt').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            const layout = document.getElementById('outputLayout');
-            layout.innerHTML = '';
-            if(count === 1) {
-                layout.className = 'output-layout-single';
-                layout.innerHTML = createSlot(1);
-            } else {
-                layout.className = 'output-layout-quad';
-                for(let i=1; i<=4; i++) layout.innerHTML += createSlot(i);
+            if(count === 1) document.getElementById('btn-mode-single').classList.add('active');
+            else document.getElementById('btn-mode-quad').classList.add('active');
+            
+            if (count === 1) {
+                container.className = 'output-layout-single';
+                const slot1 = document.getElementById('slot-1');
+                if(slot1) {
+                    container.innerHTML = '';
+                    container.appendChild(slot1);
+                } else {
+                    container.innerHTML = createSlot(1);
+                }
+            } 
+            else if (count === 4) {
+                container.className = 'output-layout-quad';
+                // Ensure Slot 1 exists and preserve it
+                let slot1 = document.getElementById('slot-1');
+                if(!slot1) {
+                    slot1Content = createSlot(1); // string
+                } else {
+                    slot1Content = slot1.outerHTML;
+                }
+                
+                container.innerHTML = '';
+                // Check if slot1 was detached or just string, simple rebuild:
+                // For simplicity in this demo, we rebuild slot 1 if it's not complex state
+                // Ideally appendChild(slot1) but mixed with innerHTML strings is messy.
+                // Let's just rebuild all slots to ensure clean state, or carefully append.
+                
+                if(slot1) container.appendChild(slot1);
+                else container.innerHTML += createSlot(1);
+                
+                if(!document.getElementById('slot-2')) container.innerHTML += createSlot(2);
+                if(!document.getElementById('slot-3')) container.innerHTML += createSlot(3);
+                if(!document.getElementById('slot-4')) container.innerHTML += createSlot(4);
             }
             selectSlot('slot-1');
         }
@@ -871,11 +968,14 @@
             `;
 
             tbody.appendChild(newRow);
-            closeModal();
+            // FIX 2: FORCE CLOSE MODAL
+            document.getElementById('modalOverlay').style.display = 'none'; 
             showToast(`Added source: ${name}`, "success");
         }
 
+        // === FIX 2: MODAL CLOSE LOGIC (Stop Propagation) ===
         function closeModal(event) { 
+            // If the event exists AND the target clicked is NOT the overlay (meaning it's a child element), do nothing
             if (event && event.target !== document.getElementById('modalOverlay')) return;
             document.getElementById('modalOverlay').style.display = 'none'; 
         }
