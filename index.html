@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NC30 Pro AV Interface (Final Fixed V30)</title>
+    <title>NC30 Pro AV Interface (Final Fixed V31)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -316,41 +316,35 @@
         </div>
         <div class="ptz-content">
             <div class="ptz-dir-pad">
-                <button class="ptz-btn"><div class="arrow-up-left"></div></button>
-                <button class="ptz-btn"><div class="arrow-up"></div></button>
-                <button class="ptz-btn"><div class="arrow-up-right"></div></button>
+                <button class="ptz-btn">↖</button>
+                <button class="ptz-btn">↑</button>
+                <button class="ptz-btn">↗</button>
                 
-                <button class="ptz-btn"><div class="arrow-left"></div></button>
-                <button class="ptz-btn" style="font-size:20px; color:#ccc;">🏠</button>
-                <button class="ptz-btn"><div class="arrow-right"></div></button>
+                <button class="ptz-btn">←</button>
+                <button class="ptz-btn" style="color:#fff;">🏠</button>
+                <button class="ptz-btn">→</button>
                 
-                <button class="ptz-btn"><div class="arrow-down-left"></div></button>
-                <button class="ptz-btn"><div class="arrow-down"></div></button>
-                <button class="ptz-btn"><div class="arrow-down-right"></div></button>
+                <button class="ptz-btn">↙</button>
+                <button class="ptz-btn">↓</button>
+                <button class="ptz-btn">↘</button>
             </div>
 
             <div class="ptz-slider-group">
                 <label>Pan Speed</label>
                 <div class="slider-row">
-                    <button class="slider-btn">-</button>
                     <input type="range" class="ptz-range" min="1" max="100" value="50">
-                    <button class="slider-btn">+</button>
                 </div>
             </div>
             <div class="ptz-slider-group">
                 <label>Tilt Speed</label>
                 <div class="slider-row">
-                    <button class="slider-btn">-</button>
                     <input type="range" class="ptz-range" min="1" max="100" value="50">
-                    <button class="slider-btn">+</button>
                 </div>
             </div>
             <div class="ptz-slider-group">
                 <label>Zoom Speed</label>
                 <div class="slider-row">
-                    <button class="slider-btn">-</button>
                     <input type="range" class="ptz-range" min="1" max="100" value="50">
-                    <button class="slider-btn">+</button>
                 </div>
             </div>
 
@@ -841,8 +835,9 @@
             const container = document.getElementById('outputLayout');
             
             // UI Button Active State
-            // Note: In V29 UI this is handled by select dropdown, so no button classes to toggle here
-            // But if we had buttons, we'd toggle them. The Select `onchange` calls this directly.
+            document.querySelectorAll('.mode-opt').forEach(b => b.classList.remove('active'));
+            if(count === 1) document.getElementById('btn-mode-single').classList.add('active');
+            else document.getElementById('btn-mode-quad').classList.add('active');
             
             if (count === 1) {
                 container.className = 'output-layout-single';
