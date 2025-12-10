@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NC30 Pro AV Interface (Final Demo V14)</title>
+    <title>NC30 Pro AV Interface (Immersive V1)</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="mobile.css">
 </head>
@@ -41,7 +41,6 @@
                 <div class="header-center-group">
                     <div class="status-text-badge">NDI Status <span style="color:#4CAF50">●</span></div>
                     <div class="status-text-badge">CPU <span style="color:#4CAF50">12%</span></div>
-                    <div class="status-text-badge">Network <span style="color:#4CAF50">1Gbps</span></div>
                 </div>
                 
                 <div class="vertical-divider"></div>
@@ -185,17 +184,17 @@
             </div>
 
             <div id="view-decoder" style="display:none; height:100%;">
-                <div class="decoder-layout">
+                <div class="decoder-layout-immersive">
+                    
                     <div class="output-container" id="outputContainer">
-                        <div class="output-header-bar">
+                        <div class="output-header-bar immersive-header">
                             <div class="header-left">
-                                <div class="header-title">NC 30 Live Preview</div>
+                                <div class="header-title">NC 30 Live</div>
                             </div>
                             <div class="header-info-container" id="live-header-info">
                                 </div>
                             <div class="header-right-ctrl">
-                                <button id="btn-ptz-ctrl" class="btn btn-outline btn-sm" onclick="togglePTZ()" disabled>🎮 PTZ Controller</button>
-                            </div>
+                                </div>
                         </div>
 
                         <div id="outputLayout" class="output-layout-single">
@@ -206,47 +205,39 @@
                         </div>
                     </div>
 
-                    <div class="sidebar-right">
-                        
-                        <div class="decoder-settings-card">
-                            <div class="panel-header">
-                                <span class="panel-title">Decoding Settings</span>
-                            </div>
-                            <div class="settings-scroll-area">
-                                <div>
-                                    <div class="settings-group-title">
-                                        <div class="settings-group-icon">📺</div> Output Settings
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Output Switch Mode</label>
-                                        <div class="mode-switch-container">
-                                            <div class="mode-switch-btn active" id="mode-single" onclick="switchOutputMode(1)">
-                                                <div class="mode-btn-icon">⬛</div>
-                                                <span>High Quality (4K)</span>
-                                            </div>
-                                            <div class="mode-switch-btn" id="mode-quad" onclick="switchOutputMode(4)">
-                                                <div class="mode-btn-icon">田</div>
-                                                <span>Multiview - Quad</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="form-group"><label class="form-label">Resolution</label><select class="form-select"><option>3840 X 2160</option><option selected>1920 X 1080</option></select></div>
-                                    <div class="form-group"><label class="form-label">Color Space</label><select class="form-select"><option>RGB</option><option>YUV 4:4:4</option></select></div>
-                                    <div class="form-group"><label class="form-label">Audio output source</label><select class="form-select"><option>HDMI</option><option>Line Out</option></select></div>
-                                </div>
-                                <div style="margin-top:20px;">
-                                    <div class="settings-group-title"><div class="settings-group-icon">🔌</div> USB (Theme Mode)</div>
-                                    <div class="form-group"><label class="form-label">USB Output</label><div style="display:flex; gap:15px; margin-top:5px;"><label class="radio-custom"><input type="radio" name="usb"><span>On</span></label><label class="radio-custom"><input type="radio" name="usb" checked><span>Off</span></label></div></div>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="immersive-dock">
+                        <button class="dock-btn active" id="btn-dock-layout" onclick="toggleDrawer('layout')">
+                            <div class="dock-icon">📺</div>
+                            <span>Display</span>
+                        </button>
+                        <div class="dock-divider"></div>
+                        <button class="dock-btn" id="btn-dock-sources" onclick="toggleDrawer('sources')">
+                            <div class="dock-icon">📂</div>
+                            <span>Sources</span>
+                        </button>
+                        <button class="dock-btn" id="btn-dock-settings" onclick="toggleDrawer('settings')">
+                            <div class="dock-icon">⚙️</div>
+                            <span>Settings</span>
+                        </button>
+                        <div class="dock-divider"></div>
+                        <button class="dock-btn" id="btn-ptz-ctrl" onclick="togglePTZ()" disabled>
+                            <div class="dock-icon">🎮</div>
+                            <span>PTZ</span>
+                        </button>
+                    </div>
 
-                        <div class="source-list-panel">
-                            <div class="list-toolbar">
+                    <div class="side-drawer" id="sideDrawer">
+                        <div class="drawer-header">
+                            <span class="drawer-title" id="drawerTitle">Sources</span>
+                            <button class="drawer-close" onclick="closeDrawer()">✕</button>
+                        </div>
+                        
+                        <div id="drawer-content-sources" class="drawer-content-panel">
+                             <div class="list-toolbar">
                                 <span style="font-weight:bold; font-size:14px; color:#ddd;">Source List</span>
-                                <div style="display:flex; gap:10px;">
-                                    <button class="btn btn-primary" onclick="showModal('Add Manual Source')">Add Source</button>
-                                    <button class="btn btn-outline" id="btn-refresh-list" onclick="refreshSourceList()">Refresh</button>
+                                <div style="display:flex; gap:5px;">
+                                    <button class="btn btn-primary btn-sm" onclick="showModal('Add Manual Source')">+ Add</button>
+                                    <button class="btn btn-outline btn-sm" id="btn-refresh-list" onclick="refreshSourceList()">↻</button>
                                 </div>
                             </div>
                             <div class="source-list-scroll">
@@ -254,11 +245,9 @@
                                     <thead class="source-list-header">
                                         <tr>
                                             <th style="width:40px;"></th>
-                                            <th style="width:120px;">Preview</th>
-                                            <th>Details</th>
-                                            <th>Group</th>
-                                            <th style="width:100px; text-align:center;">Preset</th>
-                                            <th style="width:120px; text-align:right;">Action</th>
+                                            <th style="width:100px;">Preview</th>
+                                            <th>Name / IP</th>
+                                            <th style="width:50px;">Act</th>
                                         </tr>
                                     </thead>
                                     <tbody id="source-list-body"></tbody>
@@ -266,8 +255,32 @@
                             </div>
                         </div>
 
+                        <div id="drawer-content-settings" class="drawer-content-panel" style="display:none;">
+                            <div class="settings-scroll-area">
+                                <div>
+                                    <div class="settings-group-title">
+                                        <div class="settings-group-icon">📺</div> Output Mode
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="mode-switch-container">
+                                            <div class="mode-switch-btn active" id="mode-single" onclick="switchOutputMode(1)">
+                                                <div class="mode-btn-icon">⬛</div>
+                                                <span>Single (4K)</span>
+                                            </div>
+                                            <div class="mode-switch-btn" id="mode-quad" onclick="switchOutputMode(4)">
+                                                <div class="mode-btn-icon">田</div>
+                                                <span>Quad View</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group"><label class="form-label">Resolution</label><select class="form-select"><option>3840 X 2160</option><option selected>1920 X 1080</option></select></div>
+                                    <div class="form-group"><label class="form-label">Color Space</label><select class="form-select"><option>RGB</option><option>YUV 4:4:4</option></select></div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
-                </div>
+                    </div>
             </div>
         </div>
     </div>
@@ -354,18 +367,6 @@
                 </div>
                 <div class="settings-body" id="settings-body-content"></div>
             </div>
-        </div>
-    </div>
-
-    <div id="modal-upgrade-permission" style="display:none;" class="modal-overlay">
-        <div class="modal-box" style="width:400px;">
-            <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
-                <h3 style="margin:0; color:#fff; font-size:16px;">Upgrade Permission</h3>
-                <span onclick="closeSpecificModal('modal-upgrade-permission')" style="cursor:pointer; color:#888;">✕</span>
-            </div>
-            <div class="upgrade-modal-input-group"><label class="form-label">Username</label><input type="text" class="form-input" id="upgradeUser"></div>
-            <div class="upgrade-modal-input-group"><label class="form-label">Password</label><input type="password" class="form-input" id="upgradePass"></div>
-            <div class="modal-footer"><button class="modal-footer-btn" onclick="closeSpecificModal('modal-upgrade-permission')">Cancel</button><button class="modal-footer-btn" onclick="verifyAdmin()">Save</button></div>
         </div>
     </div>
 
