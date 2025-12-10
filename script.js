@@ -1,4 +1,4 @@
-/* script.js - Logic for NC30 Demo (Demo B - Direct Switch) */
+/* script.js - Logic for NC30 Demo (Demo B - Immersive V1) */
 
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
@@ -21,6 +21,12 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('click', function(e) {
         if (!e.target.matches('.btn-icon-action')) {
             document.querySelectorAll('.source-menu-dropdown').forEach(el => el.classList.remove('show'));
+        }
+        // Click outside drawer to close it (Optional, but good UX)
+        const drawer = document.getElementById('sideDrawer');
+        const dock = document.querySelector('.immersive-dock');
+        if (drawer && drawer.classList.contains('open') && !drawer.contains(e.target) && !dock.contains(e.target) && !e.target.matches('.modal-overlay *')) {
+           closeDrawer();
         }
     });
 });
@@ -82,20 +88,64 @@ function updateModeSwitcherUI(mode) {
     else { document.getElementById('top-btn-dec').classList.add('active'); }
 }
 
+// === DRAWER & DOCK LOGIC (NEW) ===
+function toggleDrawer(tabName) {
+    const drawer = document.getElementById('sideDrawer');
+    const title = document.getElementById('drawerTitle');
+    const dockBtns = document.querySelectorAll('.dock-btn');
+    
+    // Reset dock active states
+    dockBtns.forEach(b => b.classList.remove('active'));
+    
+    // Logic: If clicking same tab, close drawer. If different, switch tab.
+    const currentTab = drawer.dataset.currentTab;
+    
+    if (drawer.classList.contains('open') && currentTab === tabName) {
+        closeDrawer();
+        return;
+    }
+
+    // Set Active Button
+    const activeBtn = document.getElementById(`btn-dock-${tabName}`);
+    if(activeBtn) activeBtn.classList.add('active');
+
+    // Show Content
+    document.querySelectorAll('.drawer-content-panel').forEach(p => p.style.display = 'none');
+    
+    if (tabName === 'sources') {
+        title.innerText = "Source List";
+        document.getElementById('drawer-content-sources').style.display = 'flex';
+    } else if (tabName === 'settings' || tabName === 'layout') {
+        title.innerText = "Display Settings";
+        document.getElementById('drawer-content-settings').style.display = 'flex';
+        // Auto scroll to relevant section if complex, simpler here
+    }
+
+    drawer.classList.add('open');
+    drawer.dataset.currentTab = tabName;
+}
+
+function closeDrawer() {
+    const drawer = document.getElementById('sideDrawer');
+    drawer.classList.remove('open');
+    drawer.dataset.currentTab = '';
+    document.querySelectorAll('.dock-btn').forEach(b => b.classList.remove('active'));
+}
+
+
 // === Refresh with Loading ===
 function refreshSourceList() {
     const tbody = document.querySelector('#source-list-body');
     const btn = document.getElementById('btn-refresh-list');
-    const header = document.querySelector('.source-list-header');
     
-    if(btn) { btn.innerText = "Loading..."; btn.disabled = true; }
+    if(btn) { btn.innerText = "↻"; btn.classList.add('rotating'); btn.disabled = true; }
     
     // Hide header during loading if you want, or keep it. Let's keep logic simple.
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:60px;"><div class="loading-spinner-container"><div class="spinner-ring"></div><div style="margin-top:15px; color:#666; font-size:13px;">Scanning Network...</div></div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:60px;"><div class="loading-spinner-container"><div class="spinner-ring"></div><div style="margin-top:15px; color:#666; font-size:13px;">Scanning...</div></div></td></tr>';
     
     setTimeout(() => {
         renderSourceList(); 
-        if(btn) { btn.innerText = "Refresh"; btn.disabled = false; }
+        if(btn) { btn.innerText = "↻"; btn.classList.remove('rotating'); btn.disabled = false; }
         showToast("Source list refreshed", "success");
     }, 1000);
 }
@@ -117,7 +167,7 @@ function updateLiveHeader() {
             const text = nameEl ? nameEl.innerText : '';
             if(text && !text.includes('Drag')) {
                 name = text;
-                res = '<span style="color:#FF9500">1920x1080</span>';
+                res = '<span style="color:#FF9500">1080p60</span>';
             }
         }
         const block = document.createElement('div');
@@ -127,9 +177,9 @@ function updateLiveHeader() {
     }
 }
 
-// === PTZ Logic Modified: Only disable if OFFLINE (allow error/4k issue) ===
+// === PTZ Logic Modified: Only disable if OFFLINE ===
 function updatePTZButtonState() {
-    const btn = document.getElementById('btn-ptz-ctrl');
+    const btn = document.getElementById('btn-ptz-ctrl'); // Now in dock
     if(!btn) return;
     const selectedSlot = document.querySelector('.preview-slot.selected-slot');
     if (!selectedSlot) { btn.disabled = true; return; }
@@ -137,7 +187,6 @@ function updatePTZButtonState() {
     if (!sourceId) { btn.disabled = true; return; }
     const sourceObj = sourcesData.find(s => s.id === sourceId);
     
-    // MODIFIED: Only disable if strictly offline. Error state (like 4K) is allowed.
     if (sourceObj && sourceObj.status === 'offline') { 
         btn.disabled = true; 
         return; 
@@ -179,19 +228,18 @@ function selectSlot(slotId) {
         const headerBtn = document.getElementById('btn-ptz-ctrl');
         const sourceId = el.dataset.sourceId;
         const windowNum = slotId.split('-')[1];
+        
+        // Update PTZ Button Logic
         if (!sourceId) {
             if(headerBtn) headerBtn.disabled = true;
             updatePTZPanelInfo(windowNum, null);
             setPTZPanelState(false);
         } else {
             const sourceObj = sourcesData.find(s => s.id === sourceId);
-            
-            // MODIFIED: Only block PTZ if offline. Allow 'error' (No support 4k).
             if (sourceObj && sourceObj.status === 'offline') {
-                if(headerBtn) headerBtn.disabled = false; // Note: UI logic might disable button separately, but logic allows selection
                 updatePTZPanelInfo(windowNum, null); 
                 setPTZPanelState(false); 
-                if(headerBtn) headerBtn.disabled = true; // Sync button
+                if(headerBtn) headerBtn.disabled = true; 
             } else {
                 if(headerBtn) headerBtn.disabled = false;
                 updatePTZPanelInfo(windowNum, sourceObj ? sourceObj.name : "Unknown");
@@ -206,37 +254,32 @@ function selectListRow(sourceId) {
     renderSourceList(); 
 }
 
-// === RENDER SOURCE LIST (Updated Header & Status Color) ===
+// === RENDER SOURCE LIST (Simplified for Drawer) ===
 function renderSourceList() {
     const tbody = document.querySelector('#source-list-body');
-    const thead = document.querySelector('.source-list-header'); // Get Header
+    const thead = document.querySelector('.source-list-header'); 
     if(!tbody) return;
     tbody.innerHTML = '';
 
-    // 1. Check Empty State & Toggle Header
+    // 1. Check Empty State
     if (sourcesData.length === 0) {
-        if(thead) thead.style.display = 'none'; // Hide Header
+        if(thead) thead.style.display = 'none'; 
         tbody.innerHTML = `
             <tr>
-                <td colspan="5" style="border:none; padding: 60px 0; pointer-events:none;">
+                <td colspan="4" style="border:none; padding: 40px 0; pointer-events:none;">
                     <div class="empty-state-container">
-                        <div class="empty-state-circle">
-                            <span style="font-size:12px; color:#aaa;">沒有Source List<br>的狀態圖</span>
-                        </div>
-                        <div class="empty-state-title">No NDI Sources Detected</div>
-                        <div class="empty-state-desc">We couldn't find any NDI sources on the local network.</div>
+                        <div class="empty-state-title">No Sources</div>
                     </div>
                 </td>
             </tr>
         `;
         return;
     } else {
-        if(thead) thead.style.display = ''; // Show Header (revert to CSS)
+        if(thead) thead.style.display = ''; 
     }
 
-    // 2. Find Active Sources for Preset Badge Logic
-    // Scan all preview slots to see which source IDs are currently in use
-    const activeMapping = {}; // { sourceId: windowNum }
+    // 2. Active Sources
+    const activeMapping = {}; 
     document.querySelectorAll('.preview-slot').forEach(slot => {
         if (slot.dataset.sourceId) {
             const winNum = slot.id.split('-')[1];
@@ -255,42 +298,16 @@ function renderSourceList() {
         tr.setAttribute('data-json', JSON.stringify(src));
         tr.onclick = () => selectListRow(src.id);
 
-        // Status Logic: Grey for stable
-        let statusText = "Stable";
-        let statusStyle = "";
-        
-        if(src.status === 'online') { 
-            statusText = "Status: Stable"; 
-            statusStyle = "color:#888;"; // GREY
-        }
-        else if(src.status === 'error') { 
-            statusText = "Status: " + src.errorMsg; 
-            statusStyle = "color:#FF3B30;"; // RED for Error
-        }
-        else { 
-            statusText = "Status: Offline"; 
-            statusStyle = "color:#666;"; 
-        }
-
-        // Preset Badge Logic
-        // Only show if this source ID is in activeMapping
-        let presetHtml = '';
-        if (activeMapping[src.id]) {
-            presetHtml = `<span class="preset-box">${activeMapping[src.id]}</span>`;
-        }
-
         let thumbHtml = src.status === 'offline' ? `<div class="thumb-box offline"><span>Offline</span></div>` : `<div class="thumb-box"><img src="${src.thumb}"></div>`;
         
+        // Simplified Action Menu for Drawer
         tr.innerHTML = `
-            <td class="drag-col"><span class="drag-handle-icon">⋮⋮</span></td>
+            <td class="drag-col"><span class="drag-handle-icon" style="font-size:14px;">⋮⋮</span></td>
             <td class="thumb-col">${thumbHtml}</td>
             <td class="info-col">
                 <div class="src-name">${src.name}</div>
                 <div class="src-detail-row">${src.ip}</div>
-                <div class="src-detail-row">${src.group}</div>
-                <div class="src-detail-row" style="${statusStyle}">${statusText}</div>
             </td>
-            <td class="preset-col">${presetHtml}</td>
             <td class="action-col">
                 <div class="action-menu-container">
                     <button class="btn-icon-action" onclick="toggleSourceMenu('${src.id}', event)">•••</button>
@@ -436,8 +453,6 @@ function drop(ev) {
         slot.innerHTML = `<div class="slot-label">Window ${windowNum}</div><div class="offline-overlay"><div class="offline-icon">⚠️</div><div class="offline-text">Signal Lost</div></div>${renderSlotMenu(slot.id)}`;
     } else {
         slot.classList.remove('offline-state');
-        // Check if error but not offline (e.g. 4k support issue) -> Still show live preview generic or error overlay? 
-        // For demo simplicity, we show video but keep status error in list.
         slot.innerHTML = `<div class="video-layer" style="background-image: url('${data.thumb || 'https://picsum.photos/id/237/400/300'}');"></div><div class="video-overlay-gradient"></div><div class="slot-label">Window ${windowNum}</div><div class="slot-content"><div class="slot-name">${data.name}</div><div class="slot-meta" style="color:#4CAF50;">● Live</div></div>${renderSlotMenu(slot.id)}`;
     }
     slot.classList.add('active-slot');
@@ -445,7 +460,7 @@ function drop(ev) {
     selectSlot(slot.id);
     updateLiveHeader();
     
-    // UPDATED: Refresh list to update Preset Badges
+    // Refresh list to update active state
     renderSourceList();
 }
 
@@ -461,8 +476,6 @@ function removeSource(slotId, targetSourceId = null) {
         slot.innerHTML = `<div class="slot-label">Window ${slotId.split('-')[1]}</div><div class="slot-content" style="text-align:center;"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div>`; 
         updateLiveHeader(); 
         selectSlot(slotId); 
-        
-        // UPDATED: Refresh list to update Preset Badges (remove numbers)
         renderSourceList();
     }
 }
@@ -514,7 +527,17 @@ let isDragging = false, startX, startY, initialLeft, initialTop;
 ptzHeader.onmousedown = (e) => { isDragging = true; startX = e.clientX; startY = e.clientY; initialLeft = ptzPanel.offsetLeft; initialTop = ptzPanel.offsetTop; e.preventDefault(); };
 document.onmousemove = (e) => { if(isDragging) { ptzPanel.style.left = (initialLeft + e.clientX - startX) + "px"; ptzPanel.style.top = (initialTop + e.clientY - startY) + "px"; } };
 document.onmouseup = () => isDragging = false;
-function togglePTZ() { if(ptzPanel.style.display === 'flex') { ptzPanel.style.display = 'none'; } else { ptzPanel.style.display = 'flex'; if(!ptzPanel.style.top) { ptzPanel.style.top = '100px'; ptzPanel.style.left = (window.innerWidth / 2 - 130) + 'px'; } } }
+function togglePTZ() { 
+    if(ptzPanel.style.display === 'flex') { 
+        ptzPanel.style.display = 'none'; 
+        document.getElementById('btn-ptz-ctrl').classList.remove('active');
+    } else { 
+        ptzPanel.style.display = 'flex'; 
+        document.getElementById('btn-ptz-ctrl').classList.add('active');
+        // Reset position if needed, or keep last
+        if(!ptzPanel.style.bottom) { ptzPanel.style.bottom = '100px'; ptzPanel.style.right = '100px'; } 
+    } 
+}
 
 function actionLogout() {
     document.getElementById('modal-logout-confirm').style.display = 'flex';
