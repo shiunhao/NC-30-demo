@@ -1,4 +1,4 @@
-/* script.js - Logic for NC30 Demo (V11) */
+/* script.js - Logic for NC30 Demo (V12) */
 
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
@@ -25,15 +25,10 @@ document.addEventListener('DOMContentLoaded', () => {
 function refreshSourceList() {
     const tbody = document.querySelector('#source-list-body');
     const btn = document.getElementById('btn-refresh-list');
-    
-    // UI Loading state
     if(btn) { btn.innerText = "Loading..."; btn.disabled = true; }
-    
-    // Insert Spinner
     tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:40px;"><div class="loading-spinner-container"><div class="spinner-ring"></div><div style="margin-top:10px; color:#888; font-size:13px;">Updating sources...</div></div></td></tr>';
-
     setTimeout(() => {
-        renderSourceList(); // Restore list
+        renderSourceList(); 
         if(btn) { btn.innerText = "Refresh"; btn.disabled = false; }
         showToast("Source list refreshed", "success");
     }, 1000);
@@ -78,6 +73,29 @@ function updatePTZButtonState() {
     btn.disabled = false;
 }
 
+// === NEW: Update PTZ Panel Text ===
+function updatePTZPanelInfo(slotId) {
+    const info = document.getElementById('ptz-target-info');
+    if(!info) return;
+    if(!slotId) {
+        info.innerText = "Target: None";
+        return;
+    }
+    const num = slotId.split('-')[1];
+    info.innerText = `Target: Window ${num}`;
+}
+
+// === NEW: Save Preset ===
+function savePreset() {
+    // Check if valid
+    const btn = document.getElementById('btn-ptz-ctrl');
+    if(btn && btn.disabled) {
+        showToast("Cannot save preset: No active source", "error");
+        return;
+    }
+    showToast("Preset Saved", "success");
+}
+
 function renderSourceList() {
     const tbody = document.querySelector('#source-list-body');
     if(!tbody) return;
@@ -92,7 +110,6 @@ function renderSourceList() {
         if(src.status === 'error') statusHtml = `<span class="src-status-error">${src.errorMsg}</span>`;
         if(src.status === 'offline') statusHtml = `<span style="color:#888;">Offline</span>`;
         let thumbHtml = src.status === 'offline' ? `<div class="thumb-box offline"><span>Offline</span></div>` : `<div class="thumb-box"><img src="${src.thumb}"></div>`;
-        
         tr.innerHTML = `
             <td class="drag-col"><span class="drag-handle-icon">⋮⋮</span></td>
             <td class="thumb-col">${thumbHtml}</td>
@@ -186,7 +203,7 @@ function saveSourceData() {
         sourcesData.push({ id: newId, name: name, ip: ip, group: group, status: 'online', thumb: 'https://picsum.photos/id/237/100/56' });
         showToast(`Added: ${name}`, "success");
     }
-    renderSourceList(); // Update List immediately
+    renderSourceList();
     closeModal();
     updateLiveHeader();
 }
@@ -287,7 +304,17 @@ function enterView(mode) {
 }
 function updateHomeUI() { document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('selected-mode')); if(currentSystemMode === 'encoder') document.getElementById('card-enc').classList.add('selected-mode'); if(currentSystemMode === 'decoder') document.getElementById('card-dec').classList.add('selected-mode'); }
 function goHome() { document.getElementById('app-shell').style.display = 'none'; document.getElementById('page-home').style.display = 'flex'; }
-function selectSlot(slotId) { document.querySelectorAll('.preview-slot').forEach(el => el.classList.remove('selected-slot')); const el = document.getElementById(slotId); if(el) { el.classList.add('selected-slot'); updatePTZButtonState(); } }
+
+function selectSlot(slotId) { 
+    document.querySelectorAll('.preview-slot').forEach(el => el.classList.remove('selected-slot')); 
+    const el = document.getElementById(slotId); 
+    if(el) { 
+        el.classList.add('selected-slot'); 
+        updatePTZButtonState(); 
+        updatePTZPanelInfo(slotId); // UPDATE TEXT
+    } 
+}
+
 function switchOutputMode(count) { 
     currentOutputMode = count === 1 ? 'Single' : 'Quad'; 
     document.querySelectorAll('.mode-switch-btn').forEach(btn => btn.classList.remove('active'));
@@ -335,3 +362,22 @@ document.onmousemove = (e) => { if(isDragging) { ptzPanel.style.left = (initialL
 document.onmouseup = () => isDragging = false;
 function togglePTZ() { if(ptzPanel.style.display === 'flex') { ptzPanel.style.display = 'none'; } else { ptzPanel.style.display = 'flex'; if(!ptzPanel.style.top) { ptzPanel.style.top = '100px'; ptzPanel.style.left = (window.innerWidth / 2 - 130) + 'px'; } } }
 window.onclick = function(e) { if(!e.target.matches('.slot-menu-btn')) document.querySelectorAll('.slot-dropdown').forEach(el => el.classList.remove('show')); if(!e.target.matches('#btn-account-avatar')) document.getElementById('accountMenu').classList.remove('show'); }
+
+// === MODIFIED LOGOUT ===
+function actionLogout() {
+    document.getElementById('modal-logout-confirm').style.display = 'flex';
+    document.getElementById('accountMenu').classList.remove('show');
+}
+
+function confirmLogout() {
+    // Soft Logout Logic
+    document.getElementById('modal-logout-confirm').style.display = 'none';
+    document.getElementById('app-shell').style.display = 'none';
+    document.getElementById('page-home').style.display = 'none';
+    document.getElementById('page-login').style.display = 'flex';
+    
+    // Reset state if needed
+    currentSystemMode = null;
+    currentUserRole = 'admin'; // default
+    document.getElementById('page-login').style.opacity = '1';
+}
