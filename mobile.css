@@ -94,23 +94,51 @@
         min-height: 0;
     }
 
-    /* Source List */
+    /* === Source List Mobile Adjustments (Updated for Card Layout) === */
     .source-list-panel {
         flex: none;
-        height: 300px; /* Fixed height for scrolling */
-    }
-
-    /* Hide less important columns in mobile list */
-    .source-list-header th:nth-child(4), /* Group */
-    .source-row td:nth-child(4),
-    .source-list-header th:nth-child(5), /* Preset */
-    .source-row td:nth-child(5) {
-        display: none; 
+        height: 350px; /* Fixed height for scrolling */
     }
     
+    .source-list-scroll {
+        padding: 5px; /* Less padding on mobile */
+    }
+
+    .source-list-table {
+        border-spacing: 0 6px; /* Smaller card gap */
+    }
+
+    /* Column 1: Drag Handle - Keep visible but small */
+    .source-list-header th:nth-child(1) { width: 30px; }
+    .drag-col { width: 30px; }
+    .drag-handle-icon { font-size: 16px; }
+
+    /* Column 2: Thumbnail - Smaller */
     .source-list-header th:nth-child(2) { width: 80px; }
+    .thumb-col { width: 80px; }
     .thumb-box { width: 70px; height: 40px; }
-    .btn-icon-action { width: 32px; height: 32px; }
+
+    /* Column 3: Info - Auto width */
+    .info-col { padding-left: 8px !important; }
+    .src-name { font-size: 13px; margin-bottom: 2px; }
+    .src-detail-row { font-size: 11px; }
+
+    /* Column 4: Preset - HIDE on Mobile to save space */
+    .source-list-header th:nth-child(4),
+    .source-row td:nth-child(4) {
+        display: none; 
+    }
+
+    /* Column 5: Action - MUST BE VISIBLE */
+    .source-list-header th:nth-child(5) { width: 40px; text-align: right; }
+    .action-col { 
+        padding-right: 5px !important; 
+        width: 40px;
+    }
+    .btn-icon-action { width: 28px; height: 28px; font-size: 14px; }
+
+    /* Card Padding tweaks */
+    .source-row td { padding: 8px 4px; }
 
     /* === 5. PTZ Panel (Bottom Sheet) === */
     .draggable-panel {
