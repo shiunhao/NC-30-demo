@@ -330,24 +330,70 @@ input:checked + .slider:before { transform: translateX(14px); }
 
 /* Settings & List */
 .list-toolbar { padding: 10px 20px; border-bottom: 1px solid #333; background: #252526; display: flex; justify-content: space-between; align-items: center; }
-.source-list-scroll { overflow-y: auto; flex: 1; }
-.source-list-table { width: 100%; border-collapse: collapse; }
-.source-list-header th { background-color: #2a2a2a; color: #aaa; font-size: 11px; text-transform: uppercase; text-align: left; padding: 10px; border-bottom: 1px solid #333; position: sticky; top: 0; z-index: 2; }
-.source-row { border-bottom: 1px solid #2a2a2a; transition: background 0.1s; cursor: grab; }
-.source-row:active { cursor: grabbing; background: #2a2a2a; }
-.source-row:hover { background-color: #252525; }
-.drag-col { width: 40px; text-align: center; }
+.source-list-scroll { overflow-y: auto; flex: 1; padding: 10px; /* Add padding for cards */ }
+
+/* === TABLE AS CARD LAYOUT === */
+.source-list-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; /* Gap between cards */ }
+
+/* Header Alignment */
+.source-list-header th { background-color: transparent; color: #777; font-size: 12px; text-transform: capitalize; text-align: left; padding: 5px 10px; border: none; font-weight: normal; }
+.source-list-header th:nth-child(1) { width: 40px; text-align: center; } 
+.source-list-header th:nth-child(2) { width: 120px; }
+.source-list-header th:nth-child(3) { width: auto; }  /* Source Details */
+.source-list-header th:nth-child(4) { width: 60px; text-align: center; }
+.source-list-header th:nth-child(5) { width: 60px; text-align: center; }
+
+/* Row as Card */
+.source-row { cursor: pointer; transition: transform 0.1s; }
+.source-row:hover td { background-color: #2a2a2a; }
+
+/* Cells Styling (to mimic card) */
+.source-row td {
+    background: #1e1e1e; /* Card BG */
+    border-top: 1px solid #333; border-bottom: 1px solid #333;
+    padding: 10px 5px; vertical-align: middle;
+}
+
+/* Rounded Corners & Side Borders */
+.source-row td:first-child { border-left: 1px solid #333; border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
+.source-row td:last-child { border-right: 1px solid #333; border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
+
+/* Selected State (Orange Border) */
+.source-row.selected td { border-top-color: #FF9500; border-bottom-color: #FF9500; }
+.source-row.selected td:first-child { border-left-color: #FF9500; }
+.source-row.selected td:last-child { border-right-color: #FF9500; }
+
+/* Columns */
+.drag-col { text-align: center; }
 .drag-handle-icon { color: #666; font-size: 18px; cursor: move; }
 .thumb-col { width: 120px; }
 .thumb-box { width: 100px; height: 56px; background: #000; border-radius: 2px; border: 1px solid #333; display: flex; align-items: center; justify-content: center; overflow: hidden; }
 .thumb-box img { width: 100%; height: 100%; object-fit: cover; }
 .thumb-box.offline { background: #000; color: #aaa; display: flex; flex-direction: column; font-size: 9px; }
-.src-name { font-weight: bold; font-size: 13px; display: block; color: #fff; margin-bottom: 4px; }
-.src-meta { font-size: 11px; color: #888; font-family: monospace; }
-.src-status-error { color: #FF3B30; font-weight: bold; margin-left: 5px; }
-.preset-col { width: 100px; text-align: center; }
-.preset-badge { display: inline-block; background: #6D4C41; color: #fff; font-size: 11px; width: 20px; height: 20px; line-height: 20px; text-align: center; border-radius: 2px; }
-.action-col { width: 120px; text-align: right; padding-right: 30px !important; }
+
+/* Info Column (Merged) */
+.info-col { padding-left: 15px !important; }
+.src-name { font-weight: bold; font-size: 14px; color: #fff; margin-bottom: 4px; display: block; }
+.src-detail-row { font-size: 12px; color: #888; margin-bottom: 2px; font-family: 'Roboto Mono', monospace; }
+
+/* Preset Box */
+.preset-col { text-align: center; }
+.preset-box { display: inline-block; background: #5D4037; color: #D7CCC8; font-size: 12px; padding: 2px 8px; border-radius: 2px; min-width: 24px; text-align: center; }
+
+/* Action Menu */
+.action-col { text-align: center; position: relative; }
+.action-menu-container { position: relative; display: inline-block; }
+.source-menu-dropdown {
+    position: absolute; right: 0; top: 30px;
+    background: #252526; border: 1px solid #555; border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    z-index: 100; display: none; min-width: 100px; overflow: hidden;
+}
+.source-menu-dropdown.show { display: block; }
+.src-menu-item { padding: 8px 15px; color: #eee; font-size: 12px; cursor: pointer; text-align: left; }
+.src-menu-item:hover { background: #333; }
+.src-menu-item.danger { color: #FF3B30; }
+.src-menu-item.danger:hover { background: rgba(255, 59, 48, 0.1); }
 
 /* === Draggable PTZ (Square Grid) === */
 .draggable-panel {
@@ -434,64 +480,3 @@ input[type=range].ptz-range::-webkit-slider-thumb { height: 14px; width: 14px; b
 .loading-spinner-container { display: flex; flex-direction: column; align-items: center; justify-content: center; }
 .spinner-ring { width: 30px; height: 30px; border: 3px solid #444; border-top: 3px solid var(--theme-color); border-radius: 50%; animation: spin 1s linear infinite; }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-/* === 8. Patch: Source List Layout Fix (2025-12-10) === */
-
-/* 1. 調整表格標題寬度 (對應 index.html 的 thead) */
-.source-list-header th:nth-child(1) { width: 40px; }  /* Drag Handle */
-.source-list-header th:nth-child(2) { width: 120px; } /* Preview Image */
-.source-list-header th:nth-child(3) { width: auto; }  /* Details (自動填滿剩餘空間) */
-.source-list-header th:nth-child(4) { width: 100px; } /* Group */
-.source-list-header th:nth-child(5) { width: 60px; text-align: center; }  /* Preset */
-.source-list-header th:nth-child(6) { width: 100px; text-align: right; } /* Action */
-
-/* 2. 調整表格內容儲存格的對齊 */
-.source-row td {
-    vertical-align: middle; /* 讓所有內容垂直置中 */
-    padding: 12px 5px;      /* 增加上下的呼吸空間 */
-}
-
-/* 3. 優化名稱與 IP 的排版 (Info Col) */
-.info-col {
-    padding-left: 10px !important;
-}
-
-.src-name {
-    font-weight: 700;
-    font-size: 15px;      /*稍微加大字體 */
-    color: #fff;
-    margin-bottom: 6px;   /* 拉開與下方 IP 的距離 */
-    line-height: 1.2;
-}
-
-.src-meta {
-    font-size: 12px;
-    color: #999;
-    font-family: 'Roboto Mono', monospace; /* 如果系統有等寬字體，數字會比較整齊 */
-    display: flex;
-    align-items: center;
-}
-
-.meta-divider {
-    margin: 0 8px; /* IP 和 Status 中間的分隔線距離 */
-    color: #444;
-}
-
-/* 4. 優化群組 (Group Col) */
-.group-col {
-    color: #aaa;
-    font-size: 13px;
-    font-weight: 500;
-}
-.group-col span {
-    background: #2a2a2a;
-    padding: 4px 8px;
-    border-radius: 4px;
-    border: 1px solid #333;
-}
-
-/* 5. 調整按鈕區域 */
-.action-col {
-    text-align: right;
-    padding-right: 20px !important;
-}
