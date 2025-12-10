@@ -1,4 +1,4 @@
-/* style.css - Final Demo Version (V16) */
+/* style.css - Final Demo Version (V17 - Cleaned) */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -346,39 +346,15 @@ input:checked + .slider:before { transform: translateX(14px); }
 .ptz-close { cursor: pointer; color: #888; font-size: 16px; font-weight: bold; line-height: 1; }
 .ptz-close:hover { color: #fff; }
 
-.ptz-body { padding: 5px 15px; display: flex; flex-direction: column; gap: 10px; }
-
-/* Added PTZ Target Info */
-.ptz-target-info {
-    font-size: 12px; color: #007AFF; text-align: center; margin-bottom: 5px; margin-top: -5px; font-weight: bold;
-}
-
-/* Added PTZ Preset Header */
-.ptz-preset-header {
-    display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;
-}
-
-.btn-xs-save {
-    background: #333; border: 1px solid #555; color: #ccc; font-size: 10px; padding: 2px 8px; border-radius: 2px; cursor: pointer;
-}
+.ptz-body { padding: 10px 15px; display: flex; flex-direction: column; gap: 15px; }
+.ptz-target-info { font-size: 12px; color: #007AFF; text-align: center; margin-bottom: 5px; margin-top: -5px; font-weight: bold; }
+.ptz-preset-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+.btn-xs-save { background: #333; border: 1px solid #555; color: #ccc; font-size: 10px; padding: 2px 8px; border-radius: 2px; cursor: pointer; }
 .btn-xs-save:hover { background: #444; color: #fff; }
+.disabled-ui { opacity: 0.3; pointer-events: none; filter: grayscale(1); }
 
-/* Disabled UI State */
-.disabled-ui {
-    opacity: 0.3;
-    pointer-events: none;
-    filter: grayscale(1);
-}
-
-.ptz-pad-container {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;
-    background: transparent;
-}
-.ptz-btn {
-    aspect-ratio: 1; background: #424242; border: none; border-radius: 2px;
-    color: #ccc; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-    transition: background 0.1s;
-}
+.ptz-pad-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; background: transparent; }
+.ptz-btn { aspect-ratio: 1; background: #424242; border: none; border-radius: 2px; color: #ccc; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.1s; }
 .ptz-btn:hover { background: #555; color: #fff; }
 .ptz-btn:active { background: #666; }
 .ptz-home { font-size: 18px; color: #fff; font-weight: bold; }
@@ -388,21 +364,16 @@ input:checked + .slider:before { transform: translateX(14px); }
 .slider-wrapper { display: flex; align-items: center; gap: 8px; }
 .slider-icon { color: #888; font-weight: bold; font-size: 14px; cursor: pointer; }
 .slider-icon:hover { color: #fff; }
-
 input[type=range].ptz-range { -webkit-appearance: none; width: 100%; background: transparent; margin: 0; }
 input[type=range].ptz-range:focus { outline: none; }
 input[type=range].ptz-range::-webkit-slider-runnable-track { width: 100%; height: 2px; cursor: pointer; background: #666; border-radius: 0; }
-input[type=range].ptz-range::-webkit-slider-thumb {
-    height: 14px; width: 14px; border-radius: 50%; background: var(--ptz-thumb); cursor: pointer;
-    -webkit-appearance: none; margin-top: -6px; border: 2px solid #444; box-shadow: 0 0 0 1px var(--ptz-thumb);
-}
+input[type=range].ptz-range::-webkit-slider-thumb { height: 14px; width: 14px; border-radius: 50%; background: var(--ptz-thumb); cursor: pointer; -webkit-appearance: none; margin-top: -6px; border: 2px solid #444; box-shadow: 0 0 0 1px var(--ptz-thumb); }
 
 .ptz-preset-section { display: flex; flex-direction: column; gap: 5px; }
 .ptz-preset-section label { display: block; color: #bbb; font-size: 12px; }
 .preset-controls { display: flex; align-items: center; gap: 6px; }
 .ptz-arrow-btn { background: transparent; border: none; color: #888; font-size: 16px; cursor: pointer; padding: 0 4px; }
 .ptz-arrow-btn:hover { color: #fff; }
-
 .preset-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; flex: 1; }
 .preset-grid button { background: #424242; border: none; color: #bbb; font-size: 12px; padding: 10px 0; cursor: pointer; border-radius: 2px; }
 .preset-grid button:hover { background: #555; color: #fff; }
