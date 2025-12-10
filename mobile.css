@@ -1,4 +1,4 @@
-/* mobile.css - Mobile Responsive Overrides (V17 - Verified) */
+/* mobile.css - Mobile Responsive Overrides (V14 - Integrated Layout Fix) */
 
 /* 只有在螢幕寬度小於 768px (手機/平板直向) 時生效 */
 @media screen and (max-width: 768px) {
@@ -29,19 +29,22 @@
         position: sticky;
         top: 0;
         z-index: 100;
-        justify-content: space-between; 
+        justify-content: space-between; /* override */
     }
 
+    /* Adjust Mode Switcher for Mobile */
     .mode-switcher-top {
-        position: static; 
+        position: static; /* Remove absolute centering on mobile */
         transform: none;
         margin-left: auto; margin-right: auto;
-        scale: 0.9;
+        scale: 0.9; /* Make it slightly smaller */
     }
 
     .app-logo { font-size: 16px; margin-right: 5px; }
 
-    .header-right { display: none; }
+    .header-right { display: none; /* Hide right icons on mobile to save space */ }
+    
+    /* Keep Settings/Account if critical, or move to bottom menu? For now hide non-critical */
     .header-center-group { display: none; }
 
     /* === 3. Encoder Mode === */
@@ -63,45 +66,45 @@
 
     /* === 4. Decoder Mode (New Sidebar Layout Fix) === */
     .decoder-layout {
-        grid-template-columns: 1fr; 
+        grid-template-columns: 1fr; /* Single Column */
         gap: 15px;
         height: auto;
         display: flex;
         flex-direction: column;
     }
 
+    /* Preview Area */
     .output-container {
         flex: none;
         min-height: 220px;
         aspect-ratio: 16/9; 
     }
 
+    /* Right Sidebar becomes bottom block */
     .sidebar-right {
         height: auto;
         overflow: visible;
         gap: 20px;
     }
 
+    /* Settings Card */
     .decoder-settings-card {
         flex: none;
         height: auto;
         min-height: 0;
     }
 
+    /* Source List */
     .source-list-panel {
         flex: none;
-        height: 300px;
+        height: 300px; /* Fixed height for scrolling */
     }
 
-    /* Updated Column Hiding for Mobile
-       Col 1: Drag
-       Col 2: Thumb
-       Col 3: Details (Integrated)
-       Col 4: Preset -> Hide this
-       Col 5: Action
-    */
-    .source-list-header th:nth-child(4),
-    .source-row td:nth-child(4) {
+    /* Hide less important columns in mobile list */
+    .source-list-header th:nth-child(4), /* Group */
+    .source-row td:nth-child(4),
+    .source-list-header th:nth-child(5), /* Preset */
+    .source-row td:nth-child(5) {
         display: none; 
     }
     
