@@ -1,4 +1,4 @@
-/* style.css - Final Demo Version (V14 - Integrated Layout) */
+/* style.css - Final Demo Version (V14 - Integrated Layout + Empty State Fix) */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -335,13 +335,14 @@ input:checked + .slider:before { transform: translateX(14px); }
 /* === TABLE AS CARD LAYOUT === */
 .source-list-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; /* Gap between cards */ }
 
-/* Header Alignment */
+/* Header Alignment - UPDATED: HIDE GROUP HEADER */
 .source-list-header th { background-color: transparent; color: #777; font-size: 12px; text-transform: capitalize; text-align: left; padding: 5px 10px; border: none; font-weight: normal; }
 .source-list-header th:nth-child(1) { width: 40px; text-align: center; } 
 .source-list-header th:nth-child(2) { width: 120px; }
 .source-list-header th:nth-child(3) { width: auto; }  /* Source Details */
-.source-list-header th:nth-child(4) { width: 60px; text-align: center; }
+.source-list-header th:nth-child(4) { display: none; } /* HIDDEN GROUP HEADER */
 .source-list-header th:nth-child(5) { width: 60px; text-align: center; }
+.source-list-header th:nth-child(6) { width: 60px; text-align: right; }
 
 /* Row as Card */
 .source-row { cursor: pointer; transition: transform 0.1s; }
@@ -381,7 +382,7 @@ input:checked + .slider:before { transform: translateX(14px); }
 .preset-box { display: inline-block; background: #5D4037; color: #D7CCC8; font-size: 12px; padding: 2px 8px; border-radius: 2px; min-width: 24px; text-align: center; }
 
 /* Action Menu */
-.action-col { text-align: center; position: relative; }
+.action-col { text-align: right; position: relative; padding-right: 10px; }
 .action-menu-container { position: relative; display: inline-block; }
 .source-menu-dropdown {
     position: absolute; right: 0; top: 30px;
@@ -394,6 +395,23 @@ input:checked + .slider:before { transform: translateX(14px); }
 .src-menu-item:hover { background: #333; }
 .src-menu-item.danger { color: #FF3B30; }
 .src-menu-item.danger:hover { background: rgba(255, 59, 48, 0.1); }
+
+/* === Empty State Styles === */
+.empty-state-container {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    color: #666;
+}
+.empty-state-circle {
+    width: 100px; height: 100px; background: #2a2a2a; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 15px; text-align: center;
+}
+.empty-state-title {
+    font-size: 16px; color: #ccc; margin-bottom: 5px;
+}
+.empty-state-desc {
+    font-size: 13px; color: #888; max-width: 300px; text-align: center; line-height: 1.4;
+}
 
 /* === Draggable PTZ (Square Grid) === */
 .draggable-panel {
