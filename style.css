@@ -1,4 +1,4 @@
-/* style.css - Final Demo Version (V17 - Cleaned) */
+/* style.css - Final Demo Version (V14 - Integrated Layout) */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -102,6 +102,8 @@ input:checked + .slider:before { transform: translateX(14px); }
     display: none; width: 100vw; height: 100vh;
     grid-template-rows: 60px 1fr; grid-template-columns: 1fr;
 }
+
+/* TOP BAR UPDATED FOR CENTER SWITCH */
 .top-bar {
     grid-row: 1 / 2; grid-column: 1 / -1; 
     background-color: #252526; border-bottom: 1px solid #000;
@@ -244,8 +246,26 @@ input:checked + .slider:before { transform: translateX(14px); }
     display: grid; grid-template-columns: 1fr 400px; /* 1fr Left, Fixed 400px Right */
     gap: 20px; max-width: 1800px; margin: 0 auto; height: 100%; 
 }
-.decoder-left-col { display: flex; flex-direction: column; gap: 20px; height: 100%; overflow: hidden; }
-.output-container { background: #000; border: 1px solid #333; border-radius: 8px; position: relative; overflow: hidden; display: flex; flex-direction: column; flex: 0 0 60%; min-height: 300px; }
+
+/* Left Column - JUST PREVIEW */
+.output-container { 
+    background: #000; border: 1px solid #333; border-radius: 8px; 
+    position: relative; overflow: hidden; display: flex; flex-direction: column; height: 100%; 
+}
+
+/* Right Column - SIDEBAR CONTAINER */
+.sidebar-right {
+    display: flex; flex-direction: column; gap: 15px; height: 100%; overflow: hidden;
+}
+
+/* Adjust Settings Card to fit inside sidebar */
+.decoder-settings-card { height: auto; max-height: 50%; min-height: 300px; }
+
+/* Source List fills remaining space */
+.source-list-panel { 
+    flex: 1; background: #1E1E1E; border: 1px solid #333; border-radius: 8px; 
+    display: flex; flex-direction: column; overflow: hidden; min-height: 0; 
+}
 
 .output-header-bar {
     background: #1a1a1a; padding: 10px 15px; border-bottom: 1px solid #333;
@@ -309,7 +329,6 @@ input:checked + .slider:before { transform: translateX(14px); }
 .slot-action.danger:hover { background: #D32F2F; }
 
 /* Settings & List */
-.source-list-panel { flex: 1; background: #1E1E1E; border: 1px solid #333; border-radius: 8px; display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
 .list-toolbar { padding: 10px 20px; border-bottom: 1px solid #333; background: #252526; display: flex; justify-content: space-between; align-items: center; }
 .source-list-scroll { overflow-y: auto; flex: 1; }
 .source-list-table { width: 100%; border-collapse: collapse; }
