@@ -1,4 +1,4 @@
-/* script.js - Logic for NC30 Demo (V9) */
+/* script.js - Logic for NC30 Demo (V11) */
 
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
@@ -17,9 +17,27 @@ document.addEventListener('DOMContentLoaded', () => {
     if(document.getElementById('view-decoder').style.display !== 'none') {
         renderSourceList();
         updateLiveHeader();
-        updatePTZButtonState(); // Init check
+        updatePTZButtonState(); 
     }
 });
+
+// === Refresh with Loading ===
+function refreshSourceList() {
+    const tbody = document.querySelector('#source-list-body');
+    const btn = document.getElementById('btn-refresh-list');
+    
+    // UI Loading state
+    if(btn) { btn.innerText = "Loading..."; btn.disabled = true; }
+    
+    // Insert Spinner
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:40px;"><div class="loading-spinner-container"><div class="spinner-ring"></div><div style="margin-top:10px; color:#888; font-size:13px;">Updating sources...</div></div></td></tr>';
+
+    setTimeout(() => {
+        renderSourceList(); // Restore list
+        if(btn) { btn.innerText = "Refresh"; btn.disabled = false; }
+        showToast("Source list refreshed", "success");
+    }, 1000);
+}
 
 function updateLiveHeader() {
     const container = document.getElementById('live-header-info');
@@ -48,7 +66,6 @@ function updateLiveHeader() {
     }
 }
 
-// === PTZ DISABLE LOGIC ===
 function updatePTZButtonState() {
     const btn = document.getElementById('btn-ptz-ctrl');
     if(!btn) return;
@@ -157,13 +174,19 @@ function saveSourceData() {
     const group = document.getElementById('inputSrcGroup').value;
     if(editingSourceId) {
         const idx = sourcesData.findIndex(s => s.id === editingSourceId);
-        if(idx !== -1) { sourcesData[idx].name = name; sourcesData[idx].ip = ip; sourcesData[idx].group = group; updatePreviewLabels(editingSourceId, name); showToast(`Updated: ${name}`, "success"); }
+        if(idx !== -1) { 
+            sourcesData[idx].name = name; 
+            sourcesData[idx].ip = ip; 
+            sourcesData[idx].group = group; 
+            updatePreviewLabels(editingSourceId, name); 
+            showToast(`Updated: ${name}`, "success"); 
+        }
     } else {
         const newId = 'src_' + Date.now();
         sourcesData.push({ id: newId, name: name, ip: ip, group: group, status: 'online', thumb: 'https://picsum.photos/id/237/100/56' });
         showToast(`Added: ${name}`, "success");
     }
-    renderSourceList();
+    renderSourceList(); // Update List immediately
     closeModal();
     updateLiveHeader();
 }
