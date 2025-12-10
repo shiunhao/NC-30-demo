@@ -1,4 +1,4 @@
-/* script.js - Final Fixed V18 */
+/* script.js - Logic for NC30 Demo (Final Fixed V34) */
 
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
@@ -178,11 +178,13 @@ function selectSlot(slotId) {
 }
 
 function updatePTZButtonState() {
+    const btn = document.getElementById('btn-ptz-ctrl');
+    if(!btn) return;
     const selectedSlot = document.querySelector('.preview-slot.selected-slot');
-    if (selectedSlot) selectSlot(selectedSlot.id);
-    else {
-        const btn = document.getElementById('btn-ptz-ctrl');
-        if(btn) btn.disabled = true;
+    if (selectedSlot) {
+        selectSlot(selectedSlot.id);
+    } else {
+        btn.disabled = true;
     }
 }
 
@@ -254,7 +256,7 @@ function renderSourceList() {
     });
 }
 
-// ... (Rest of standard helper functions: Modal, Drag, Toast, etc.) ...
+// ... (Other standard helper functions) ...
 function showModal(type) { if(type === 'Add Manual Source') { editingSourceId = null; renderSourceModal('Add Source', '', '', ''); } }
 function openEditSourceModal(id) { const src = sourcesData.find(s => s.id === id); if(!src) return; editingSourceId = id; renderSourceModal('Edit Source', src.name, src.ip, src.group); }
 function renderSourceModal(title, name, ip, group) {
@@ -272,19 +274,21 @@ function confirmRemoveSource() { if(sourceToRemoveId) { removeSource(null, sourc
 function cancelRemoveSource() { document.getElementById('modal-remove-confirm').style.display = 'none'; sourceToRemoveId = null; }
 function drag(ev) { ev.dataTransfer.setData("application/json", ev.currentTarget.getAttribute("data-json")); }
 function allowDrop(ev) { ev.preventDefault(); ev.currentTarget.classList.add('drag-over'); }
-function drop(ev) { ev.preventDefault(); const s = ev.currentTarget; s.classList.remove('drag-over'); const d = JSON.parse(ev.dataTransfer.getData("application/json")); s.dataset.sourceId = d.id; const w = s.id.split('-')[1]; 
-if(d.status === 'offline') { s.classList.add('offline-state'); s.innerHTML = `<div class="slot-label">Window ${w}</div><div class="offline-overlay"><div class="offline-icon">⚠️</div><div class="offline-text">Signal Lost</div></div>${renderSlotMenu(s.id)}`; } else { s.classList.remove('offline-state'); s.innerHTML = `<div class="video-layer" style="background-image: url('${d.thumb || 'https://picsum.photos/id/237/400/300'}');"></div><div class="video-overlay-gradient"></div><div class="slot-label">Window ${w}</div><div class="slot-content"><div class="slot-name">${d.name}</div><div class="slot-meta" style="color:#4CAF50;">● Live</div></div>${renderSlotMenu(s.id)}`; } s.classList.add('active-slot'); selectSlot(s.id); updateLiveHeader(); }
+function drop(ev) {
+    ev.preventDefault(); const s = ev.currentTarget; s.classList.remove('drag-over'); const d = JSON.parse(ev.dataTransfer.getData("application/json")); s.dataset.sourceId = d.id; const w = s.id.split('-')[1]; 
+    if(d.status === 'offline') { s.classList.add('offline-state'); s.innerHTML = `<div class="slot-label">Window ${w}</div><div class="offline-overlay"><div class="offline-icon">⚠️</div><div class="offline-text">Signal Lost</div></div>${renderSlotMenu(s.id)}`; } else { s.classList.remove('offline-state'); s.innerHTML = `<div class="video-layer" style="background-image: url('${d.thumb || 'https://picsum.photos/id/237/400/300'}');"></div><div class="video-overlay-gradient"></div><div class="slot-label">Window ${w}</div><div class="slot-content"><div class="slot-name">${d.name}</div><div class="slot-meta" style="color:#4CAF50;">● Live</div></div>${renderSlotMenu(s.id)}`; } s.classList.add('active-slot'); selectSlot(s.id); updateLiveHeader(); updatePTZButtonState();
+}
 function renderSlotMenu(sid) { return `<button class="slot-menu-btn" onclick="toggleSlotMenu('${sid}', event)">•••</button><div class="slot-dropdown" id="menu-${sid}"><button class="slot-action danger" onclick="removeSource('${sid}')">Clear</button></div>`; }
 function toggleSlotMenu(sid, e) { e.stopPropagation(); document.querySelectorAll('.slot-dropdown').forEach(el => el.classList.remove('show')); const m = document.getElementById(`menu-${sid}`); if(m) m.classList.add('show'); }
 function removeSource(sid, srcId) { if(srcId) { const s = document.querySelector(`.preview-slot[data-source-id="${srcId}"]`); if(s) sid = s.id; else return; } const slot = document.getElementById(sid); if(slot) { delete slot.dataset.sourceId; slot.classList.remove('active-slot', 'offline-state'); slot.innerHTML = `<div class="slot-label">Window ${sid.split('-')[1]}</div><div class="slot-content" style="text-align:center;"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div>`; updateLiveHeader(); selectSlot(sid); } }
-function switchOutputMode(c) { currentOutputMode = c === 1 ? 'Single' : 'Quad'; document.querySelectorAll('.mode-switch-btn').forEach(b => b.classList.remove('active')); if(c === 1) document.getElementById('mode-single').classList.add('active'); else document.getElementById('mode-quad').classList.add('active'); const l = document.getElementById('outputLayout'); l.className = c === 1 ? 'output-layout-single' : 'output-layout-quad'; l.innerHTML = ''; for(let i=1; i<=c; i++) { l.innerHTML += `<div class="preview-slot" id="slot-${i}" onclick="selectSlot('slot-${i}')" ondrop="drop(event)" ondragover="allowDrop(event)"><div class="slot-label">Window ${i}</div><div class="slot-content" style="text-align:center;"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div></div>`; } selectSlot('slot-1'); updateLiveHeader(); }
+function switchOutputMode(c) { currentOutputMode = c === 1 ? 'Single' : 'Quad'; document.querySelectorAll('.mode-switch-btn').forEach(b => b.classList.remove('active')); if(c === 1) document.getElementById('mode-single').classList.add('active'); else document.getElementById('mode-quad').classList.add('active'); const l = document.getElementById('outputLayout'); l.className = c === 1 ? 'output-layout-single' : 'output-layout-quad'; l.innerHTML = ''; for(let i=1; i<=c; i++) { l.innerHTML += `<div class="preview-slot" id="slot-${i}" onclick="selectSlot('slot-${i}')" ondrop="drop(event)" ondragover="allowDrop(event)"><div class="slot-label">Window ${i}</div><div class="slot-content" style="text-align:center;"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div></div>`; } selectSlot('slot-1'); updateLiveHeader(); updatePTZButtonState(); }
 function toggleAccountMenu() { document.getElementById('accountMenu').classList.toggle('show'); }
 function closeModal(e) { if(!e || e.target.id === 'modalOverlay' || e.target.classList.contains('modal-close-x')) document.getElementById('modalOverlay').style.display = 'none'; }
 function closeSpecificModal(id) { document.getElementById(id).style.display = 'none'; }
 function showToast(msg, type) { const d = document.createElement('div'); d.className = 'toast'; d.innerHTML = `<span>${msg}</span>`; d.style.borderLeftColor = type === 'success' ? '#4CAF50' : '#007AFF'; let c = document.getElementById('toast-container'); if(!c) { c = document.createElement('div'); c.id='toast-container'; document.body.appendChild(c); } c.appendChild(d); setTimeout(() => d.remove(), 3000); }
 function openFullSettings(t) { document.getElementById('modal-large-settings').style.display = 'flex'; switchSettingsTab(t); }
 function switchEncTab(t) { document.querySelectorAll('.enc-tab').forEach(x => x.classList.remove('active')); document.getElementById('enc-tab-video').style.display = 'none'; document.getElementById('enc-tab-audio').style.display = 'none'; event.target.classList.add('active'); document.getElementById('enc-tab-' + t).style.display = 'block'; }
-function switchSettingsTab(t) { document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active')); const a = document.getElementById('tab-' + t); if(a) a.classList.add('active'); const h = document.getElementById('settings-title'); const b = document.getElementById('settings-body-content'); h.innerText = t.toUpperCase() + " Settings"; b.innerHTML = `<div style="padding:20px; color:#aaa;">Content for ${t} settings...</div>`; }
+function switchSettingsTab(t) { document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active')); const a = document.getElementById('tab-' + t); if(a) a.classList.add('active'); const h = document.getElementById('settings-title'); const b = document.getElementById('settings-body-content'); let htm = ''; if(t==='audio') htm=`<div class="settings-subsection">...Audio Content...</div>`; else htm=`<div style="padding:20px; color:#aaa;">Content for ${t} settings...</div>`; b.innerHTML = htm; }
 const ptzPanel = document.getElementById("ptz-panel"); const ptzHeader = document.getElementById("ptz-panel-header"); let isDragging = false, startX, startY, initialLeft, initialTop; ptzHeader.onmousedown = (e) => { isDragging = true; startX = e.clientX; startY = e.clientY; initialLeft = ptzPanel.offsetLeft; initialTop = ptzPanel.offsetTop; e.preventDefault(); }; document.onmousemove = (e) => { if(isDragging) { ptzPanel.style.left = (initialLeft + e.clientX - startX) + "px"; ptzPanel.style.top = (initialTop + e.clientY - startY) + "px"; } }; document.onmouseup = () => isDragging = false; function togglePTZ() { if(ptzPanel.style.display === 'flex') ptzPanel.style.display = 'none'; else { ptzPanel.style.display = 'flex'; if(!ptzPanel.style.top) { ptzPanel.style.top = '100px'; ptzPanel.style.left = 'calc(50% - 130px)'; } } } window.onclick = function(e) { if(!e.target.matches('.slot-menu-btn')) document.querySelectorAll('.slot-dropdown').forEach(el => el.classList.remove('show')); if(!e.target.matches('#btn-account-avatar')) document.getElementById('accountMenu').classList.remove('show'); }
 function actionLogout() { document.getElementById('modal-logout-confirm').style.display = 'flex'; document.getElementById('accountMenu').classList.remove('show'); }
-function confirmLogout() { document.getElementById('modal-logout-confirm').style.display = 'none'; document.getElementById('app-shell').style.display = 'none'; document.getElementById('page-login').style.display = 'flex'; currentSystemMode = null; currentUserRole = 'admin'; document.getElementById('page-login').style.opacity = '1'; }
+function confirmLogout() { document.getElementById('modal-logout-confirm').style.display = 'none'; document.getElementById('app-shell').style.display = 'none'; document.getElementById('page-login').style.display = 'flex'; currentSystemMode = null; currentUserRole = 'admin'; document.getElementById('page-login').style.opacity = '1'; document.querySelector('#page-login input[type="text"]').value = 'admin'; document.querySelector('#page-login input[type="password"]').value = ''; document.querySelector('#page-login .btn-primary').innerHTML = 'LOGIN'; }
