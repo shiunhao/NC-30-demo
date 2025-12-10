@@ -434,3 +434,64 @@ input[type=range].ptz-range::-webkit-slider-thumb { height: 14px; width: 14px; b
 .loading-spinner-container { display: flex; flex-direction: column; align-items: center; justify-content: center; }
 .spinner-ring { width: 30px; height: 30px; border: 3px solid #444; border-top: 3px solid var(--theme-color); border-radius: 50%; animation: spin 1s linear infinite; }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* === 8. Patch: Source List Layout Fix (2025-12-10) === */
+
+/* 1. 調整表格標題寬度 (對應 index.html 的 thead) */
+.source-list-header th:nth-child(1) { width: 40px; }  /* Drag Handle */
+.source-list-header th:nth-child(2) { width: 120px; } /* Preview Image */
+.source-list-header th:nth-child(3) { width: auto; }  /* Details (自動填滿剩餘空間) */
+.source-list-header th:nth-child(4) { width: 100px; } /* Group */
+.source-list-header th:nth-child(5) { width: 60px; text-align: center; }  /* Preset */
+.source-list-header th:nth-child(6) { width: 100px; text-align: right; } /* Action */
+
+/* 2. 調整表格內容儲存格的對齊 */
+.source-row td {
+    vertical-align: middle; /* 讓所有內容垂直置中 */
+    padding: 12px 5px;      /* 增加上下的呼吸空間 */
+}
+
+/* 3. 優化名稱與 IP 的排版 (Info Col) */
+.info-col {
+    padding-left: 10px !important;
+}
+
+.src-name {
+    font-weight: 700;
+    font-size: 15px;      /*稍微加大字體 */
+    color: #fff;
+    margin-bottom: 6px;   /* 拉開與下方 IP 的距離 */
+    line-height: 1.2;
+}
+
+.src-meta {
+    font-size: 12px;
+    color: #999;
+    font-family: 'Roboto Mono', monospace; /* 如果系統有等寬字體，數字會比較整齊 */
+    display: flex;
+    align-items: center;
+}
+
+.meta-divider {
+    margin: 0 8px; /* IP 和 Status 中間的分隔線距離 */
+    color: #444;
+}
+
+/* 4. 優化群組 (Group Col) */
+.group-col {
+    color: #aaa;
+    font-size: 13px;
+    font-weight: 500;
+}
+.group-col span {
+    background: #2a2a2a;
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid #333;
+}
+
+/* 5. 調整按鈕區域 */
+.action-col {
+    text-align: right;
+    padding-right: 20px !important;
+}
