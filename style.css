@@ -1,4 +1,4 @@
-/* style.css - Fully Immersive V2 (Encoder + Decoder) */
+/* style.css - Vertical Dock Layout (Right Side) */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -104,12 +104,12 @@ input:checked + .slider:before { transform: translateX(14px); }
     grid-template-rows: 60px 1fr; grid-template-columns: 1fr;
 }
 
-/* TOP BAR UPDATED FOR CENTER SWITCH */
+/* TOP BAR */
 .top-bar {
     grid-row: 1 / 2; grid-column: 1 / -1; 
     background-color: #252526; border-bottom: 1px solid #000;
     display: flex; align-items: center; justify-content: space-between; padding: 0 24px; z-index: 50;
-    position: relative; /* For absolute centering */
+    position: relative; 
 }
 
 /* App Logo */
@@ -191,7 +191,7 @@ input:checked + .slider:before { transform: translateX(14px); }
 .mode-switch-btn.active { background: rgba(0, 122, 255, 0.1); border-color: var(--theme-color); color: #fff; }
 .mode-btn-icon { font-size: 18px; }
 
-/* === 7. View: IMMERSIVE LAYOUT (Encoder & Decoder) === */
+/* === 7. View: IMMERSIVE LAYOUT === */
 .immersive-layout {
     width: 100%; height: 100%; position: relative; overflow: hidden;
 }
@@ -202,12 +202,12 @@ input:checked + .slider:before { transform: translateX(14px); }
     z-index: 1; display: flex; flex-direction: column;
 }
 
-/* Header floating over video or integrated */
+/* Header floating over video */
 .output-header-bar.immersive-header {
-    background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
-    padding: 10px 20px; border-bottom: none;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
+    padding: 10px 25px; border-bottom: none;
     position: absolute; top: 0; left: 0; right: 0; z-index: 20;
-    pointer-events: none; /* Let clicks pass through to video */
+    pointer-events: none; 
 }
 .output-header-bar * { pointer-events: auto; }
 
@@ -234,7 +234,6 @@ input:checked + .slider:before { transform: translateX(14px); }
 }
 .preview-slot.drag-over { border: 4px dashed var(--theme-color); background: rgba(0, 122, 255, 0.1); }
 .preview-slot.active-slot { border: none; }
-.preview-slot.selected-slot {  } /* Removed border for immersive look */
 .preview-slot.selected-slot::after {
     content: ''; position: absolute; inset: 0; border: 2px solid var(--theme-color); pointer-events: none; z-index: 100; box-shadow: inset 0 0 20px rgba(0,122,255,0.2);
 }
@@ -257,38 +256,54 @@ input:checked + .slider:before { transform: translateX(14px); }
 .slot-meta { font-size: 13px; color: #eee; text-shadow: 0 1px 2px rgba(0,0,0,0.8); background: rgba(76, 175, 80, 0.8); display: inline-block; padding: 2px 8px; border-radius: 4px; }
 .preview-slot.offline-state { border: 4px solid var(--danger-color); background: #222; }
 
-/* === BOTTOM DOCK === */
+/* === NEW: RIGHT VERTICAL DOCK (UPDATED) === */
 .immersive-dock {
-    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-    background: rgba(30, 30, 30, 0.85); backdrop-filter: blur(10px);
+    position: absolute; 
+    top: 50%; right: 20px; /* Positioned on Right Center */
+    transform: translateY(-50%);
+    bottom: auto; left: auto;
+    
+    background: rgba(30, 30, 30, 0.9); 
+    backdrop-filter: blur(10px);
     border: 1px solid rgba(255,255,255,0.15);
-    border-radius: 50px; padding: 8px 20px;
-    display: flex; align-items: center; gap: 10px;
-    z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    border-radius: 16px; /* Pill shape (Vertical) */
+    padding: 15px 8px;
+    
+    display: flex; flex-direction: column; /* Vertical Stack */
+    align-items: center; gap: 15px;
+    z-index: 100; 
+    box-shadow: -5px 0 20px rgba(0,0,0,0.5);
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
-.immersive-dock:hover { transform: translateX(-50%) scale(1.02); }
+.immersive-dock:hover { transform: translateY(-50%) scale(1.02); }
 
 .dock-btn {
     background: transparent; border: none; color: #ccc;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 4px; width: 60px; height: 50px; cursor: pointer;
+    gap: 4px; width: 50px; height: 50px; cursor: pointer;
     border-radius: 8px; transition: all 0.2s;
 }
 .dock-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
 .dock-btn.active { background: var(--theme-color); color: #fff; box-shadow: 0 4px 12px rgba(0,122,255,0.4); }
 .dock-icon { font-size: 20px; }
-.dock-btn span { font-size: 10px; font-weight: 600; }
-.dock-btn:disabled { opacity: 0.3; cursor: not-allowed; filter: grayscale(1); }
+.dock-btn span { font-size: 10px; font-weight: 600; display: none; /* Hide text for cleaner vertical look, or keep? Let's hide text to save space */ }
+/* If you want text, uncomment this: */
+.dock-btn span { display: block; font-size: 9px; margin-top: 2px; }
 
-.dock-divider { width: 1px; height: 30px; background: rgba(255,255,255,0.1); margin: 0 5px; }
+.dock-divider { width: 30px; height: 1px; background: rgba(255,255,255,0.1); margin: 0; }
 
-/* === SIDE DRAWER === */
+/* === NEW: SIDE DRAWER (UPDATED POSITION) === */
 .side-drawer {
-    position: absolute; top: 10px; right: 10px; bottom: 85px; /* Leave space for dock */
-    width: 320px; background: rgba(30, 30, 30, 0.95); backdrop-filter: blur(15px);
+    position: absolute; 
+    top: 70px; /* Below header */
+    bottom: 30px; 
+    right: 100px; /* Push out left of the dock (20px margin + ~70px dock) */
+    width: 320px; 
+    
+    background: rgba(30, 30, 30, 0.95); backdrop-filter: blur(15px);
     border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
     z-index: 90; box-shadow: -10px 0 40px rgba(0,0,0,0.5);
+    
     transform: translateX(120%); transition: transform 0.3s ease-in-out;
     display: flex; flex-direction: column; overflow: hidden;
 }
@@ -339,7 +354,7 @@ input:checked + .slider:before { transform: translateX(14px); }
 .src-menu-item:hover { background: #333; }
 .src-menu-item.danger { color: #FF3B30; }
 
-/* === STATS CARD GRID (For Encoder Drawer) === */
+/* === STATS CARD GRID === */
 .stats-card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .stat-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.05); padding: 10px; border-radius: 6px; }
 .stat-card.full-width { grid-column: span 2; }
@@ -348,7 +363,7 @@ input:checked + .slider:before { transform: translateX(14px); }
 
 /* === Draggable PTZ === */
 .draggable-panel {
-    display: none; position: absolute; bottom: 100px; right: 100px; width: 240px;
+    display: none; position: absolute; bottom: 50px; right: 100px; width: 240px;
     background: rgba(30, 30, 30, 0.9); backdrop-filter: blur(10px);
     border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);
     box-shadow: 0 10px 40px rgba(0,0,0,0.8); z-index: 1000;
