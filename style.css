@@ -1,4 +1,4 @@
-/* style.css - Final Demo Version (V11) */
+/* style.css - Final Demo Version (V12) */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -391,6 +391,21 @@ input:checked + .slider:before { transform: translateX(14px); }
 .ptz-close:hover { color: #fff; }
 
 .ptz-body { padding: 15px; display: flex; flex-direction: column; gap: 20px; }
+
+/* Added PTZ Target Info */
+.ptz-target-info {
+    font-size: 12px; color: #007AFF; text-align: center; margin-bottom: 10px; font-weight: bold;
+}
+
+/* Added PTZ Preset Header */
+.ptz-preset-header {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;
+}
+
+.btn-xs-save {
+    background: #333; border: 1px solid #555; color: #ccc; font-size: 10px; padding: 2px 8px; border-radius: 2px; cursor: pointer;
+}
+.btn-xs-save:hover { background: #444; color: #fff; }
 
 .ptz-pad-container {
     display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;
