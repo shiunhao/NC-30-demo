@@ -12,32 +12,31 @@ let sourcesData = [
 let editingSourceId = null;
 let selectedAutoSearchIp = null;
 let sourceToRemoveId = null;
+let selectedListRowId = null; // New: Track selected row in list
 
-// Initialize is handled in doLogin mostly for Demo B
+// Initialize
 document.addEventListener('DOMContentLoaded', () => {
-   // Optional initial setup
+    // Close menus when clicking outside
+    window.addEventListener('click', function(e) {
+        if (!e.target.matches('.btn-icon-action')) {
+            document.querySelectorAll('.source-menu-dropdown').forEach(el => el.classList.remove('show'));
+        }
+    });
 });
 
 function doLogin() {
     document.querySelector('#page-login .btn-primary').innerHTML = "Logging in...";
     setTimeout(() => {
         document.getElementById('page-login').style.display = 'none';
-        document.getElementById('app-shell').style.display = 'grid'; // Direct to App
-        // Default to Decoder Mode
+        document.getElementById('app-shell').style.display = 'grid'; 
         performSwitch('decoder');
     }, 800);
 }
 
-// === MODE SWITCHING LOGIC (Demo B) ===
+// === MODE SWITCHING LOGIC ===
 function checkModeSwitch(targetMode) {
-    if (!currentSystemMode) {
-        performSwitch(targetMode);
-        return;
-    }
-    if (currentSystemMode === targetMode) {
-        return; // Already in mode
-    }
-    // Show Reboot Warning
+    if (!currentSystemMode) { performSwitch(targetMode); return; }
+    if (currentSystemMode === targetMode) return; 
     showRebootWarning(targetMode);
 }
 
@@ -60,24 +59,16 @@ function confirmReboot(targetMode) {
 function performSwitch(mode) {
     currentSystemMode = mode;
     updateModeSwitcherUI(mode);
-    
-    // Update Theme & Badge
     const root = document.documentElement;
-    const badge = document.getElementById('current-mode-badge');
-    
     document.getElementById('view-encoder').style.display = 'none';
     document.getElementById('view-decoder').style.display = 'none';
 
     if (mode === 'encoder') {
         root.style.setProperty('--theme-color', '#007AFF');
         document.getElementById('view-encoder').style.display = 'block';
-        badge.innerText = 'ENCODER MODE';
-        badge.style.color = '#007AFF'; badge.style.borderColor = '#007AFF';
     } else {
         root.style.setProperty('--theme-color', '#FF9500');
         document.getElementById('view-decoder').style.display = 'block';
-        badge.innerText = 'DECODER MODE';
-        badge.style.color = '#FF9500'; badge.style.borderColor = '#FF9500';
         renderSourceList();
         updateLiveHeader();
         updatePTZButtonState();
@@ -86,11 +77,8 @@ function performSwitch(mode) {
 
 function updateModeSwitcherUI(mode) {
     document.querySelectorAll('.mode-switch-item').forEach(btn => btn.classList.remove('active'));
-    if (mode === 'encoder') {
-        document.getElementById('top-btn-enc').classList.add('active');
-    } else {
-        document.getElementById('top-btn-dec').classList.add('active');
-    }
+    if (mode === 'encoder') { document.getElementById('top-btn-enc').classList.add('active'); } 
+    else { document.getElementById('top-btn-dec').classList.add('active'); }
 }
 
 // === Refresh with Loading ===
@@ -98,7 +86,7 @@ function refreshSourceList() {
     const tbody = document.querySelector('#source-list-body');
     const btn = document.getElementById('btn-refresh-list');
     if(btn) { btn.innerText = "Loading..."; btn.disabled = true; }
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:40px;"><div class="loading-spinner-container"><div class="spinner-ring"></div><div style="margin-top:10px; color:#888; font-size:13px;">Updating sources...</div></div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:40px;"><div class="loading-spinner-container"><div class="spinner-ring"></div><div style="margin-top:10px; color:#888; font-size:13px;">Updating sources...</div></div></td></tr>';
     setTimeout(() => {
         renderSourceList(); 
         if(btn) { btn.innerText = "Refresh"; btn.disabled = false; }
@@ -167,10 +155,7 @@ function setPTZPanelState(enabled) {
 
 function savePreset() {
     const wrapper = document.getElementById('ptz-controls-wrapper');
-    if(wrapper && wrapper.classList.contains('disabled-ui')) {
-        showToast("Cannot save preset: Source unavailable", "error");
-        return;
-    }
+    if(wrapper && wrapper.classList.contains('disabled-ui')) { showToast("Cannot save preset: Source unavailable", "error"); return; }
     showToast("Preset Saved", "success");
 }
 
@@ -179,12 +164,9 @@ function selectSlot(slotId) {
     const el = document.getElementById(slotId); 
     if(el) { 
         el.classList.add('selected-slot'); 
-        
-        // Logic to disable/enable PTZ
         const headerBtn = document.getElementById('btn-ptz-ctrl');
         const sourceId = el.dataset.sourceId;
         const windowNum = slotId.split('-')[1];
-        
         if (!sourceId) {
             if(headerBtn) headerBtn.disabled = true;
             updatePTZPanelInfo(windowNum, null);
@@ -204,39 +186,71 @@ function selectSlot(slotId) {
     } 
 }
 
+// === NEW: Selection Logic for Source List ===
+function selectListRow(sourceId) {
+    selectedListRowId = sourceId;
+    renderSourceList(); // Re-render to update borders
+}
+
+// === NEW: Render Source List (Updated for Card Layout) ===
 function renderSourceList() {
     const tbody = document.querySelector('#source-list-body');
     if(!tbody) return;
     tbody.innerHTML = '';
     sourcesData.forEach(src => {
         const tr = document.createElement('tr');
-        tr.className = `source-row ${src.status === 'offline' ? 'offline' : ''}`;
+        // Add selected class if ID matches
+        const isSelected = src.id === selectedListRowId;
+        tr.className = `source-row ${src.status === 'offline' ? 'offline' : ''} ${isSelected ? 'selected' : ''}`;
+        
         tr.draggable = true;
         tr.setAttribute('ondragstart', 'drag(event)');
         tr.setAttribute('data-json', JSON.stringify(src));
-        let statusHtml = `<span style="color:#4CAF50;">Online</span>`;
-        if(src.status === 'error') statusHtml = `<span class="src-status-error">${src.errorMsg}</span>`;
-        if(src.status === 'offline') statusHtml = `<span style="color:#888;">Offline</span>`;
+        tr.onclick = () => selectListRow(src.id); // Click to select
+
+        // Status Logic
+        let statusText = "Stable";
+        let statusStyle = "";
+        if(src.status === 'online') { statusText = "Status: Stable"; statusStyle = "color:#888;"; }
+        else if(src.status === 'error') { statusText = "Status: " + src.errorMsg; statusStyle = "color:#FF3B30;"; }
+        else { statusText = "Status: Offline"; statusStyle = "color:#888;"; }
+
         let thumbHtml = src.status === 'offline' ? `<div class="thumb-box offline"><span>Offline</span></div>` : `<div class="thumb-box"><img src="${src.thumb}"></div>`;
         
-       // 在 script.js 的 renderSourceList function 內
-        // 修改 tr.innerHTML 的內容
+        // Render Row
         tr.innerHTML = `
             <td class="drag-col"><span class="drag-handle-icon">⋮⋮</span></td>
             <td class="thumb-col">${thumbHtml}</td>
             <td class="info-col">
-                <div class="src-name" style="${src.status==='offline'?'color:#888':''}">${src.name}</div>
-                <div class="src-meta">${src.ip} <span class="meta-divider">|</span> ${statusHtml}</div>
+                <div class="src-name">${src.name}</div>
+                <div class="src-detail-row">${src.ip}</div>
+                <div class="src-detail-row">${src.group}</div>
+                <div class="src-detail-row" style="${statusStyle}">${statusText}</div>
             </td>
-            <td class="group-col"><span>${src.group}</span></td>
-            <td class="preset-col">${src.id === 'src_01' ? '<span class="preset-badge">1</span>' : ''}</td>
+            <td class="preset-col">${src.id === 'src_01' ? '<span class="preset-box">1</span>' : ''}</td>
             <td class="action-col">
-                <button class="btn-icon-action" onclick="openEditSourceModal('${src.id}')" title="Edit">✎</button>
-                <button class="btn-icon-action danger" onclick="askRemoveSource('${src.id}')" title="Remove">🗑️</button>
+                <div class="action-menu-container">
+                    <button class="btn-icon-action" onclick="toggleSourceMenu('${src.id}', event)">•••</button>
+                    <div class="source-menu-dropdown" id="src-menu-${src.id}">
+                        <div class="src-menu-item" onclick="openEditSourceModal('${src.id}')">Edit</div>
+                        <div class="src-menu-item danger" onclick="askRemoveSource('${src.id}')">Delete</div>
+                    </div>
+                </div>
             </td>
         `;
         tbody.appendChild(tr);
     });
+}
+
+// === NEW: Source Menu Toggle ===
+function toggleSourceMenu(id, event) {
+    event.stopPropagation();
+    // Close others
+    document.querySelectorAll('.source-menu-dropdown').forEach(el => {
+        if(el.id !== `src-menu-${id}`) el.classList.remove('show');
+    });
+    const menu = document.getElementById(`src-menu-${id}`);
+    if(menu) menu.classList.toggle('show');
 }
 
 function showModal(type) {
