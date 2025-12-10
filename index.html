@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NC30 Pro AV Interface (Immersive V1)</title>
+    <title>NC30 Pro AV Interface (Fully Immersive V2)</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="mobile.css">
 </head>
@@ -70,130 +70,75 @@
         </div>
 
         <div class="main-content">
+            
             <div id="view-encoder" style="display:none; height:100%;">
-                <div class="encoder-grid">
-                    <div class="monitor-section">
-                        <div class="preview-window">
-                            <div class="video-layer" style="background-image: url('https://picsum.photos/id/10/800/600');"></div>
+                <div class="immersive-layout">
+                    <div class="output-container">
+                        <div class="output-header-bar immersive-header">
+                            <div class="header-left">
+                                <div class="header-title">HDMI Input</div>
+                                <div class="header-tag">4K60</div>
+                            </div>
+                            <div class="header-info-container">
+                                <div class="header-info-block">
+                                    <div class="info-label">Streaming</div>
+                                    <div class="info-value-row"><span style="color:#4CAF50">● Active</span></div>
+                                </div>
+                                <div class="header-info-block">
+                                    <div class="info-label">Current Bitrate</div>
+                                    <div class="info-value-row">18.5 Mbps</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="preview-slot" style="background: #000;">
+                            <div class="video-layer" style="background-image: url('https://picsum.photos/id/10/1920/1080'); opacity: 0.8;"></div>
                             <div class="video-overlay-gradient"></div>
+                            
                             <div id="signalLostOverlay" class="signal-lost-overlay">
                                 <div class="signal-lost-icon">⚠️</div>
                                 <div class="signal-lost-text">No Source Detected</div>
                             </div>
-                            <div class="preview-label">HDMI 4K</div>
+                            
                             <div class="slot-content">
                                 <div class="slot-name">Main Camera Input</div>
-                                <div class="slot-meta">2160p60 | NDI Active</div>
-                            </div>
-                        </div>
-                        <div class="enc-status-bar">
-                            <div class="mode-indicator">
-                                <div class="mode-icon-square">📡</div>
-                                <span style="margin-top:2px;">Current Mode:</span>
-                                <span class="mode-val">Encoder</span>
-                            </div>
-                            <div class="status-grid">
-                                <div class="status-cell"><div class="icon-circle">IN</div>Input: <span id="stat-res-in" style="margin-left:5px; color:#fff;">3840x2160</span></div>
-                                <div class="status-cell"><div class="icon-circle">OUT</div>Stream: <span id="stat-res-out" style="margin-left:5px; color:#fff;">3840x2160</span></div>
-                                <div class="status-cell"><div class="icon-circle">FPS</div>FPS: <span id="stat-fps" style="margin-left:5px; color:#fff;">60</span></div>
-                                <div class="status-cell"><div class="icon-circle">BIT</div>Bitrate: <span id="stat-bitrate" style="margin-left:5px; color:#fff;">AUTO</span></div>
-                                <div class="status-cell"><div class="icon-circle">HZ</div>Audio: <span id="stat-audio-fmt" style="margin-left:5px; color:#fff;">48kHz</span></div>
-                                <div class="status-cell"><div class="icon-circle">SRC</div>Source: <span id="stat-audio-src" style="margin-left:5px; color:#fff;">HDMI</span></div>
+                                <div class="slot-meta">3840x2160 @ 60fps | NDI High Bandwidth</div>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="control-panel">
-                        <div class="panel-header">
-                            <span class="panel-title">Encoding Settings</span>
-                        </div>
-                        <div class="panel-content">
-                            <div class="enc-settings-group no-border" style="margin-top:0;">
-                                <div class="enc-group-header">
-                                    <div class="enc-icon-square">Icon</div> <span style="margin-left:10px;">Input Source</span>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Video Source</label>
-                                    <input type="text" class="form-input darker-input" value="HDMI (Auto detect)" readonly>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Audio Source</label>
-                                    <select class="form-select darker-input">
-                                        <option>HDMI</option>
-                                        <option>Analog (3.5mm)</option>
-                                    </select>
-                                </div>
-                            </div>
 
-                            <div class="enc-tabs-container">
-                                <div class="enc-tab active" onclick="switchEncTab('video')">Video</div>
-                                <div class="enc-tab" onclick="switchEncTab('audio')">Audio</div>
-                                <div class="enc-tab-line"></div>
-                            </div>
-
-                            <div id="enc-tab-video" style="margin-top:20px;">
-                                <div class="enc-settings-group no-border">
-                                    <div class="enc-group-header">
-                                        <div class="enc-icon-square">Icon</div> <span style="margin-left:10px;">Stream Video Output</span>
-                                    </div>
-                                    <div class="form-group"><label class="form-label">Resolution</label><select class="form-select darker-input"><option>3840 x 2160</option><option>1920 x 1080</option><option>1280 x 720</option></select></div>
-                                    <div class="form-group"><label class="form-label">Framerate</label><select class="form-select darker-input"><option>60 FPS</option><option>30 FPS</option><option>24 FPS</option></select></div>
-                                    <div class="form-group"><label class="form-label">Bitrate</label><select class="form-select darker-input"><option>Auto</option><option>20 Mbps</option><option>10 Mbps</option></select></div>
-                                    <div class="form-group"><label class="form-label">Rate Control</label><select class="form-select darker-input"><option>CBR</option><option>VBR</option></select></div>
-                                    <div class="form-group"><label class="form-label">Encoding Type</label><select class="form-select darker-input"><option>H.264</option><option>H.265</option></select></div>
-                                    <div class="form-group"><label class="form-label">I-VOP Interval</label><select class="form-select darker-input"><option>5</option><option>15</option><option>30</option><option>60</option></select></div>
-                                </div>
-                            </div>
-
-                            <div id="enc-tab-audio" style="display:none; margin-top:20px;">
-                                <div class="enc-settings-group no-border">
-                                    <div class="enc-group-header">
-                                        <div class="enc-icon-square">Icon</div> <span style="margin-left:10px;">Stream Audio Output</span>
-                                    </div>
-                                    <div style="height:200px; display:flex; align-items:center; justify-content:center; color:#666;">
-                                        目前沒有項目
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="enc-settings-group with-border-top">
-                                <div class="enc-group-header">
-                                    <div class="enc-icon-square">Icon</div> <span style="margin-left:10px;">NDI Settings</span>
-                                </div>
-                                <div class="form-group">
-                                    <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                                        <label class="form-label">Local Device Name</label>
-                                        <span style="font-size:13px; color:#007AFF;">AVer NC30</span>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Group Name</label>
-                                    <input type="text" class="form-input darker-input" placeholder="NDI Group Name" value="NDI Group Name">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Reliable UDP</label>
-                                    <div style="display:flex; gap:20px; margin-top:8px;">
-                                        <label class="radio-custom"><input type="radio" name="rudp"><span>On</span></label>
-                                        <label class="radio-custom"><input type="radio" name="rudp" checked><span>Off</span></label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="immersive-dock">
+                        <button class="dock-btn active" id="btn-dock-enc-input" onclick="toggleDrawer('enc-input')">
+                            <div class="dock-icon">🔌</div>
+                            <span>Input</span>
+                        </button>
+                        <div class="dock-divider"></div>
+                        <button class="dock-btn" id="btn-dock-enc-stream" onclick="toggleDrawer('enc-stream')">
+                            <div class="dock-icon">📡</div>
+                            <span>Stream</span>
+                        </button>
+                        <button class="dock-btn" id="btn-dock-enc-ndi" onclick="toggleDrawer('enc-ndi')">
+                            <div class="dock-icon">🌐</div>
+                            <span>NDI</span>
+                        </button>
+                        <div class="dock-divider"></div>
+                        <button class="dock-btn" id="btn-dock-enc-stats" onclick="toggleDrawer('enc-stats')">
+                            <div class="dock-icon">📊</div>
+                            <span>Stats</span>
+                        </button>
                     </div>
                 </div>
             </div>
 
             <div id="view-decoder" style="display:none; height:100%;">
-                <div class="decoder-layout-immersive">
+                <div class="immersive-layout">
                     
                     <div class="output-container" id="outputContainer">
                         <div class="output-header-bar immersive-header">
                             <div class="header-left">
-                                <div class="header-title">NC 30 Live</div>
+                                <div class="header-title">Live Output</div>
                             </div>
                             <div class="header-info-container" id="live-header-info">
-                                </div>
-                            <div class="header-right-ctrl">
                                 </div>
                         </div>
 
@@ -206,16 +151,16 @@
                     </div>
 
                     <div class="immersive-dock">
-                        <button class="dock-btn active" id="btn-dock-layout" onclick="toggleDrawer('layout')">
+                        <button class="dock-btn active" id="btn-dock-dec-layout" onclick="toggleDrawer('dec-layout')">
                             <div class="dock-icon">📺</div>
                             <span>Display</span>
                         </button>
                         <div class="dock-divider"></div>
-                        <button class="dock-btn" id="btn-dock-sources" onclick="toggleDrawer('sources')">
+                        <button class="dock-btn" id="btn-dock-dec-sources" onclick="toggleDrawer('dec-sources')">
                             <div class="dock-icon">📂</div>
                             <span>Sources</span>
                         </button>
-                        <button class="dock-btn" id="btn-dock-settings" onclick="toggleDrawer('settings')">
+                        <button class="dock-btn" id="btn-dock-dec-settings" onclick="toggleDrawer('dec-settings')">
                             <div class="dock-icon">⚙️</div>
                             <span>Settings</span>
                         </button>
@@ -226,63 +171,147 @@
                         </button>
                     </div>
 
-                    <div class="side-drawer" id="sideDrawer">
-                        <div class="drawer-header">
-                            <span class="drawer-title" id="drawerTitle">Sources</span>
-                            <button class="drawer-close" onclick="closeDrawer()">✕</button>
-                        </div>
-                        
-                        <div id="drawer-content-sources" class="drawer-content-panel">
-                             <div class="list-toolbar">
-                                <span style="font-weight:bold; font-size:14px; color:#ddd;">Source List</span>
-                                <div style="display:flex; gap:5px;">
-                                    <button class="btn btn-primary btn-sm" onclick="showModal('Add Manual Source')">+ Add</button>
-                                    <button class="btn btn-outline btn-sm" id="btn-refresh-list" onclick="refreshSourceList()">↻</button>
-                                </div>
-                            </div>
-                            <div class="source-list-scroll">
-                                <table class="source-list-table">
-                                    <thead class="source-list-header">
-                                        <tr>
-                                            <th style="width:40px;"></th>
-                                            <th style="width:100px;">Preview</th>
-                                            <th>Name / IP</th>
-                                            <th style="width:50px;">Act</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="source-list-body"></tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <div id="drawer-content-settings" class="drawer-content-panel" style="display:none;">
-                            <div class="settings-scroll-area">
-                                <div>
-                                    <div class="settings-group-title">
-                                        <div class="settings-group-icon">📺</div> Output Mode
-                                    </div>
-                                    <div class="form-group">
-                                        <div class="mode-switch-container">
-                                            <div class="mode-switch-btn active" id="mode-single" onclick="switchOutputMode(1)">
-                                                <div class="mode-btn-icon">⬛</div>
-                                                <span>Single (4K)</span>
-                                            </div>
-                                            <div class="mode-switch-btn" id="mode-quad" onclick="switchOutputMode(4)">
-                                                <div class="mode-btn-icon">田</div>
-                                                <span>Quad View</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="form-group"><label class="form-label">Resolution</label><select class="form-select"><option>3840 X 2160</option><option selected>1920 X 1080</option></select></div>
-                                    <div class="form-group"><label class="form-label">Color Space</label><select class="form-select"><option>RGB</option><option>YUV 4:4:4</option></select></div>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                    </div>
+                </div>
             </div>
-        </div>
+
+            <div class="side-drawer" id="sideDrawer">
+                <div class="drawer-header">
+                    <span class="drawer-title" id="drawerTitle">Settings</span>
+                    <button class="drawer-close" onclick="closeDrawer()">✕</button>
+                </div>
+                
+                <div id="drawer-content-dec-sources" class="drawer-content-panel" style="display:none;">
+                        <div class="list-toolbar">
+                        <span style="font-weight:bold; font-size:14px; color:#ddd;">Source List</span>
+                        <div style="display:flex; gap:5px;">
+                            <button class="btn btn-primary btn-sm" onclick="showModal('Add Manual Source')">+ Add</button>
+                            <button class="btn btn-outline btn-sm" id="btn-refresh-list" onclick="refreshSourceList()">↻</button>
+                        </div>
+                    </div>
+                    <div class="source-list-scroll">
+                        <table class="source-list-table">
+                            <thead class="source-list-header">
+                                <tr>
+                                    <th style="width:40px;"></th>
+                                    <th style="width:100px;">Preview</th>
+                                    <th>Name / IP</th>
+                                    <th style="width:50px;">Act</th>
+                                </tr>
+                            </thead>
+                            <tbody id="source-list-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="drawer-content-dec-layout" class="drawer-content-panel" style="display:none;">
+                    <div class="settings-scroll-area">
+                        <div class="settings-group-title"><div class="settings-group-icon">📺</div> Output Mode</div>
+                        <div class="form-group">
+                            <div class="mode-switch-container">
+                                <div class="mode-switch-btn active" id="mode-single" onclick="switchOutputMode(1)">
+                                    <div class="mode-btn-icon">⬛</div><span>Single (4K)</span>
+                                </div>
+                                <div class="mode-switch-btn" id="mode-quad" onclick="switchOutputMode(4)">
+                                    <div class="mode-btn-icon">田</div><span>Quad View</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group"><label class="form-label">Resolution</label><select class="form-select"><option>3840 X 2160</option><option selected>1920 X 1080</option></select></div>
+                        <div class="form-group"><label class="form-label">Color Space</label><select class="form-select"><option>RGB</option><option>YUV 4:4:4</option></select></div>
+                    </div>
+                </div>
+
+                <div id="drawer-content-dec-settings" class="drawer-content-panel" style="display:none;">
+                    <div class="settings-scroll-area">
+                        <div class="settings-group-title"><div class="settings-group-icon">🔊</div> Audio Output</div>
+                        <div class="form-group"><label class="form-label">Audio Source</label><select class="form-select"><option>HDMI Embedded</option><option>Line Out</option></select></div>
+                        <div style="margin-top:20px;">
+                            <div class="settings-group-title"><div class="settings-group-icon">🔌</div> USB Mode</div>
+                            <div class="form-group"><label class="form-label">USB Output</label><div style="display:flex; gap:15px; margin-top:5px;"><label class="radio-custom"><input type="radio" name="usb"><span>On</span></label><label class="radio-custom"><input type="radio" name="usb" checked><span>Off</span></label></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="drawer-content-enc-input" class="drawer-content-panel" style="display:none;">
+                    <div class="settings-scroll-area">
+                        <div class="settings-group-title"><div class="settings-group-icon">🔌</div> Input Source</div>
+                        <div class="form-group">
+                            <label class="form-label">Video Source</label>
+                            <input type="text" class="form-input darker-input" value="HDMI (Auto detect)" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Audio Source</label>
+                            <select class="form-select darker-input"><option>HDMI</option><option>Analog (3.5mm)</option></select>
+                        </div>
+                        <div class="info-box-small" style="margin-top:10px;">
+                            Detected: 3840x2160 @ 60Hz
+                        </div>
+                    </div>
+                </div>
+
+                <div id="drawer-content-enc-stream" class="drawer-content-panel" style="display:none;">
+                    <div class="settings-scroll-area">
+                        <div class="settings-group-title"><div class="settings-group-icon">📡</div> Encoding Settings</div>
+                        <div class="form-group"><label class="form-label">Resolution</label><select class="form-select darker-input"><option>3840 x 2160</option><option>1920 x 1080</option><option>1280 x 720</option></select></div>
+                        <div class="form-group"><label class="form-label">Framerate</label><select class="form-select darker-input"><option>60 FPS</option><option>30 FPS</option><option>24 FPS</option></select></div>
+                        <div class="form-group"><label class="form-label">Bitrate</label><select class="form-select darker-input"><option>Auto</option><option>20 Mbps</option><option>10 Mbps</option></select></div>
+                        <div class="form-group"><label class="form-label">Rate Control</label><select class="form-select darker-input"><option>CBR</option><option>VBR</option></select></div>
+                        <div class="form-group"><label class="form-label">Codec</label><select class="form-select darker-input"><option>H.264</option><option>H.265</option></select></div>
+                        <div class="form-group"><label class="form-label">I-VOP Interval</label><select class="form-select darker-input"><option>30</option><option>60</option></select></div>
+                    </div>
+                </div>
+
+                <div id="drawer-content-enc-ndi" class="drawer-content-panel" style="display:none;">
+                    <div class="settings-scroll-area">
+                        <div class="settings-group-title"><div class="settings-group-icon">🌐</div> NDI Configuration</div>
+                        <div class="form-group">
+                            <label class="form-label">Device Name</label>
+                            <span style="font-size:13px; color:#007AFF; display:block; margin-bottom:5px;">AVer NC30</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Group Name</label>
+                            <input type="text" class="form-input darker-input" value="Public">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Reliable UDP</label>
+                            <div style="display:flex; gap:20px; margin-top:8px;">
+                                <label class="radio-custom"><input type="radio" name="rudp"><span>On</span></label>
+                                <label class="radio-custom"><input type="radio" name="rudp" checked><span>Off</span></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="drawer-content-enc-stats" class="drawer-content-panel" style="display:none;">
+                    <div class="settings-scroll-area">
+                        <div class="settings-group-title"><div class="settings-group-icon">📊</div> Real-time Statistics</div>
+                        <div class="stats-card-grid">
+                            <div class="stat-card">
+                                <div class="stat-label">Input Res</div>
+                                <div class="stat-val">2160p60</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-label">Stream Res</div>
+                                <div class="stat-val">2160p60</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-label">Bitrate</div>
+                                <div class="stat-val">18.2 Mb</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-label">Audio</div>
+                                <div class="stat-val">48 kHz</div>
+                            </div>
+                            <div class="stat-card full-width">
+                                <div class="stat-label">Dropped Frames</div>
+                                <div class="stat-val" style="color:#4CAF50">0 (0.00%)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            </div>
     </div>
 
     <div id="ptz-panel" class="draggable-panel">
