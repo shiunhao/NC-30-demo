@@ -1,4 +1,4 @@
-/* mobile.css - Mobile Responsive Overrides (V15 - Updated Columns) */
+/* mobile.css - Mobile Responsive Overrides (V17 - Verified) */
 
 /* 只有在螢幕寬度小於 768px (手機/平板直向) 時生效 */
 @media screen and (max-width: 768px) {
@@ -93,7 +93,7 @@
         height: 300px;
     }
 
-    /* Updated Column Hiding for Mobile (V15)
+    /* Updated Column Hiding for Mobile
        Col 1: Drag
        Col 2: Thumb
        Col 3: Details (Integrated)
