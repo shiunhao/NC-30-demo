@@ -1,4 +1,4 @@
-/* script.js - Logic for NC30 Demo (Demo B - Direct Switch) */
+/* script.js - Logic for NC30 Demo (V15) */
 
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
@@ -13,92 +13,20 @@ let editingSourceId = null;
 let selectedAutoSearchIp = null;
 let sourceToRemoveId = null;
 
-// Initialize is handled in doLogin mostly for Demo B
 document.addEventListener('DOMContentLoaded', () => {
-   // Optional initial setup
-});
-
-function doLogin() {
-    document.querySelector('#page-login .btn-primary').innerHTML = "Logging in...";
-    setTimeout(() => {
-        document.getElementById('page-login').style.display = 'none';
-        document.getElementById('app-shell').style.display = 'grid'; // Direct to App
-        // Default to Decoder Mode
-        performSwitch('decoder');
-    }, 800);
-}
-
-// === MODE SWITCHING LOGIC (Demo B) ===
-function checkModeSwitch(targetMode) {
-    if (!currentSystemMode) {
-        performSwitch(targetMode);
-        return;
-    }
-    if (currentSystemMode === targetMode) {
-        return; // Already in mode
-    }
-    // Show Reboot Warning
-    showRebootWarning(targetMode);
-}
-
-function showRebootWarning(targetMode) {
-    const box = document.getElementById('modalContentBox');
-    box.style.background = "#1a1a1a"; box.style.border = "1px solid #333"; box.style.width = "400px"; box.style.textAlign = "center";
-    box.innerHTML = `<h3 style="color:#fff; margin-bottom:20px; font-size:18px;">Reboot Required</h3><div style="display:flex; justify-content:center; gap:15px;"><button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-danger" style="background:transparent; border:1px solid #D32F2F;" onclick="confirmReboot('${targetMode}')">Reboot</button></div>`;
-    document.getElementById('modalOverlay').style.display = 'flex';
-}
-
-function confirmReboot(targetMode) {
-    closeModal();
-    document.getElementById('reboot-overlay').style.display = 'flex';
-    setTimeout(() => {
-        document.getElementById('reboot-overlay').style.display = 'none';
-        performSwitch(targetMode);
-    }, 2000);
-}
-
-function performSwitch(mode) {
-    currentSystemMode = mode;
-    updateModeSwitcherUI(mode);
-    
-    // Update Theme & Badge
-    const root = document.documentElement;
-    const badge = document.getElementById('current-mode-badge');
-    
-    document.getElementById('view-encoder').style.display = 'none';
-    document.getElementById('view-decoder').style.display = 'none';
-
-    if (mode === 'encoder') {
-        root.style.setProperty('--theme-color', '#007AFF');
-        document.getElementById('view-encoder').style.display = 'block';
-        badge.innerText = 'ENCODER MODE';
-        badge.style.color = '#007AFF'; badge.style.borderColor = '#007AFF';
-    } else {
-        root.style.setProperty('--theme-color', '#FF9500');
-        document.getElementById('view-decoder').style.display = 'block';
-        badge.innerText = 'DECODER MODE';
-        badge.style.color = '#FF9500'; badge.style.borderColor = '#FF9500';
+    if(document.getElementById('view-decoder').style.display !== 'none') {
         renderSourceList();
         updateLiveHeader();
-        updatePTZButtonState();
+        updatePTZButtonState(); 
     }
-}
-
-function updateModeSwitcherUI(mode) {
-    document.querySelectorAll('.mode-switch-item').forEach(btn => btn.classList.remove('active'));
-    if (mode === 'encoder') {
-        document.getElementById('top-btn-enc').classList.add('active');
-    } else {
-        document.getElementById('top-btn-dec').classList.add('active');
-    }
-}
+});
 
 // === Refresh with Loading ===
 function refreshSourceList() {
     const tbody = document.querySelector('#source-list-body');
     const btn = document.getElementById('btn-refresh-list');
     if(btn) { btn.innerText = "Loading..."; btn.disabled = true; }
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:40px;"><div class="loading-spinner-container"><div class="spinner-ring"></div><div style="margin-top:10px; color:#888; font-size:13px;">Updating sources...</div></div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:40px;"><div class="loading-spinner-container"><div class="spinner-ring"></div><div style="margin-top:10px; color:#888; font-size:13px;">Updating sources...</div></div></td></tr>';
     setTimeout(() => {
         renderSourceList(); 
         if(btn) { btn.innerText = "Refresh"; btn.disabled = false; }
@@ -145,7 +73,6 @@ function updatePTZButtonState() {
     btn.disabled = false;
 }
 
-// === PTZ Panel Logic ===
 function updatePTZPanelInfo(windowNum, sourceName) {
     const info = document.getElementById('ptz-target-info');
     if(!info) return;
@@ -174,36 +101,6 @@ function savePreset() {
     showToast("Preset Saved", "success");
 }
 
-function selectSlot(slotId) { 
-    document.querySelectorAll('.preview-slot').forEach(el => el.classList.remove('selected-slot')); 
-    const el = document.getElementById(slotId); 
-    if(el) { 
-        el.classList.add('selected-slot'); 
-        
-        // Logic to disable/enable PTZ
-        const headerBtn = document.getElementById('btn-ptz-ctrl');
-        const sourceId = el.dataset.sourceId;
-        const windowNum = slotId.split('-')[1];
-        
-        if (!sourceId) {
-            if(headerBtn) headerBtn.disabled = true;
-            updatePTZPanelInfo(windowNum, null);
-            setPTZPanelState(false);
-        } else {
-            const sourceObj = sourcesData.find(s => s.id === sourceId);
-            if (sourceObj && (sourceObj.status === 'offline' || sourceObj.status === 'error')) {
-                if(headerBtn) headerBtn.disabled = false; 
-                updatePTZPanelInfo(windowNum, null); 
-                setPTZPanelState(false); 
-            } else {
-                if(headerBtn) headerBtn.disabled = false;
-                updatePTZPanelInfo(windowNum, sourceObj ? sourceObj.name : "Unknown");
-                setPTZPanelState(true); 
-            }
-        }
-    } 
-}
-
 function renderSourceList() {
     const tbody = document.querySelector('#source-list-body');
     if(!tbody) return;
@@ -214,19 +111,25 @@ function renderSourceList() {
         tr.draggable = true;
         tr.setAttribute('ondragstart', 'drag(event)');
         tr.setAttribute('data-json', JSON.stringify(src));
+        
         let statusHtml = `<span style="color:#4CAF50;">Online</span>`;
         if(src.status === 'error') statusHtml = `<span class="src-status-error">${src.errorMsg}</span>`;
         if(src.status === 'offline') statusHtml = `<span style="color:#888;">Offline</span>`;
+        
         let thumbHtml = src.status === 'offline' ? `<div class="thumb-box offline"><span>Offline</span></div>` : `<div class="thumb-box"><img src="${src.thumb}"></div>`;
         
+        // 修改: 整合 Group 到 Details 欄位
         tr.innerHTML = `
             <td class="drag-col"><span class="drag-handle-icon">⋮⋮</span></td>
             <td class="thumb-col">${thumbHtml}</td>
             <td class="info-col">
                 <div class="src-name" style="${src.status==='offline'?'color:#888':''}">${src.name}</div>
-                <div class="src-meta">${src.ip} | ${statusHtml}</div>
+                <div class="src-meta">
+                    ${src.ip} <span style="color:#555; margin:0 5px;">|</span> 
+                    ${src.group} <span style="color:#555; margin:0 5px;">|</span> 
+                    ${statusHtml}
+                </div>
             </td>
-            <td><span style="color:#aaa; font-size:12px;">${src.group}</span></td>
             <td class="preset-col">${src.id === 'src_01' ? '<span class="preset-badge">1</span>' : ''}</td>
             <td class="action-col">
                 <button class="btn-icon-action" onclick="openEditSourceModal('${src.id}')" title="Edit">✎</button>
@@ -361,6 +264,7 @@ function drop(ev) {
     slot.classList.add('active-slot');
     selectSlot(slot.id);
     updateLiveHeader();
+    updatePTZButtonState();
 }
 
 function renderSlotMenu(slotId) { return `<button class="slot-menu-btn" onclick="toggleSlotMenu('${slotId}', event)">•••</button><div class="slot-dropdown" id="menu-${slotId}"><button class="slot-action danger" onclick="removeSource('${slotId}')">Clear</button></div>`; }
@@ -371,8 +275,50 @@ function removeSource(slotId, targetSourceId = null) {
     if(slot) { delete slot.dataset.sourceId; slot.classList.remove('active-slot', 'offline-state'); slot.innerHTML = `<div class="slot-label">Window ${slotId.split('-')[1]}</div><div class="slot-content" style="text-align:center;"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div>`; updateLiveHeader(); selectSlot(slotId); }
 }
 
-function goHome() { document.getElementById('app-shell').style.display = 'none'; document.getElementById('page-login').style.display = 'flex'; } // Changed to Login since Home is removed
+function doLogin() {
+    document.querySelector('#page-login .btn-primary').innerHTML = "Logging in...";
+    setTimeout(() => { document.getElementById('page-login').style.display = 'none'; document.getElementById('page-home').style.display = 'flex'; }, 800);
+}
 
+function checkModeSwitch(targetMode) {
+    if (!currentSystemMode) { performSwitch(targetMode); return; }
+    if (currentSystemMode === targetMode) { enterView(targetMode); } else { showRebootWarning(targetMode); }
+}
+
+function showRebootWarning(targetMode) {
+    const box = document.getElementById('modalContentBox');
+    box.style.background = "#1a1a1a"; box.style.border = "1px solid #333"; box.style.width = "400px"; box.style.textAlign = "center";
+    box.innerHTML = `<h3 style="color:#fff; margin-bottom:20px; font-size:18px;">Reboot Required</h3><div style="display:flex; justify-content:center; gap:15px;"><button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-danger" style="background:transparent; border:1px solid #D32F2F;" onclick="confirmReboot('${targetMode}')">Reboot</button></div>`;
+    document.getElementById('modalOverlay').style.display = 'flex';
+}
+
+function confirmReboot(targetMode) {
+    closeModal();
+    document.getElementById('reboot-overlay').style.display = 'flex';
+    setTimeout(() => { document.getElementById('reboot-overlay').style.display = 'none'; performSwitch(targetMode); }, 2000);
+}
+
+function performSwitch(mode) { currentSystemMode = mode; updateHomeUI(); enterView(mode); }
+function enterView(mode) {
+    document.getElementById('page-home').style.display = 'none';
+    document.getElementById('app-shell').style.display = 'grid';
+    document.getElementById('view-encoder').style.display = (mode === 'encoder') ? 'block' : 'none';
+    document.getElementById('view-decoder').style.display = (mode === 'decoder') ? 'block' : 'none';
+    document.getElementById('current-mode-badge').innerText = mode.toUpperCase() + ' MODE';
+    document.documentElement.style.setProperty('--theme-color', mode === 'encoder' ? '#007AFF' : '#FF9500');
+    if(mode === 'decoder') { renderSourceList(); updateLiveHeader(); updatePTZButtonState(); }
+}
+function updateHomeUI() { document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('selected-mode')); if(currentSystemMode === 'encoder') document.getElementById('card-enc').classList.add('selected-mode'); if(currentSystemMode === 'decoder') document.getElementById('card-dec').classList.add('selected-mode'); }
+function goHome() { document.getElementById('app-shell').style.display = 'none'; document.getElementById('page-home').style.display = 'flex'; }
+function selectSlot(slotId) { 
+    document.querySelectorAll('.preview-slot').forEach(el => el.classList.remove('selected-slot')); 
+    const el = document.getElementById(slotId); 
+    if(el) { 
+        el.classList.add('selected-slot'); 
+        updatePTZButtonState(); 
+        updatePTZPanelInfo(slotId.split('-')[1], el.querySelector('.slot-name')?.innerText);
+    } 
+}
 function switchOutputMode(count) { 
     currentOutputMode = count === 1 ? 'Single' : 'Quad'; 
     document.querySelectorAll('.mode-switch-btn').forEach(btn => btn.classList.remove('active'));
