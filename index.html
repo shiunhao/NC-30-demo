@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NC30 Pro AV Interface (Final Demo V13)</title>
+    <title>NC30 Pro AV Interface (Demo B - Direct Switch)</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="mobile.css">
 </head>
@@ -26,29 +26,14 @@
         </div>
     </div>
 
-    <div id="page-home">
-        <div class="lobby-header">
-            <div class="lobby-logo"><span>NC</span>30</div>
-            <div class="lobby-subtitle">4K NDI Bi-Directional Converter</div>
-        </div>
-        <div class="card-container">
-            <div id="card-enc" class="mode-card card-enc" onclick="checkModeSwitch('encoder')">
-                <div class="card-icon">📡</div>
-                <div class="card-title">ENCODER</div>
-                <div class="card-desc">Transmit HDMI/SDI sources<br>to the NDI network.</div>
-            </div>
-            <div id="card-dec" class="mode-card card-dec" onclick="checkModeSwitch('decoder')">
-                <div class="card-icon">🖥️</div>
-                <div class="card-title">DECODER</div>
-                <div class="card-desc">Receive and display NDI streams<br>from the network.</div>
-            </div>
-        </div>
-    </div>
-
     <div id="app-shell" class="app-layout">
         <div class="top-bar">
-            <div class="back-btn" onclick="goHome()"><span>🏠 Mode Select</span></div>
-            <div class="mode-badge" id="current-mode-badge">ENCODER MODE</div>
+            <div class="app-logo"><span>NC</span>30</div>
+
+            <div class="mode-switcher-top">
+                <button id="top-btn-enc" class="mode-switch-item" onclick="checkModeSwitch('encoder')">Encoder</button>
+                <button id="top-btn-dec" class="mode-switch-item active" onclick="checkModeSwitch('decoder')">Decoder</button>
+            </div>
             
             <div class="header-right">
                 <div class="tally-indicator">LIVE</div>
@@ -210,7 +195,7 @@
                                 <div class="header-info-container" id="live-header-info">
                                     </div>
                                 <div class="header-right-ctrl">
-                                    <button id="btn-ptz-ctrl" class="btn btn-outline btn-sm" onclick="togglePTZ()">🎮 PTZ Controller</button>
+                                    <button id="btn-ptz-ctrl" class="btn btn-outline btn-sm" onclick="togglePTZ()" disabled>🎮 PTZ Controller</button>
                                 </div>
                             </div>
 
@@ -293,7 +278,6 @@
         </div>
         <div class="ptz-body">
             <div id="ptz-target-info" class="ptz-target-info">Target: None</div>
-
             <div id="ptz-controls-wrapper">
                 <div class="ptz-pad-container">
                     <button class="ptz-btn" style="border-top-left-radius: 4px;">↖</button><button class="ptz-btn">▲</button><button class="ptz-btn" style="border-top-right-radius: 4px;">↗</button>
