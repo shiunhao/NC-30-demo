@@ -3,20 +3,21 @@
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
 let currentOutputMode = 'Single'; 
+
+// 預設資料 (你可以把這裡清空來測試空狀態，例如 let sourcesData = []; )
 let sourcesData = [
     { id: 'src_01', name: 'Main Camera 01', ip: '192.168.1.101', group: 'Studio A', status: 'online', thumb: 'https://picsum.photos/id/64/100/56' },
     { id: 'src_02', name: 'PTZ Camera 02', ip: '192.168.1.102', group: 'Studio B', status: 'online', thumb: 'https://picsum.photos/id/1/100/56' },
     { id: 'src_03', name: 'OBS Output', ip: '192.168.1.120', group: 'OBS', status: 'error', errorMsg: 'No support 4k▲', thumb: 'https://picsum.photos/id/48/100/56' },
     { id: 'src_04', name: 'Outdoor Cam', ip: '192.168.1.104', group: 'Outdoor', status: 'offline', thumb: '' }
 ];
+
 let editingSourceId = null;
 let selectedAutoSearchIp = null;
 let sourceToRemoveId = null;
-let selectedListRowId = null; // New: Track selected row in list
+let selectedListRowId = null; 
 
-// Initialize
 document.addEventListener('DOMContentLoaded', () => {
-    // Close menus when clicking outside
     window.addEventListener('click', function(e) {
         if (!e.target.matches('.btn-icon-action')) {
             document.querySelectorAll('.source-menu-dropdown').forEach(el => el.classList.remove('show'));
@@ -86,7 +87,8 @@ function refreshSourceList() {
     const tbody = document.querySelector('#source-list-body');
     const btn = document.getElementById('btn-refresh-list');
     if(btn) { btn.innerText = "Loading..."; btn.disabled = true; }
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:40px;"><div class="loading-spinner-container"><div class="spinner-ring"></div><div style="margin-top:10px; color:#888; font-size:13px;">Updating sources...</div></div></td></tr>';
+    // Loading State
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:60px;"><div class="loading-spinner-container"><div class="spinner-ring"></div><div style="margin-top:15px; color:#666; font-size:13px;">Scanning Network...</div></div></td></tr>';
     setTimeout(() => {
         renderSourceList(); 
         if(btn) { btn.innerText = "Refresh"; btn.disabled = false; }
@@ -186,38 +188,66 @@ function selectSlot(slotId) {
     } 
 }
 
-// === NEW: Selection Logic for Source List ===
 function selectListRow(sourceId) {
     selectedListRowId = sourceId;
-    renderSourceList(); // Re-render to update borders
+    renderSourceList(); 
 }
 
-// === NEW: Render Source List (Updated for Card Layout) ===
+// === RENDER SOURCE LIST (Updated: Empty State & Header Fix) ===
 function renderSourceList() {
     const tbody = document.querySelector('#source-list-body');
     if(!tbody) return;
     tbody.innerHTML = '';
+
+    // 1. Check Empty State
+    if (sourcesData.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="5" style="border:none; padding: 60px 0; pointer-events:none;">
+                    <div class="empty-state-container">
+                        <div class="empty-state-circle">
+                            <span style="font-size:12px; color:#aaa;">沒有Source List<br>的狀態圖</span>
+                        </div>
+                        <div class="empty-state-title">No NDI Sources Detected</div>
+                        <div class="empty-state-desc">We couldn't find any NDI sources on the local network.</div>
+                    </div>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    // 2. Render List
     sourcesData.forEach(src => {
         const tr = document.createElement('tr');
-        // Add selected class if ID matches
         const isSelected = src.id === selectedListRowId;
         tr.className = `source-row ${src.status === 'offline' ? 'offline' : ''} ${isSelected ? 'selected' : ''}`;
         
         tr.draggable = true;
         tr.setAttribute('ondragstart', 'drag(event)');
         tr.setAttribute('data-json', JSON.stringify(src));
-        tr.onclick = () => selectListRow(src.id); // Click to select
+        tr.onclick = () => selectListRow(src.id);
 
-        // Status Logic
+        // Status Logic: Changed to Grey (#888) for stable
         let statusText = "Stable";
         let statusStyle = "";
-        if(src.status === 'online') { statusText = "Status: Stable"; statusStyle = "color:#888;"; }
-        else if(src.status === 'error') { statusText = "Status: " + src.errorMsg; statusStyle = "color:#FF3B30;"; }
-        else { statusText = "Status: Offline"; statusStyle = "color:#888;"; }
+        
+        if(src.status === 'online') { 
+            statusText = "Status: Stable"; 
+            statusStyle = "color:#888;"; // GREY COLOR FIXED
+        }
+        else if(src.status === 'error') { 
+            statusText = "Status: " + src.errorMsg; 
+            statusStyle = "color:#FF3B30;"; 
+        }
+        else { 
+            statusText = "Status: Offline"; 
+            statusStyle = "color:#666;"; 
+        }
 
         let thumbHtml = src.status === 'offline' ? `<div class="thumb-box offline"><span>Offline</span></div>` : `<div class="thumb-box"><img src="${src.thumb}"></div>`;
         
-        // Render Row
+        // Removed the "Group" column TD
         tr.innerHTML = `
             <td class="drag-col"><span class="drag-handle-icon">⋮⋮</span></td>
             <td class="thumb-col">${thumbHtml}</td>
@@ -242,10 +272,8 @@ function renderSourceList() {
     });
 }
 
-// === NEW: Source Menu Toggle ===
 function toggleSourceMenu(id, event) {
     event.stopPropagation();
-    // Close others
     document.querySelectorAll('.source-menu-dropdown').forEach(el => {
         if(el.id !== `src-menu-${id}`) el.classList.remove('show');
     });
@@ -387,7 +415,7 @@ function removeSource(slotId, targetSourceId = null) {
     if(slot) { delete slot.dataset.sourceId; slot.classList.remove('active-slot', 'offline-state'); slot.innerHTML = `<div class="slot-label">Window ${slotId.split('-')[1]}</div><div class="slot-content" style="text-align:center;"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div>`; updateLiveHeader(); selectSlot(slotId); }
 }
 
-function goHome() { document.getElementById('app-shell').style.display = 'none'; document.getElementById('page-login').style.display = 'flex'; } // Changed to Login since Home is removed
+function goHome() { document.getElementById('app-shell').style.display = 'none'; document.getElementById('page-login').style.display = 'flex'; } 
 
 function switchOutputMode(count) { 
     currentOutputMode = count === 1 ? 'Single' : 'Quad'; 
@@ -435,9 +463,7 @@ ptzHeader.onmousedown = (e) => { isDragging = true; startX = e.clientX; startY =
 document.onmousemove = (e) => { if(isDragging) { ptzPanel.style.left = (initialLeft + e.clientX - startX) + "px"; ptzPanel.style.top = (initialTop + e.clientY - startY) + "px"; } };
 document.onmouseup = () => isDragging = false;
 function togglePTZ() { if(ptzPanel.style.display === 'flex') { ptzPanel.style.display = 'none'; } else { ptzPanel.style.display = 'flex'; if(!ptzPanel.style.top) { ptzPanel.style.top = '100px'; ptzPanel.style.left = (window.innerWidth / 2 - 130) + 'px'; } } }
-window.onclick = function(e) { if(!e.target.matches('.slot-menu-btn')) document.querySelectorAll('.slot-dropdown').forEach(el => el.classList.remove('show')); if(!e.target.matches('#btn-account-avatar')) document.getElementById('accountMenu').classList.remove('show'); }
 
-// === MODIFIED LOGOUT ===
 function actionLogout() {
     document.getElementById('modal-logout-confirm').style.display = 'flex';
     document.getElementById('accountMenu').classList.remove('show');
@@ -447,13 +473,9 @@ function confirmLogout() {
     document.getElementById('modal-logout-confirm').style.display = 'none';
     document.getElementById('app-shell').style.display = 'none';
     document.getElementById('page-login').style.display = 'flex';
-    
-    // Reset state
     currentSystemMode = null;
     currentUserRole = 'admin';
     document.getElementById('page-login').style.opacity = '1';
-    
-    // Reset inputs
     document.querySelector('#page-login input[type="text"]').value = 'admin';
     document.querySelector('#page-login input[type="password"]').value = '';
     document.querySelector('#page-login .btn-primary').innerHTML = 'LOGIN';
