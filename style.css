@@ -1,4 +1,4 @@
-/* style.css - Final Demo Version (V12) */
+/* style.css - Final Demo Version (V13) */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -390,11 +390,11 @@ input:checked + .slider:before { transform: translateX(14px); }
 .ptz-close { cursor: pointer; color: #888; font-size: 16px; font-weight: bold; line-height: 1; }
 .ptz-close:hover { color: #fff; }
 
-.ptz-body { padding: 15px; display: flex; flex-direction: column; gap: 20px; }
+.ptz-body { padding: 10px 15px; display: flex; flex-direction: column; gap: 15px; }
 
 /* Added PTZ Target Info */
 .ptz-target-info {
-    font-size: 12px; color: #007AFF; text-align: center; margin-bottom: 10px; font-weight: bold;
+    font-size: 12px; color: #007AFF; text-align: center; margin-bottom: 5px; margin-top: -5px; font-weight: bold;
 }
 
 /* Added PTZ Preset Header */
@@ -406,6 +406,13 @@ input:checked + .slider:before { transform: translateX(14px); }
     background: #333; border: 1px solid #555; color: #ccc; font-size: 10px; padding: 2px 8px; border-radius: 2px; cursor: pointer;
 }
 .btn-xs-save:hover { background: #444; color: #fff; }
+
+/* Disabled UI State */
+.disabled-ui {
+    opacity: 0.3;
+    pointer-events: none;
+    filter: grayscale(1);
+}
 
 .ptz-pad-container {
     display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;
