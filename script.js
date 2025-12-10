@@ -1,4 +1,4 @@
-/* script.js - Logic for NC30 Demo (V12) */
+/* script.js - Logic for NC30 Demo (V13) */
 
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
@@ -17,7 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if(document.getElementById('view-decoder').style.display !== 'none') {
         renderSourceList();
         updateLiveHeader();
-        updatePTZButtonState(); 
     }
 });
 
@@ -61,36 +60,67 @@ function updateLiveHeader() {
     }
 }
 
-function updatePTZButtonState() {
-    const btn = document.getElementById('btn-ptz-ctrl');
-    if(!btn) return;
-    const selectedSlot = document.querySelector('.preview-slot.selected-slot');
-    if (!selectedSlot) { btn.disabled = true; return; }
-    const sourceId = selectedSlot.dataset.sourceId;
-    if (!sourceId) { btn.disabled = true; return; }
-    const sourceObj = sourcesData.find(s => s.id === sourceId);
-    if (sourceObj && (sourceObj.status === 'offline' || sourceObj.status === 'error')) { btn.disabled = true; return; }
-    btn.disabled = false;
+// === PTZ LOGIC UPDATED FOR V13 ===
+function selectSlot(slotId) { 
+    document.querySelectorAll('.preview-slot').forEach(el => el.classList.remove('selected-slot')); 
+    const el = document.getElementById(slotId); 
+    if(el) { 
+        el.classList.add('selected-slot'); 
+        
+        // 1. Update Header Button
+        const headerBtn = document.getElementById('btn-ptz-ctrl');
+        const sourceId = el.dataset.sourceId;
+        const windowNum = slotId.split('-')[1];
+        
+        if (!sourceId) {
+            if(headerBtn) headerBtn.disabled = true;
+            updatePTZPanelInfo(windowNum, null);
+            setPTZPanelState(false);
+        } else {
+            const sourceObj = sourcesData.find(s => s.id === sourceId);
+            // Check status
+            if (sourceObj && (sourceObj.status === 'offline' || sourceObj.status === 'error')) {
+                // Invalid Source
+                if(headerBtn) headerBtn.disabled = false; // Panel can open, but controls disabled
+                updatePTZPanelInfo(windowNum, null); // Show Error
+                setPTZPanelState(false); // Disable controls
+            } else {
+                // Valid Source
+                if(headerBtn) headerBtn.disabled = false;
+                updatePTZPanelInfo(windowNum, sourceObj ? sourceObj.name : "Unknown");
+                setPTZPanelState(true); // Enable controls
+            }
+        }
+    } 
 }
 
-// === NEW: Update PTZ Panel Text ===
-function updatePTZPanelInfo(slotId) {
+function updatePTZPanelInfo(windowNum, sourceName) {
     const info = document.getElementById('ptz-target-info');
     if(!info) return;
-    if(!slotId) {
-        info.innerText = "Target: None";
-        return;
+    if(sourceName) {
+        info.innerText = `Target: Window ${windowNum}`;
+        info.style.color = "#007AFF"; // Blue
+    } else {
+        info.innerText = `Target: Unavailable`;
+        info.style.color = "#D32F2F"; // Red
     }
-    const num = slotId.split('-')[1];
-    info.innerText = `Target: Window ${num}`;
 }
 
-// === NEW: Save Preset ===
+function setPTZPanelState(enabled) {
+    const wrapper = document.getElementById('ptz-controls-wrapper');
+    if(!wrapper) return;
+    if(enabled) {
+        wrapper.classList.remove('disabled-ui');
+    } else {
+        wrapper.classList.add('disabled-ui');
+    }
+}
+
 function savePreset() {
-    // Check if valid
-    const btn = document.getElementById('btn-ptz-ctrl');
-    if(btn && btn.disabled) {
-        showToast("Cannot save preset: No active source", "error");
+    // Check if UI is disabled
+    const wrapper = document.getElementById('ptz-controls-wrapper');
+    if(wrapper && wrapper.classList.contains('disabled-ui')) {
+        showToast("Cannot save preset: Source unavailable", "error");
         return;
     }
     showToast("Preset Saved", "success");
@@ -110,6 +140,7 @@ function renderSourceList() {
         if(src.status === 'error') statusHtml = `<span class="src-status-error">${src.errorMsg}</span>`;
         if(src.status === 'offline') statusHtml = `<span style="color:#888;">Offline</span>`;
         let thumbHtml = src.status === 'offline' ? `<div class="thumb-box offline"><span>Offline</span></div>` : `<div class="thumb-box"><img src="${src.thumb}"></div>`;
+        
         tr.innerHTML = `
             <td class="drag-col"><span class="drag-handle-icon">⋮⋮</span></td>
             <td class="thumb-col">${thumbHtml}</td>
@@ -191,13 +222,7 @@ function saveSourceData() {
     const group = document.getElementById('inputSrcGroup').value;
     if(editingSourceId) {
         const idx = sourcesData.findIndex(s => s.id === editingSourceId);
-        if(idx !== -1) { 
-            sourcesData[idx].name = name; 
-            sourcesData[idx].ip = ip; 
-            sourcesData[idx].group = group; 
-            updatePreviewLabels(editingSourceId, name); 
-            showToast(`Updated: ${name}`, "success"); 
-        }
+        if(idx !== -1) { sourcesData[idx].name = name; sourcesData[idx].ip = ip; sourcesData[idx].group = group; updatePreviewLabels(editingSourceId, name); showToast(`Updated: ${name}`, "success"); }
     } else {
         const newId = 'src_' + Date.now();
         sourcesData.push({ id: newId, name: name, ip: ip, group: group, status: 'online', thumb: 'https://picsum.photos/id/237/100/56' });
@@ -258,7 +283,7 @@ function drop(ev) {
     slot.classList.add('active-slot');
     selectSlot(slot.id);
     updateLiveHeader();
-    updatePTZButtonState();
+    // No updatePTZButtonState here, selectSlot handles it
 }
 
 function renderSlotMenu(slotId) { return `<button class="slot-menu-btn" onclick="toggleSlotMenu('${slotId}', event)">•••</button><div class="slot-dropdown" id="menu-${slotId}"><button class="slot-action danger" onclick="removeSource('${slotId}')">Clear</button></div>`; }
@@ -266,7 +291,7 @@ function toggleSlotMenu(slotId, event) { event.stopPropagation(); document.query
 function removeSource(slotId, targetSourceId = null) { 
     if (targetSourceId) { const slot = document.querySelector(`.preview-slot[data-source-id="${targetSourceId}"]`); if (slot) slotId = slot.id; else return; }
     const slot = document.getElementById(slotId);
-    if(slot) { delete slot.dataset.sourceId; slot.classList.remove('active-slot', 'offline-state'); slot.innerHTML = `<div class="slot-label">Window ${slotId.split('-')[1]}</div><div class="slot-content" style="text-align:center;"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div>`; updateLiveHeader(); updatePTZButtonState(); }
+    if(slot) { delete slot.dataset.sourceId; slot.classList.remove('active-slot', 'offline-state'); slot.innerHTML = `<div class="slot-label">Window ${slotId.split('-')[1]}</div><div class="slot-content" style="text-align:center;"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div>`; updateLiveHeader(); selectSlot(slotId); /* Updates PTZ */ }
 }
 
 function doLogin() {
@@ -300,27 +325,19 @@ function enterView(mode) {
     document.getElementById('view-decoder').style.display = (mode === 'decoder') ? 'block' : 'none';
     document.getElementById('current-mode-badge').innerText = mode.toUpperCase() + ' MODE';
     document.documentElement.style.setProperty('--theme-color', mode === 'encoder' ? '#007AFF' : '#FF9500');
-    if(mode === 'decoder') { renderSourceList(); updateLiveHeader(); updatePTZButtonState(); }
+    if(mode === 'decoder') { renderSourceList(); updateLiveHeader(); /* Select slot 1 default? */ selectSlot('slot-1'); }
 }
 function updateHomeUI() { document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('selected-mode')); if(currentSystemMode === 'encoder') document.getElementById('card-enc').classList.add('selected-mode'); if(currentSystemMode === 'decoder') document.getElementById('card-dec').classList.add('selected-mode'); }
 function goHome() { document.getElementById('app-shell').style.display = 'none'; document.getElementById('page-home').style.display = 'flex'; }
-
-function selectSlot(slotId) { 
-    document.querySelectorAll('.preview-slot').forEach(el => el.classList.remove('selected-slot')); 
-    const el = document.getElementById(slotId); 
-    if(el) { 
-        el.classList.add('selected-slot'); 
-        updatePTZButtonState(); 
-        updatePTZPanelInfo(slotId); // UPDATE TEXT
-    } 
-}
 
 function switchOutputMode(count) { 
     currentOutputMode = count === 1 ? 'Single' : 'Quad'; 
     document.querySelectorAll('.mode-switch-btn').forEach(btn => btn.classList.remove('active'));
     if(count === 1) document.getElementById('mode-single').classList.add('active');
     else document.getElementById('mode-quad').classList.add('active');
-    const layout = document.getElementById('outputLayout'); layout.className = count === 1 ? 'output-layout-single' : 'output-layout-quad'; layout.innerHTML = ''; for(let i=1; i<=count; i++) { layout.innerHTML += `<div class="preview-slot" id="slot-${i}" onclick="selectSlot('slot-${i}')" ondrop="drop(event)" ondragover="allowDrop(event)"><div class="slot-label">Window ${i}</div><div class="slot-content" style="text-align:center;"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div></div>`; } selectSlot('slot-1'); updateLiveHeader(); updatePTZButtonState(); 
+    const layout = document.getElementById('outputLayout'); layout.className = count === 1 ? 'output-layout-single' : 'output-layout-quad'; layout.innerHTML = ''; for(let i=1; i<=count; i++) { layout.innerHTML += `<div class="preview-slot" id="slot-${i}" onclick="selectSlot('slot-${i}')" ondrop="drop(event)" ondragover="allowDrop(event)"><div class="slot-label">Window ${i}</div><div class="slot-content" style="text-align:center;"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div></div>`; } 
+    selectSlot('slot-1'); 
+    updateLiveHeader(); 
 }
 function toggleAccountMenu() { document.getElementById('accountMenu').classList.toggle('show'); }
 function closeModal(e) { if(!e || e.target.id === 'modalOverlay' || e.target.classList.contains('modal-close-x')) document.getElementById('modalOverlay').style.display = 'none'; }
@@ -370,14 +387,18 @@ function actionLogout() {
 }
 
 function confirmLogout() {
-    // Soft Logout Logic
     document.getElementById('modal-logout-confirm').style.display = 'none';
     document.getElementById('app-shell').style.display = 'none';
     document.getElementById('page-home').style.display = 'none';
     document.getElementById('page-login').style.display = 'flex';
     
-    // Reset state if needed
+    // Reset state
     currentSystemMode = null;
-    currentUserRole = 'admin'; // default
+    currentUserRole = 'admin';
     document.getElementById('page-login').style.opacity = '1';
+    
+    // Reset inputs
+    document.querySelector('#page-login input[type="text"]').value = 'admin';
+    document.querySelector('#page-login input[type="password"]').value = '';
+    document.querySelector('#page-login .btn-primary').innerHTML = 'LOGIN';
 }
