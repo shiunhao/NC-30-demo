@@ -1,4 +1,4 @@
-/* script.js - Logic for NC30 Demo (Vertical Dock) */
+/* script.js - Exclusive Dock Logic */
 
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
@@ -22,11 +22,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!e.target.matches('.btn-icon-action')) {
             document.querySelectorAll('.source-menu-dropdown').forEach(el => el.classList.remove('show'));
         }
-        // Click outside drawer to close it (Optional, but good UX)
+        // Click outside drawer to close it
         const drawer = document.getElementById('sideDrawer');
-        const dock = document.querySelectorAll('.immersive-dock');
+        // Check if click is inside any dock (there are two in DOM)
         let clickedDock = false;
-        dock.forEach(d => { if(d.contains(e.target)) clickedDock = true; });
+        document.querySelectorAll('.immersive-dock').forEach(d => { if(d.contains(e.target)) clickedDock = true; });
         
         if (drawer && drawer.classList.contains('open') && !drawer.contains(e.target) && !clickedDock && !e.target.matches('.modal-overlay *')) {
            closeDrawer();
@@ -73,8 +73,7 @@ function performSwitch(mode) {
     document.getElementById('view-encoder').style.display = 'none';
     document.getElementById('view-decoder').style.display = 'none';
     
-    // Close any open drawers when switching modes
-    closeDrawer();
+    closeDrawer(); // Reset UI state
 
     if (mode === 'encoder') {
         root.style.setProperty('--theme-color', '#007AFF');
@@ -94,41 +93,36 @@ function updateModeSwitcherUI(mode) {
     else { document.getElementById('top-btn-dec').classList.add('active'); }
 }
 
-// === DRAWER & DOCK LOGIC (UNIFIED) ===
+// === DRAWER & DOCK LOGIC (EXCLUSIVE MODE) ===
 function toggleDrawer(tabName) {
     const drawer = document.getElementById('sideDrawer');
     const title = document.getElementById('drawerTitle');
     const dockBtns = document.querySelectorAll('.dock-btn');
     
-    // Reset dock active states
+    // 1. Reset active buttons
     dockBtns.forEach(b => b.classList.remove('active'));
     
-    // Logic: If clicking same tab, close drawer. If different, switch tab.
+    // 2. Logic: If open and clicking same, close.
     const currentTab = drawer.dataset.currentTab;
-    
     if (drawer.classList.contains('open') && currentTab === tabName) {
         closeDrawer();
         return;
     }
 
-    // Set Active Button
+    // 3. Set Active Button (Visually only, though dock will hide)
     const activeBtn = document.getElementById(`btn-dock-${tabName}`);
     if(activeBtn) activeBtn.classList.add('active');
 
-    // Show Content (Hide all first)
+    // 4. Setup Content
     document.querySelectorAll('.drawer-content-panel').forEach(p => p.style.display = 'none');
     
-    // Map tabName to ID and Title
     let targetId = `drawer-content-${tabName}`;
     let targetTitle = "Settings";
 
     switch(tabName) {
-        // Decoder Tabs
         case 'dec-sources': targetTitle = "Source List"; break;
         case 'dec-layout': targetTitle = "Display Layout"; break;
         case 'dec-settings': targetTitle = "Decoder Settings"; break;
-        
-        // Encoder Tabs
         case 'enc-input': targetTitle = "Input Source"; break;
         case 'enc-stream': targetTitle = "Encoding Settings"; break;
         case 'enc-ndi': targetTitle = "NDI Configuration"; break;
@@ -139,6 +133,9 @@ function toggleDrawer(tabName) {
     if(targetEl) {
         title.innerText = targetTitle;
         targetEl.style.display = 'flex';
+        
+        // 5. ANIMATION SEQUENCE: Hide Dock -> Open Drawer
+        document.querySelectorAll('.immersive-dock').forEach(d => d.classList.add('dock-hidden'));
         drawer.classList.add('open');
         drawer.dataset.currentTab = tabName;
     }
@@ -146,8 +143,15 @@ function toggleDrawer(tabName) {
 
 function closeDrawer() {
     const drawer = document.getElementById('sideDrawer');
+    
+    // 1. Close Drawer
     drawer.classList.remove('open');
     drawer.dataset.currentTab = '';
+    
+    // 2. Show Dock (Delay slightly to match drawer animation exit if desired, or immediate)
+    // Using immediate for snappier feel, CSS transition handles the fade in.
+    document.querySelectorAll('.immersive-dock').forEach(d => d.classList.remove('dock-hidden'));
+    
     document.querySelectorAll('.dock-btn').forEach(b => b.classList.remove('active'));
 }
 
