@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NC30 Pro AV Interface (Final Demo V10)</title>
+    <title>NC30 Pro AV Interface (Final Demo V11)</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="mobile.css">
 </head>
@@ -227,7 +227,7 @@
                                 <span style="font-weight:bold; font-size:14px; color:#ddd;">Source List</span>
                                 <div style="display:flex; gap:10px;">
                                     <button class="btn btn-primary" onclick="showModal('Add Manual Source')">Add Source</button>
-                                    <button class="btn btn-outline" onclick="renderSourceList()">Refresh</button>
+                                    <button class="btn btn-outline" id="btn-refresh-list" onclick="refreshSourceList()">Refresh</button>
                                 </div>
                             </div>
                             <div class="source-list-scroll">
