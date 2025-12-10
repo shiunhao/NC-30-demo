@@ -1,4 +1,4 @@
-/* script.js - Logic for NC30 Demo (V8 - Enhanced PTZ Logic & UI) */
+/* script.js - Logic for NC30 Demo (V9) */
 
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
@@ -48,39 +48,16 @@ function updateLiveHeader() {
     }
 }
 
-// === NEW PTZ DISABLE LOGIC ===
+// === PTZ DISABLE LOGIC ===
 function updatePTZButtonState() {
     const btn = document.getElementById('btn-ptz-ctrl');
     if(!btn) return;
-
-    // 1. Get Selected Slot
     const selectedSlot = document.querySelector('.preview-slot.selected-slot');
-    
-    // Case A: No slot selected
-    if (!selectedSlot) {
-        btn.disabled = true;
-        return;
-    }
-
-    // 2. Check source in slot
+    if (!selectedSlot) { btn.disabled = true; return; }
     const sourceId = selectedSlot.dataset.sourceId;
-    
-    // Case B: Slot is empty (No source dragged in)
-    if (!sourceId) {
-        btn.disabled = true;
-        return;
-    }
-
-    // 3. Check Source Status from Data
+    if (!sourceId) { btn.disabled = true; return; }
     const sourceObj = sourcesData.find(s => s.id === sourceId);
-    
-    // Case C: Source exists but is Offline or Error
-    if (sourceObj && (sourceObj.status === 'offline' || sourceObj.status === 'error')) {
-        btn.disabled = true;
-        return;
-    }
-
-    // Case D: All good
+    if (sourceObj && (sourceObj.status === 'offline' || sourceObj.status === 'error')) { btn.disabled = true; return; }
     btn.disabled = false;
 }
 
@@ -98,7 +75,21 @@ function renderSourceList() {
         if(src.status === 'error') statusHtml = `<span class="src-status-error">${src.errorMsg}</span>`;
         if(src.status === 'offline') statusHtml = `<span style="color:#888;">Offline</span>`;
         let thumbHtml = src.status === 'offline' ? `<div class="thumb-box offline"><span>Offline</span></div>` : `<div class="thumb-box"><img src="${src.thumb}"></div>`;
-        tr.innerHTML = `<td class="drag-col"><span class="drag-handle-icon">⋮⋮</span></td><td class="thumb-col">${thumbHtml}</td><td class="info-col"><div class="src-name" style="${src.status==='offline'?'color:#888':''}">${src.name}</div><div class="src-meta">${src.ip} | ${src.group} | ${statusHtml}</div></td><td class="preset-col">${src.id === 'src_01' ? '<span class="preset-badge">1</span>' : ''}</td><td class="action-col"><button class="btn-icon-action" onclick="openEditSourceModal('${src.id}')" title="Edit">✎</button><button class="btn-icon-action danger" onclick="askRemoveSource('${src.id}')" title="Remove">🗑️</button></td>`;
+        
+        tr.innerHTML = `
+            <td class="drag-col"><span class="drag-handle-icon">⋮⋮</span></td>
+            <td class="thumb-col">${thumbHtml}</td>
+            <td class="info-col">
+                <div class="src-name" style="${src.status==='offline'?'color:#888':''}">${src.name}</div>
+                <div class="src-meta">${src.ip} | ${statusHtml}</div>
+            </td>
+            <td><span style="color:#aaa; font-size:12px;">${src.group}</span></td>
+            <td class="preset-col">${src.id === 'src_01' ? '<span class="preset-badge">1</span>' : ''}</td>
+            <td class="action-col">
+                <button class="btn-icon-action" onclick="openEditSourceModal('${src.id}')" title="Edit">✎</button>
+                <button class="btn-icon-action danger" onclick="askRemoveSource('${src.id}')" title="Remove">🗑️</button>
+            </td>
+        `;
         tbody.appendChild(tr);
     });
 }
@@ -177,7 +168,6 @@ function saveSourceData() {
     updateLiveHeader();
 }
 
-// === NEW REMOVE CONFIRMATION LOGIC ===
 function askRemoveSource(id) {
     sourceToRemoveId = id;
     document.getElementById('modal-remove-confirm').style.display = 'flex';
@@ -185,13 +175,10 @@ function askRemoveSource(id) {
 
 function confirmRemoveSource() {
     if(sourceToRemoveId) {
-        // Also remove from preview if active
-        removeSource(null, sourceToRemoveId); // Helper to clear slot by SourceID
-        
+        removeSource(null, sourceToRemoveId); 
         sourcesData = sourcesData.filter(s => s.id !== sourceToRemoveId);
         renderSourceList();
         showToast("Source Removed", "success");
-        
         document.getElementById('modal-remove-confirm').style.display = 'none';
         sourceToRemoveId = null;
     }
@@ -231,29 +218,15 @@ function drop(ev) {
     slot.classList.add('active-slot');
     selectSlot(slot.id);
     updateLiveHeader();
-    updatePTZButtonState(); // Update PTZ
+    updatePTZButtonState();
 }
 
 function renderSlotMenu(slotId) { return `<button class="slot-menu-btn" onclick="toggleSlotMenu('${slotId}', event)">•••</button><div class="slot-dropdown" id="menu-${slotId}"><button class="slot-action danger" onclick="removeSource('${slotId}')">Clear</button></div>`; }
 function toggleSlotMenu(slotId, event) { event.stopPropagation(); document.querySelectorAll('.slot-dropdown').forEach(el => el.classList.remove('show')); const menu = document.getElementById(`menu-${slotId}`); if(menu) menu.classList.add('show'); }
-
-// Updated Remove Source (Handles both slot ID and Source ID)
 function removeSource(slotId, targetSourceId = null) { 
-    if (targetSourceId) {
-        // Find slot with this source ID
-        const slot = document.querySelector(`.preview-slot[data-source-id="${targetSourceId}"]`);
-        if (slot) slotId = slot.id;
-        else return;
-    }
-    
+    if (targetSourceId) { const slot = document.querySelector(`.preview-slot[data-source-id="${targetSourceId}"]`); if (slot) slotId = slot.id; else return; }
     const slot = document.getElementById(slotId);
-    if(slot) {
-        delete slot.dataset.sourceId; 
-        slot.classList.remove('active-slot', 'offline-state'); 
-        slot.innerHTML = `<div class="slot-label">Window ${slotId.split('-')[1]}</div><div class="slot-content" style="text-align:center;"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div>`; 
-        updateLiveHeader();
-        updatePTZButtonState(); // Check if we need to disable button
-    }
+    if(slot) { delete slot.dataset.sourceId; slot.classList.remove('active-slot', 'offline-state'); slot.innerHTML = `<div class="slot-label">Window ${slotId.split('-')[1]}</div><div class="slot-content" style="text-align:center;"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div>`; updateLiveHeader(); updatePTZButtonState(); }
 }
 
 function doLogin() {
@@ -291,33 +264,14 @@ function enterView(mode) {
 }
 function updateHomeUI() { document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('selected-mode')); if(currentSystemMode === 'encoder') document.getElementById('card-enc').classList.add('selected-mode'); if(currentSystemMode === 'decoder') document.getElementById('card-dec').classList.add('selected-mode'); }
 function goHome() { document.getElementById('app-shell').style.display = 'none'; document.getElementById('page-home').style.display = 'flex'; }
-
-function selectSlot(slotId) { 
-    document.querySelectorAll('.preview-slot').forEach(el => el.classList.remove('selected-slot')); 
-    const el = document.getElementById(slotId); 
-    if(el) {
-        el.classList.add('selected-slot');
-        updatePTZButtonState(); // Update PTZ based on selection
-    }
-}
-
+function selectSlot(slotId) { document.querySelectorAll('.preview-slot').forEach(el => el.classList.remove('selected-slot')); const el = document.getElementById(slotId); if(el) { el.classList.add('selected-slot'); updatePTZButtonState(); } }
 function switchOutputMode(count) { 
     currentOutputMode = count === 1 ? 'Single' : 'Quad'; 
-    
-    // UI Active State Logic
     document.querySelectorAll('.mode-switch-btn').forEach(btn => btn.classList.remove('active'));
     if(count === 1) document.getElementById('mode-single').classList.add('active');
     else document.getElementById('mode-quad').classList.add('active');
-
-    const layout = document.getElementById('outputLayout'); 
-    layout.className = count === 1 ? 'output-layout-single' : 'output-layout-quad'; 
-    layout.innerHTML = ''; 
-    for(let i=1; i<=count; i++) { layout.innerHTML += `<div class="preview-slot" id="slot-${i}" onclick="selectSlot('slot-${i}')" ondrop="drop(event)" ondragover="allowDrop(event)"><div class="slot-label">Window ${i}</div><div class="slot-content" style="text-align:center;"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div></div>`; } 
-    selectSlot('slot-1'); 
-    updateLiveHeader(); 
-    updatePTZButtonState();
+    const layout = document.getElementById('outputLayout'); layout.className = count === 1 ? 'output-layout-single' : 'output-layout-quad'; layout.innerHTML = ''; for(let i=1; i<=count; i++) { layout.innerHTML += `<div class="preview-slot" id="slot-${i}" onclick="selectSlot('slot-${i}')" ondrop="drop(event)" ondragover="allowDrop(event)"><div class="slot-label">Window ${i}</div><div class="slot-content" style="text-align:center;"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div></div>`; } selectSlot('slot-1'); updateLiveHeader(); updatePTZButtonState(); 
 }
-
 function toggleAccountMenu() { document.getElementById('accountMenu').classList.toggle('show'); }
 function closeModal(e) { if(!e || e.target.id === 'modalOverlay' || e.target.classList.contains('modal-close-x')) document.getElementById('modalOverlay').style.display = 'none'; }
 function closeSpecificModal(id) { document.getElementById(id).style.display = 'none'; }
