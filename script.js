@@ -1,4 +1,4 @@
-/* script.js - Logic for NC30 Demo (Demo B - Immersive V1) */
+/* script.js - Logic for NC30 Demo (Fully Immersive V2) */
 
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
@@ -24,8 +24,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         // Click outside drawer to close it (Optional, but good UX)
         const drawer = document.getElementById('sideDrawer');
-        const dock = document.querySelector('.immersive-dock');
-        if (drawer && drawer.classList.contains('open') && !drawer.contains(e.target) && !dock.contains(e.target) && !e.target.matches('.modal-overlay *')) {
+        const dock = document.querySelectorAll('.immersive-dock');
+        let clickedDock = false;
+        dock.forEach(d => { if(d.contains(e.target)) clickedDock = true; });
+        
+        if (drawer && drawer.classList.contains('open') && !drawer.contains(e.target) && !clickedDock && !e.target.matches('.modal-overlay *')) {
            closeDrawer();
         }
     });
@@ -69,6 +72,9 @@ function performSwitch(mode) {
     const root = document.documentElement;
     document.getElementById('view-encoder').style.display = 'none';
     document.getElementById('view-decoder').style.display = 'none';
+    
+    // Close any open drawers when switching modes
+    closeDrawer();
 
     if (mode === 'encoder') {
         root.style.setProperty('--theme-color', '#007AFF');
@@ -88,7 +94,7 @@ function updateModeSwitcherUI(mode) {
     else { document.getElementById('top-btn-dec').classList.add('active'); }
 }
 
-// === DRAWER & DOCK LOGIC (NEW) ===
+// === DRAWER & DOCK LOGIC (UNIFIED) ===
 function toggleDrawer(tabName) {
     const drawer = document.getElementById('sideDrawer');
     const title = document.getElementById('drawerTitle');
@@ -109,20 +115,33 @@ function toggleDrawer(tabName) {
     const activeBtn = document.getElementById(`btn-dock-${tabName}`);
     if(activeBtn) activeBtn.classList.add('active');
 
-    // Show Content
+    // Show Content (Hide all first)
     document.querySelectorAll('.drawer-content-panel').forEach(p => p.style.display = 'none');
     
-    if (tabName === 'sources') {
-        title.innerText = "Source List";
-        document.getElementById('drawer-content-sources').style.display = 'flex';
-    } else if (tabName === 'settings' || tabName === 'layout') {
-        title.innerText = "Display Settings";
-        document.getElementById('drawer-content-settings').style.display = 'flex';
-        // Auto scroll to relevant section if complex, simpler here
+    // Map tabName to ID and Title
+    let targetId = `drawer-content-${tabName}`;
+    let targetTitle = "Settings";
+
+    switch(tabName) {
+        // Decoder Tabs
+        case 'dec-sources': targetTitle = "Source List"; break;
+        case 'dec-layout': targetTitle = "Display Layout"; break;
+        case 'dec-settings': targetTitle = "Decoder Settings"; break;
+        
+        // Encoder Tabs
+        case 'enc-input': targetTitle = "Input Source"; break;
+        case 'enc-stream': targetTitle = "Encoding Settings"; break;
+        case 'enc-ndi': targetTitle = "NDI Configuration"; break;
+        case 'enc-stats': targetTitle = "System Statistics"; break;
     }
 
-    drawer.classList.add('open');
-    drawer.dataset.currentTab = tabName;
+    const targetEl = document.getElementById(targetId);
+    if(targetEl) {
+        title.innerText = targetTitle;
+        targetEl.style.display = 'flex';
+        drawer.classList.add('open');
+        drawer.dataset.currentTab = tabName;
+    }
 }
 
 function closeDrawer() {
@@ -140,7 +159,6 @@ function refreshSourceList() {
     
     if(btn) { btn.innerText = "↻"; btn.classList.add('rotating'); btn.disabled = true; }
     
-    // Hide header during loading if you want, or keep it. Let's keep logic simple.
     tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:60px;"><div class="loading-spinner-container"><div class="spinner-ring"></div><div style="margin-top:15px; color:#666; font-size:13px;">Scanning...</div></div></td></tr>';
     
     setTimeout(() => {
@@ -152,6 +170,7 @@ function refreshSourceList() {
 
 function updateLiveHeader() {
     const container = document.getElementById('live-header-info');
+    if(!container) return;
     container.innerHTML = '';
     const modeBlock = document.createElement('div');
     modeBlock.className = 'header-info-block';
@@ -177,9 +196,9 @@ function updateLiveHeader() {
     }
 }
 
-// === PTZ Logic Modified: Only disable if OFFLINE ===
+// === PTZ Logic ===
 function updatePTZButtonState() {
-    const btn = document.getElementById('btn-ptz-ctrl'); // Now in dock
+    const btn = document.getElementById('btn-ptz-ctrl'); 
     if(!btn) return;
     const selectedSlot = document.querySelector('.preview-slot.selected-slot');
     if (!selectedSlot) { btn.disabled = true; return; }
@@ -254,31 +273,21 @@ function selectListRow(sourceId) {
     renderSourceList(); 
 }
 
-// === RENDER SOURCE LIST (Simplified for Drawer) ===
+// === RENDER SOURCE LIST ===
 function renderSourceList() {
     const tbody = document.querySelector('#source-list-body');
     const thead = document.querySelector('.source-list-header'); 
     if(!tbody) return;
     tbody.innerHTML = '';
 
-    // 1. Check Empty State
     if (sourcesData.length === 0) {
         if(thead) thead.style.display = 'none'; 
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="4" style="border:none; padding: 40px 0; pointer-events:none;">
-                    <div class="empty-state-container">
-                        <div class="empty-state-title">No Sources</div>
-                    </div>
-                </td>
-            </tr>
-        `;
+        tbody.innerHTML = `<tr><td colspan="4" style="border:none; padding: 40px 0; pointer-events:none;"><div class="empty-state-container"><div class="empty-state-title">No Sources</div></div></td></tr>`;
         return;
     } else {
         if(thead) thead.style.display = ''; 
     }
 
-    // 2. Active Sources
     const activeMapping = {}; 
     document.querySelectorAll('.preview-slot').forEach(slot => {
         if (slot.dataset.sourceId) {
@@ -287,7 +296,6 @@ function renderSourceList() {
         }
     });
 
-    // 3. Render List
     sourcesData.forEach(src => {
         const tr = document.createElement('tr');
         const isSelected = src.id === selectedListRowId;
@@ -300,7 +308,6 @@ function renderSourceList() {
 
         let thumbHtml = src.status === 'offline' ? `<div class="thumb-box offline"><span>Offline</span></div>` : `<div class="thumb-box"><img src="${src.thumb}"></div>`;
         
-        // Simplified Action Menu for Drawer
         tr.innerHTML = `
             <td class="drag-col"><span class="drag-handle-icon" style="font-size:14px;">⋮⋮</span></td>
             <td class="thumb-col">${thumbHtml}</td>
@@ -459,8 +466,6 @@ function drop(ev) {
     
     selectSlot(slot.id);
     updateLiveHeader();
-    
-    // Refresh list to update active state
     renderSourceList();
 }
 
@@ -494,14 +499,6 @@ function closeModal(e) { if(!e || e.target.id === 'modalOverlay' || e.target.cla
 function closeSpecificModal(id) { document.getElementById(id).style.display = 'none'; }
 function showToast(msg, type) { const div = document.createElement('div'); div.className = 'toast'; div.innerHTML = `<span>${msg}</span>`; div.style.borderLeftColor = type === 'success' ? '#4CAF50' : '#007AFF'; let container = document.getElementById('toast-container'); if(!container) { container = document.createElement('div'); container.id='toast-container'; document.body.appendChild(container); } container.appendChild(div); setTimeout(() => div.remove(), 3000); }
 function openFullSettings(tab) { document.getElementById('modal-large-settings').style.display = 'flex'; switchSettingsTab(tab); }
-
-function switchEncTab(tabName) {
-    document.querySelectorAll('.enc-tab').forEach(t => t.classList.remove('active'));
-    document.getElementById('enc-tab-video').style.display = 'none';
-    document.getElementById('enc-tab-audio').style.display = 'none';
-    event.target.classList.add('active');
-    document.getElementById('enc-tab-' + tabName).style.display = 'block';
-}
 
 function switchSettingsTab(tabId) {
     document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
