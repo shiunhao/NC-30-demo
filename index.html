@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NC30 Pro AV Interface (Final Demo V11)</title>
+    <title>NC30 Pro AV Interface (Final Demo V12)</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="mobile.css">
 </head>
@@ -292,6 +292,8 @@
             <div class="ptz-close" onclick="togglePTZ()">✕</div>
         </div>
         <div class="ptz-body">
+            <div id="ptz-target-info" class="ptz-target-info">Target: None</div>
+
             <div class="ptz-pad-container">
                 <button class="ptz-btn" style="border-top-left-radius: 4px;">↖</button><button class="ptz-btn">▲</button><button class="ptz-btn" style="border-top-right-radius: 4px;">↗</button>
                 <button class="ptz-btn">◀</button><button class="ptz-btn ptz-home">🏠</button><button class="ptz-btn">▶</button>
@@ -303,7 +305,10 @@
                 <div class="ptz-slider-group"><label>Zoom Speed</label><div class="slider-wrapper"><span class="slider-icon">−</span><input type="range" class="ptz-range" min="1" max="100" value="30"><span class="slider-icon">+</span></div></div>
             </div>
             <div class="ptz-preset-section">
-                <label>Preset Setting</label>
+                <div class="ptz-preset-header">
+                    <label style="margin:0;">Preset Setting</label>
+                    <button class="btn-xs-save" onclick="savePreset()">Save</button>
+                </div>
                 <div class="preset-controls"><button class="ptz-arrow-btn">◀</button><div class="preset-grid"><button>1</button><button>2</button><button>3</button><button>4</button><button>5</button><button>6</button><button>7</button><button>8</button><button>9</button></div><button class="ptz-arrow-btn">▶</button></div>
             </div>
         </div>
