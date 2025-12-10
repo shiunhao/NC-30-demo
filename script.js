@@ -1,4 +1,4 @@
-/* script.js - Logic for NC30 Demo (Fully Immersive V2) */
+/* script.js - Logic for NC30 Demo (Vertical Dock) */
 
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
