@@ -219,14 +219,16 @@ function renderSourceList() {
         if(src.status === 'offline') statusHtml = `<span style="color:#888;">Offline</span>`;
         let thumbHtml = src.status === 'offline' ? `<div class="thumb-box offline"><span>Offline</span></div>` : `<div class="thumb-box"><img src="${src.thumb}"></div>`;
         
+       // 在 script.js 的 renderSourceList function 內
+        // 修改 tr.innerHTML 的內容
         tr.innerHTML = `
             <td class="drag-col"><span class="drag-handle-icon">⋮⋮</span></td>
             <td class="thumb-col">${thumbHtml}</td>
             <td class="info-col">
                 <div class="src-name" style="${src.status==='offline'?'color:#888':''}">${src.name}</div>
-                <div class="src-meta">${src.ip} | ${statusHtml}</div>
+                <div class="src-meta">${src.ip} <span class="meta-divider">|</span> ${statusHtml}</div>
             </td>
-            <td><span style="color:#aaa; font-size:12px;">${src.group}</span></td>
+            <td class="group-col"><span>${src.group}</span></td>
             <td class="preset-col">${src.id === 'src_01' ? '<span class="preset-badge">1</span>' : ''}</td>
             <td class="action-col">
                 <button class="btn-icon-action" onclick="openEditSourceModal('${src.id}')" title="Edit">✎</button>
