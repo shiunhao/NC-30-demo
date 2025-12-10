@@ -1,4 +1,4 @@
-/* mobile.css - Mobile Responsive Overrides */
+/* mobile.css - Mobile Responsive Overrides (V9 Updated) */
 
 /* 只有在螢幕寬度小於 768px (手機/平板直向) 時生效 */
 @media screen and (max-width: 768px) {
@@ -128,8 +128,13 @@
         height: 300px; /* 固定一個高度讓它可以內部捲動 */
     }
 
-    .source-list-header th:nth-child(4), /* 隱藏 Preset 標題 */
-    .source-row td:nth-child(4) {      /* 隱藏 Preset 內容 */
+    /* 修正：隱藏 Group (第4欄) 與 Preset (第5欄) 
+       欄位順序：1.Drag, 2.Preview, 3.Details, 4.Group, 5.Preset, 6.Action
+    */
+    .source-list-header th:nth-child(4), 
+    .source-row td:nth-child(4),
+    .source-list-header th:nth-child(5), 
+    .source-row td:nth-child(5) {
         display: none; 
     }
     
