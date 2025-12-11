@@ -82,6 +82,45 @@ function updateModeSwitcherUI(mode) {
     else { document.getElementById('top-btn-dec').classList.add('active'); }
 }
 
+// === ENCODER INPUT TOGGLE ===
+function toggleInputSource(el) {
+    const isConnected = el.checked;
+    const vidInput = document.getElementById('enc-video-src');
+    const audSelect = document.getElementById('enc-audio-src');
+    const overlay = document.getElementById('signalLostOverlay');
+    
+    // Status Elements
+    const statRes = document.getElementById('stat-res-in');
+    const statFps = document.getElementById('stat-fps');
+
+    if(isConnected) {
+        // Connected State
+        vidInput.value = "HDMI (Auto detect)";
+        vidInput.style.color = "#fff";
+        audSelect.disabled = false;
+        
+        // Hide Overlay (Show Preview)
+        if(overlay) overlay.style.display = 'none';
+        
+        // Update Status Bar
+        if(statRes) statRes.innerText = "3840x2160";
+        if(statFps) statFps.innerText = "60";
+        
+    } else {
+        // Disconnected State
+        vidInput.value = "No Signal";
+        vidInput.style.color = "#FF3B30"; // Red text for alert
+        audSelect.disabled = true;
+        
+        // Show Overlay
+        if(overlay) overlay.style.display = 'flex';
+        
+        // Update Status Bar
+        if(statRes) statRes.innerText = "-";
+        if(statFps) statFps.innerText = "0";
+    }
+}
+
 // === Refresh with Loading ===
 function refreshSourceList() {
     const tbody = document.querySelector('#source-list-body');
@@ -90,7 +129,6 @@ function refreshSourceList() {
     
     if(btn) { btn.innerText = "Loading..."; btn.disabled = true; }
     
-    // Hide header during loading if you want, or keep it. Let's keep logic simple.
     tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:60px;"><div class="loading-spinner-container"><div class="spinner-ring"></div><div style="margin-top:15px; color:#666; font-size:13px;">Scanning Network...</div></div></td></tr>';
     
     setTimeout(() => {
@@ -127,7 +165,7 @@ function updateLiveHeader() {
     }
 }
 
-// === PTZ Logic Modified: Only disable if OFFLINE (allow error/4k issue) ===
+// === PTZ Logic ===
 function updatePTZButtonState() {
     const btn = document.getElementById('btn-ptz-ctrl');
     if(!btn) return;
@@ -137,7 +175,6 @@ function updatePTZButtonState() {
     if (!sourceId) { btn.disabled = true; return; }
     const sourceObj = sourcesData.find(s => s.id === sourceId);
     
-    // MODIFIED: Only disable if strictly offline. Error state (like 4K) is allowed.
     if (sourceObj && sourceObj.status === 'offline') { 
         btn.disabled = true; 
         return; 
@@ -186,12 +223,11 @@ function selectSlot(slotId) {
         } else {
             const sourceObj = sourcesData.find(s => s.id === sourceId);
             
-            // MODIFIED: Only block PTZ if offline. Allow 'error' (No support 4k).
             if (sourceObj && sourceObj.status === 'offline') {
-                if(headerBtn) headerBtn.disabled = false; // Note: UI logic might disable button separately, but logic allows selection
+                if(headerBtn) headerBtn.disabled = false; 
                 updatePTZPanelInfo(windowNum, null); 
                 setPTZPanelState(false); 
-                if(headerBtn) headerBtn.disabled = true; // Sync button
+                if(headerBtn) headerBtn.disabled = true; 
             } else {
                 if(headerBtn) headerBtn.disabled = false;
                 updatePTZPanelInfo(windowNum, sourceObj ? sourceObj.name : "Unknown");
@@ -206,16 +242,16 @@ function selectListRow(sourceId) {
     renderSourceList(); 
 }
 
-// === RENDER SOURCE LIST (Updated Header & Status Color) ===
+// === RENDER SOURCE LIST ===
 function renderSourceList() {
     const tbody = document.querySelector('#source-list-body');
-    const thead = document.querySelector('.source-list-header'); // Get Header
+    const thead = document.querySelector('.source-list-header'); 
     if(!tbody) return;
     tbody.innerHTML = '';
 
-    // 1. Check Empty State & Toggle Header
+    // Check Empty State
     if (sourcesData.length === 0) {
-        if(thead) thead.style.display = 'none'; // Hide Header
+        if(thead) thead.style.display = 'none'; 
         tbody.innerHTML = `
             <tr>
                 <td colspan="5" style="border:none; padding: 60px 0; pointer-events:none;">
@@ -231,12 +267,11 @@ function renderSourceList() {
         `;
         return;
     } else {
-        if(thead) thead.style.display = ''; // Show Header (revert to CSS)
+        if(thead) thead.style.display = ''; 
     }
 
-    // 2. Find Active Sources for Preset Badge Logic
-    // Scan all preview slots to see which source IDs are currently in use
-    const activeMapping = {}; // { sourceId: windowNum }
+    // Find Active Sources
+    const activeMapping = {}; 
     document.querySelectorAll('.preview-slot').forEach(slot => {
         if (slot.dataset.sourceId) {
             const winNum = slot.id.split('-')[1];
@@ -244,7 +279,7 @@ function renderSourceList() {
         }
     });
 
-    // 3. Render List
+    // Render List
     sourcesData.forEach(src => {
         const tr = document.createElement('tr');
         const isSelected = src.id === selectedListRowId;
@@ -255,25 +290,22 @@ function renderSourceList() {
         tr.setAttribute('data-json', JSON.stringify(src));
         tr.onclick = () => selectListRow(src.id);
 
-        // Status Logic: Grey for stable
         let statusText = "Stable";
         let statusStyle = "";
         
         if(src.status === 'online') { 
             statusText = "Status: Stable"; 
-            statusStyle = "color:#888;"; // GREY
+            statusStyle = "color:#888;"; 
         }
         else if(src.status === 'error') { 
             statusText = "Status: " + src.errorMsg; 
-            statusStyle = "color:#FF3B30;"; // RED for Error
+            statusStyle = "color:#FF3B30;"; 
         }
         else { 
             statusText = "Status: Offline"; 
             statusStyle = "color:#666;"; 
         }
 
-        // Preset Badge Logic
-        // Only show if this source ID is in activeMapping
         let presetHtml = '';
         if (activeMapping[src.id]) {
             presetHtml = `<span class="preset-box">${activeMapping[src.id]}</span>`;
@@ -436,8 +468,6 @@ function drop(ev) {
         slot.innerHTML = `<div class="slot-label">Window ${windowNum}</div><div class="offline-overlay"><div class="offline-icon">⚠️</div><div class="offline-text">Signal Lost</div></div>${renderSlotMenu(slot.id)}`;
     } else {
         slot.classList.remove('offline-state');
-        // Check if error but not offline (e.g. 4k support issue) -> Still show live preview generic or error overlay? 
-        // For demo simplicity, we show video but keep status error in list.
         slot.innerHTML = `<div class="video-layer" style="background-image: url('${data.thumb || 'https://picsum.photos/id/237/400/300'}');"></div><div class="video-overlay-gradient"></div><div class="slot-label">Window ${windowNum}</div><div class="slot-content"><div class="slot-name">${data.name}</div><div class="slot-meta" style="color:#4CAF50;">● Live</div></div>${renderSlotMenu(slot.id)}`;
     }
     slot.classList.add('active-slot');
