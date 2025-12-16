@@ -1,4 +1,4 @@
-/* style.css - Final Demo Version (V14.0) */
+/* style.css - Final Demo Version (V14 Modified) */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -171,16 +171,14 @@ input:checked + .slider:before { transform: translateX(14px); }
 .main-content { grid-row: 2 / 3; grid-column: 1 / -1; background-color: #121212; padding: 20px 40px; overflow-y: auto; }
 
 /* === 6. View: ENCODER === */
-/* V14.0 改為單欄全寬 */
 .encoder-grid { 
     display: grid; 
-    grid-template-columns: 1fr; /* 單一欄位 */
+    grid-template-columns: 1fr; /* Modified: Full Width */
     gap: 30px; 
     height: calc(100vh - 100px); 
     max-width: 1800px; 
     margin: 0 auto; 
 }
-
 .monitor-section { display: flex; flex-direction: column; gap: 15px; height: 100%; }
 .preview-window {
     background: #000; width: 100%; flex: 1; border-radius: 8px; border: 1px solid #333;
@@ -291,16 +289,14 @@ input:checked + .slider:before { transform: translateX(14px); }
 .mode-btn-icon { font-size: 18px; }
 
 /* === 7. View: DECODER === */
-/* V14.0 改為單欄全寬 */
 .decoder-layout { 
     display: grid; 
-    grid-template-columns: 1fr; /* 單一欄位 */
+    grid-template-columns: 1fr; /* Modified: Full Width */
     gap: 20px; 
     max-width: 1800px; 
     margin: 0 auto; 
     height: 100%; 
 }
-
 .decoder-left-col { display: flex; flex-direction: column; gap: 20px; height: 100%; overflow: hidden; }
 .output-container { background: #000; border: 1px solid #333; border-radius: 8px; position: relative; overflow: hidden; display: flex; flex-direction: column; flex: 0 0 60%; min-height: 300px; }
 
