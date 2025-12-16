@@ -1,4 +1,4 @@
-/* script.js - Logic for NC30 Demo (V18 Final Layout) */
+/* script.js - Logic for NC30 Demo (V19 PTZ Updated) */
 
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
@@ -84,7 +84,6 @@ function selectSlot(slotId) {
     const el = document.getElementById(slotId); 
     if(el) { 
         el.classList.add('selected-slot'); 
-        const headerBtn = document.getElementById('btn-ptz-ctrl'); // Might not exist now
         const sourceId = el.dataset.sourceId;
         const windowNum = slotId.split('-')[1];
         if (!sourceId) {
@@ -121,17 +120,14 @@ function updatePTZPanelInfo(windowNum, sourceName) {
 }
 
 function setPTZPanelState(enabled) {
-    const wrapper = document.getElementById('ptz-controls-wrapper');
-    if(wrapper) {
-         // 修正：針對嵌入式結構，可能沒有 wrapper ID，改用 class 或直接操作按鈕
-         // 但目前的 HTML 結構並沒有 ID 為 ptz-controls-wrapper，是在 embedded-ptz-panel 下
-         // 我們簡單處理：對 ptz-body 下的所有按鈕做 disable
-         const btns = document.querySelectorAll('.embedded-ptz-panel button, .embedded-ptz-panel input');
-         btns.forEach(b => b.disabled = !enabled);
-         
-         const panel = document.querySelector('.embedded-ptz-panel');
-         if(panel) {
-             if(enabled) panel.style.opacity = '1'; else panel.style.opacity = '0.5';
+    const panel = document.querySelector('.embedded-ptz-panel');
+    if(panel) {
+         if(enabled) {
+             panel.classList.remove('disabled-ui');
+             panel.style.opacity = '1';
+         } else {
+             panel.classList.add('disabled-ui');
+             panel.style.opacity = '0.5';
          }
     }
 }
@@ -157,8 +153,6 @@ function renderSourceList() {
         
         let thumbHtml = src.status === 'offline' ? `<div class="thumb-box offline"><span>Offline</span></div>` : `<div class="thumb-box"><img src="${src.thumb}"></div>`;
         
-        // Full list for Decoder (Right Column)
-        // Layout adjusted for narrower column
         tr.innerHTML = `
             <td class="drag-col"><span class="drag-handle-icon">⋮⋮</span></td>
             <td class="info-col">
@@ -482,6 +476,7 @@ let isDragging = false, startX, startY, initialLeft, initialTop;
 ptzHeader.onmousedown = (e) => { isDragging = true; startX = e.clientX; startY = e.clientY; initialLeft = ptzPanel.offsetLeft; initialTop = ptzPanel.offsetTop; e.preventDefault(); };
 document.onmousemove = (e) => { if(isDragging) { ptzPanel.style.left = (initialLeft + e.clientX - startX) + "px"; ptzPanel.style.top = (initialTop + e.clientY - startY) + "px"; } };
 document.onmouseup = () => isDragging = false;
+function togglePTZ() { if(ptzPanel.style.display === 'flex') { ptzPanel.style.display = 'none'; } else { ptzPanel.style.display = 'flex'; if(!ptzPanel.style.top) { ptzPanel.style.top = '100px'; ptzPanel.style.left = (window.innerWidth / 2 - 130) + 'px'; } } }
 window.onclick = function(e) { if(!e.target.matches('.slot-menu-btn')) document.querySelectorAll('.slot-dropdown').forEach(el => el.classList.remove('show')); if(!e.target.matches('#btn-account-avatar')) document.getElementById('accountMenu').classList.remove('show'); }
 
 // === MODIFIED LOGOUT ===
