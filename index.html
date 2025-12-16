@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NC30 Pro AV Interface (V28 Final Structure)</title>
+    <title>NC30 Pro AV Interface (V29 Final Interaction)</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="mobile.css">
 </head>
@@ -177,15 +177,11 @@
                                 <div class="ptz-preset-section">
                                     <div class="ptz-preset-header">
                                         <label style="margin:0;">Preset Setting</label>
-                                        <button class="btn-xs-save" onclick="savePreset()">Save</button>
-                                    </div>
+                                        </div>
                                     <div class="preset-controls">
                                         <button class="ptz-arrow-btn">◀</button>
-                                        <div class="preset-grid">
-                                            <button>1</button><button>2</button><button>3</button>
-                                            <button>4</button><button>5</button><button>6</button>
-                                            <button>7</button><button>8</button><button>9</button>
-                                        </div>
+                                        <div class="preset-grid" id="ptz-preset-grid">
+                                            </div>
                                         <button class="ptz-arrow-btn">▶</button>
                                     </div>
                                 </div>
@@ -195,6 +191,11 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <div id="presetTooltip" class="preset-preview-tooltip" style="display: none;">
+        <img id="presetTooltipImg" src="" alt="Preset Preview">
+        <div class="tooltip-label" id="presetTooltipLabel">Preset 1</div>
     </div>
 
     <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
