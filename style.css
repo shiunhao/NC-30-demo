@@ -1,4 +1,4 @@
-/* style.css - Final Demo Version (V17 Layout) */
+/* style.css - Final Demo Version (V18 Final Layout) */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -142,23 +142,26 @@ input:checked + .slider:before { transform: translateX(14px); }
 .main-content { grid-row: 2 / 3; grid-column: 1 / -1; background-color: #121212; padding: 20px 40px; overflow-y: auto; }
 
 /* === 5. Views === */
-/* Encoder Layout Modification V17 */
+/* Encoder Layout: Revert to Full Width (V16) */
 .encoder-grid { 
     display: grid; 
-    grid-template-columns: 2fr 1fr; /* Left 2 : Right 1 */
+    grid-template-columns: 1fr; 
     gap: 30px; 
     height: calc(100vh - 100px); 
     max-width: 1800px; margin: 0 auto; 
 }
 
-.enc-left-col { display: flex; flex-direction: column; gap: 15px; height: 100%; overflow: hidden; }
-.enc-right-col { display: flex; flex-direction: column; gap: 20px; height: 100%; overflow: hidden; }
-
-/* Decoder Layout */
+/* Decoder Layout: Split Left/Right (V18) */
 .decoder-layout { 
-    display: grid; grid-template-columns: 1fr; gap: 30px; 
-    height: calc(100vh - 100px); max-width: 1800px; margin: 0 auto; 
+    display: grid; 
+    grid-template-columns: 2fr 1fr; /* Preview 2 : Controls 1 */
+    gap: 30px; 
+    height: calc(100vh - 100px); 
+    max-width: 1800px; margin: 0 auto; 
 }
+
+.dec-left-col { display: flex; flex-direction: column; gap: 15px; height: 100%; overflow: hidden; }
+.dec-right-col { display: flex; flex-direction: column; gap: 20px; height: 100%; overflow: hidden; }
 
 /* Monitor Section */
 .monitor-section { display: flex; flex-direction: column; gap: 15px; height: 100%; }
@@ -238,8 +241,7 @@ input:checked + .slider:before { transform: translateX(14px); }
 }
 .mode-btn-icon { font-size: 18px; }
 
-/* Decoder Layout Elements */
-.decoder-left-col { display: flex; flex-direction: column; gap: 20px; height: 100%; overflow: hidden; }
+/* Output Container */
 .output-container { background: #000; border: 1px solid #333; border-radius: 8px; position: relative; overflow: hidden; display: flex; flex-direction: column; flex: 0 0 60%; min-height: 300px; }
 .output-header-bar {
     background: #1a1a1a; padding: 10px 15px; border-bottom: 1px solid #333;
@@ -320,18 +322,9 @@ input:checked + .slider:before { transform: translateX(14px); }
 .preset-badge { display: inline-block; background: #6D4C41; color: #fff; font-size: 11px; width: 20px; height: 20px; line-height: 20px; text-align: center; border-radius: 2px; }
 .action-col { width: 120px; text-align: right; padding-right: 30px !important; }
 
-/* Draggable PTZ */
-.draggable-panel {
-    display: none; position: absolute; top: 100px; right: 400px; width: 260px;
-    background: var(--ptz-bg); border-radius: 8px; border: 1px solid #444;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.8); z-index: 1000;
-    flex-direction: column; overflow: hidden;
-}
+/* Embedded PTZ */
 .ptz-header { background: transparent; padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; cursor: move; }
-.ptz-drag-handle { color: #888; letter-spacing: 2px; font-size: 12px; cursor: move; }
 .ptz-title { font-size: 13px; color: #ddd; font-weight: 500; }
-.ptz-close { cursor: pointer; color: #888; font-size: 16px; font-weight: bold; line-height: 1; }
-.ptz-close:hover { color: #fff; }
 .ptz-body { padding: 10px 15px; display: flex; flex-direction: column; gap: 15px; }
 .ptz-target-info { font-size: 12px; color: #007AFF; text-align: center; margin-bottom: 5px; margin-top: -5px; font-weight: bold; }
 .ptz-preset-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
@@ -357,7 +350,7 @@ input[type=range].ptz-range::-webkit-slider-thumb { height: 14px; width: 14px; b
 .preset-controls { display: flex; align-items: center; gap: 6px; }
 .ptz-arrow-btn { background: transparent; border: none; color: #888; font-size: 16px; cursor: pointer; padding: 0 4px; }
 .ptz-arrow-btn:hover { color: #fff; }
-.preset-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; flex: 1; }
+.preset-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; flex: 1; }
 .preset-grid button { background: #424242; border: none; color: #bbb; font-size: 12px; padding: 10px 0; cursor: pointer; border-radius: 2px; }
 .preset-grid button:hover { background: #555; color: #fff; }
 .preset-grid button:active { background: var(--ptz-thumb); color: #000; }
