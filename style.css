@@ -1,4 +1,4 @@
-/* style.css - Final Demo Version (V18 Final Layout) */
+/* style.css - Final Demo Version (V19 PTZ Updated) */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -142,7 +142,7 @@ input:checked + .slider:before { transform: translateX(14px); }
 .main-content { grid-row: 2 / 3; grid-column: 1 / -1; background-color: #121212; padding: 20px 40px; overflow-y: auto; }
 
 /* === 5. Views === */
-/* Encoder Layout: Revert to Full Width (V16) */
+/* Encoder Layout: Full Width (V16 Revert) */
 .encoder-grid { 
     display: grid; 
     grid-template-columns: 1fr; 
@@ -151,7 +151,7 @@ input:checked + .slider:before { transform: translateX(14px); }
     max-width: 1800px; margin: 0 auto; 
 }
 
-/* Decoder Layout: Split Left/Right (V18) */
+/* Decoder Layout: Split Left/Right */
 .decoder-layout { 
     display: grid; 
     grid-template-columns: 2fr 1fr; /* Preview 2 : Controls 1 */
@@ -198,7 +198,12 @@ input:checked + .slider:before { transform: translateX(14px); }
     background: #1E1E1E; border: 1px solid #333; border-radius: 8px;
     display: flex; flex-direction: column; overflow: hidden; height: auto; padding: 0;
 }
-.embedded-ptz-panel { padding-bottom: 20px; }
+/* Allow PTZ panel to grow/shrink in the flex container */
+.embedded-ptz-panel { 
+    flex: 1; 
+    min-height: 400px;
+    padding-bottom: 20px;
+}
 
 .panel-header { padding: 20px 20px 10px 20px; flex-shrink: 0; }
 .panel-title {
@@ -322,10 +327,11 @@ input:checked + .slider:before { transform: translateX(14px); }
 .preset-badge { display: inline-block; background: #6D4C41; color: #fff; font-size: 11px; width: 20px; height: 20px; line-height: 20px; text-align: center; border-radius: 2px; }
 .action-col { width: 120px; text-align: right; padding-right: 30px !important; }
 
-/* Embedded PTZ */
-.ptz-header { background: transparent; padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; cursor: move; }
+/* Embedded PTZ Fixed */
+.ptz-header { background: transparent; padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; cursor: default; }
+.ptz-drag-handle { width: 20px; } /* Spacer */
 .ptz-title { font-size: 13px; color: #ddd; font-weight: 500; }
-.ptz-body { padding: 10px 15px; display: flex; flex-direction: column; gap: 15px; }
+.ptz-body { padding: 10px 15px; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; flex:1; }
 .ptz-target-info { font-size: 12px; color: #007AFF; text-align: center; margin-bottom: 5px; margin-top: -5px; font-weight: bold; }
 .ptz-preset-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
 .btn-xs-save { background: #333; border: 1px solid #555; color: #ccc; font-size: 10px; padding: 2px 8px; border-radius: 2px; cursor: pointer; }
@@ -350,7 +356,8 @@ input[type=range].ptz-range::-webkit-slider-thumb { height: 14px; width: 14px; b
 .preset-controls { display: flex; align-items: center; gap: 6px; }
 .ptz-arrow-btn { background: transparent; border: none; color: #888; font-size: 16px; cursor: pointer; padding: 0 4px; }
 .ptz-arrow-btn:hover { color: #fff; }
-.preset-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; flex: 1; }
+/* Modified Grid for 3 columns (1-9) */
+.preset-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; flex: 1; }
 .preset-grid button { background: #424242; border: none; color: #bbb; font-size: 12px; padding: 10px 0; cursor: pointer; border-radius: 2px; }
 .preset-grid button:hover { background: #555; color: #fff; }
 .preset-grid button:active { background: var(--ptz-thumb); color: #000; }
