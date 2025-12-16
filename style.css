@@ -1,4 +1,4 @@
-/* style.css - Final Demo Version (V21 - 50/50 Split) */
+/* style.css - Final Demo Version (V22 - 3:1 Ratio) */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -151,10 +151,10 @@ input:checked + .slider:before { transform: translateX(14px); }
     max-width: 1800px; margin: 0 auto; 
 }
 
-/* Decoder Layout: Split Left/Right */
+/* Decoder Layout: Split Left/Right (Modified to 3:1) */
 .decoder-layout { 
     display: grid; 
-    grid-template-columns: 2fr 1fr; 
+    grid-template-columns: 3fr 1fr; /* Preview 3 : Controls 1 */
     gap: 30px; 
     height: calc(100vh - 100px); 
     max-width: 1800px; margin: 0 auto; 
