@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NC30 Pro AV Interface (V15 Streamlined)</title>
+    <title>NC30 Pro AV Interface (V16 Integrated)</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="mobile.css">
 </head>
@@ -59,7 +59,7 @@
                 </div>
 
                 <div class="settings-container">
-                    <div id="btn-settings-gear" class="settings-btn" onclick="openFullSettings('mode')">⚙️</div>
+                    <div id="btn-settings-gear" class="settings-btn" onclick="openFullSettings('stream')">⚙️</div>
                 </div>
             </div>
         </div>
@@ -217,14 +217,10 @@
     <div id="modal-large-settings" style="display:none;" class="modal-overlay" onclick="closeSpecificModal('modal-large-settings')">
         <div class="modal-box" onclick="event.stopPropagation()">
             <div class="settings-sidebar">
-                <div class="sidebar-category">Operation (操作模式)</div>
-                <div class="sidebar-item" onclick="switchSettingsTab('mode')" id="tab-mode">Mode Selection</div>
+                <div class="sidebar-category">OPERATION</div>
+                <div class="sidebar-item" onclick="switchSettingsTab('stream')" id="tab-stream">Stream & Mode</div>
                 
-                <div class="sidebar-category" style="margin-top:15px;">Current Mode (當前設定)</div>
-                <div class="sidebar-item" onclick="switchSettingsTab('enc-settings')" id="tab-enc-settings">Encoder Settings</div>
-                <div class="sidebar-item" onclick="switchSettingsTab('dec-settings')" id="tab-dec-settings">Decoder Settings</div>
-
-                <div class="sidebar-category" style="margin-top:15px;">System (系統設定)</div>
+                <div class="sidebar-category" style="margin-top:15px;">SYSTEM</div>
                 <div class="sidebar-item" onclick="switchSettingsTab('audio')" id="tab-audio">Audio Settings</div>
                 <div class="sidebar-item" onclick="switchSettingsTab('network')" id="tab-network">IP Configuration</div>
                 <div class="sidebar-item" onclick="switchSettingsTab('ndi')" id="tab-ndi">Advanced NDI</div>
