@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NC30 Pro AV Interface (Modified V14)</title>
+    <title>NC30 Pro AV Interface (V15 Streamlined)</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="mobile.css">
 </head>
@@ -22,45 +22,24 @@
                 <input type="password" class="form-input" placeholder="••••••••">
             </div>
             <button class="btn btn-primary" onclick="doLogin()" style="width: 100%; padding: 12px; margin-top: 10px;">LOGIN</button>
-            <div class="login-note">* Demo Mode: Click Login to enter.</div>
-        </div>
-    </div>
-
-    <div id="page-home">
-        <div class="lobby-header">
-            <div class="lobby-logo"><span>NC</span>30</div>
-            <div class="lobby-subtitle">4K NDI Bi-Directional Converter</div>
-        </div>
-        <div class="card-container">
-            <div id="card-enc" class="mode-card card-enc" onclick="checkModeSwitch('encoder')">
-                <div class="card-icon">📡</div>
-                <div class="card-title">ENCODER</div>
-                <div class="card-desc">Transmit HDMI/SDI sources<br>to the NDI network.</div>
-            </div>
-            <div id="card-dec" class="mode-card card-dec" onclick="checkModeSwitch('decoder')">
-                <div class="card-icon">🖥️</div>
-                <div class="card-title">DECODER</div>
-                <div class="card-desc">Receive and display NDI streams<br>from the network.</div>
-            </div>
+            <div class="login-note">* Demo Mode: Click Login to start.</div>
         </div>
     </div>
 
     <div id="app-shell" class="app-layout">
         <div class="top-bar">
-            <div style="width: 10px;"></div> 
-            <div class="mode-badge" id="current-mode-badge">ENCODER MODE</div>
-            
-            <div class="header-right">
-                <div class="tally-indicator">LIVE</div>
-                
-                <div class="header-center-group">
-                    <div class="status-text-badge">NDI Status <span style="color:#4CAF50">●</span></div>
-                    <div class="status-text-badge">CPU <span style="color:#4CAF50">12%</span></div>
-                    <div class="status-text-badge">Network <span style="color:#4CAF50">1Gbps</span></div>
-                </div>
-                
+            <div class="header-left-group">
+                <div class="mode-badge" id="current-mode-badge">ENCODER MODE</div>
                 <div class="vertical-divider"></div>
-
+                <div class="tally-indicator">LIVE</div>
+                <div class="status-group">
+                    <div class="status-text-badge">NDI <span style="color:#4CAF50">●</span></div>
+                    <div class="status-text-badge">CPU <span style="color:#4CAF50">12%</span></div>
+                    <div class="status-text-badge">NET <span style="color:#4CAF50">1Gbps</span></div>
+                </div>
+            </div>
+            
+            <div class="header-right-group">
                 <div class="settings-container">
                     <div id="btn-account-avatar" class="account-pill" onclick="toggleAccountMenu()">
                         <span id="current-user-label">Admin</span> <span>👤</span>
@@ -118,8 +97,7 @@
                             </div>
                         </div>
                     </div>
-                    
-                    </div>
+                </div>
             </div>
 
             <div id="view-decoder" style="display:none; height:100%;">
@@ -170,8 +148,7 @@
                             </div>
                         </div>
                     </div>
-
-                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -184,7 +161,6 @@
         </div>
         <div class="ptz-body">
             <div id="ptz-target-info" class="ptz-target-info">Target: None</div>
-
             <div id="ptz-controls-wrapper">
                 <div class="ptz-pad-container">
                     <button class="ptz-btn" style="border-top-left-radius: 4px;">↖</button><button class="ptz-btn">▲</button><button class="ptz-btn" style="border-top-right-radius: 4px;">↗</button>
@@ -264,18 +240,6 @@
                 </div>
                 <div class="settings-body" id="settings-body-content"></div>
             </div>
-        </div>
-    </div>
-
-    <div id="modal-upgrade-permission" style="display:none;" class="modal-overlay">
-        <div class="modal-box" style="width:400px;">
-            <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
-                <h3 style="margin:0; color:#fff; font-size:16px;">Upgrade Permission</h3>
-                <span onclick="closeSpecificModal('modal-upgrade-permission')" style="cursor:pointer; color:#888;">✕</span>
-            </div>
-            <div class="upgrade-modal-input-group"><label class="form-label">Username</label><input type="text" class="form-input" id="upgradeUser"></div>
-            <div class="upgrade-modal-input-group"><label class="form-label">Password</label><input type="password" class="form-input" id="upgradePass"></div>
-            <div class="modal-footer"><button class="modal-footer-btn" onclick="closeSpecificModal('modal-upgrade-permission')">Cancel</button><button class="modal-footer-btn" onclick="verifyAdmin()">Save</button></div>
         </div>
     </div>
 
