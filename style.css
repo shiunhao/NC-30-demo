@@ -1,4 +1,4 @@
-/* style.css - Final Demo Version (V19 PTZ Updated) */
+/* style.css - Final Demo Version (V20 Layout Tuned) */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -142,7 +142,7 @@ input:checked + .slider:before { transform: translateX(14px); }
 .main-content { grid-row: 2 / 3; grid-column: 1 / -1; background-color: #121212; padding: 20px 40px; overflow-y: auto; }
 
 /* === 5. Views === */
-/* Encoder Layout: Full Width (V16 Revert) */
+/* Encoder Layout: Full Width */
 .encoder-grid { 
     display: grid; 
     grid-template-columns: 1fr; 
@@ -154,7 +154,7 @@ input:checked + .slider:before { transform: translateX(14px); }
 /* Decoder Layout: Split Left/Right */
 .decoder-layout { 
     display: grid; 
-    grid-template-columns: 2fr 1fr; /* Preview 2 : Controls 1 */
+    grid-template-columns: 2fr 1fr; 
     gap: 30px; 
     height: calc(100vh - 100px); 
     max-width: 1800px; margin: 0 auto; 
@@ -198,10 +198,11 @@ input:checked + .slider:before { transform: translateX(14px); }
     background: #1E1E1E; border: 1px solid #333; border-radius: 8px;
     display: flex; flex-direction: column; overflow: hidden; height: auto; padding: 0;
 }
-/* Allow PTZ panel to grow/shrink in the flex container */
+
+/* PTZ Panel: 只佔最小空間 (Auto Height) */
 .embedded-ptz-panel { 
-    flex: 1; 
-    min-height: 400px;
+    flex: 0 0 auto; 
+    min-height: 0;
     padding-bottom: 20px;
 }
 
@@ -233,7 +234,7 @@ input:checked + .slider:before { transform: translateX(14px); }
 }
 .enc-tab-line { position: absolute; bottom: 0; left: 0; width: 100%; height: 1px; background: #333; z-index: 1; }
 
-/* Mode Switch UI (reused for Mode Settings) */
+/* Mode Switch UI */
 .mode-switch-container { display: flex; gap: 10px; width: 100%; }
 .mode-switch-btn {
     flex: 1; background: #252526; border: 1px solid #444; border-radius: 4px; padding: 12px;
@@ -246,8 +247,14 @@ input:checked + .slider:before { transform: translateX(14px); }
 }
 .mode-btn-icon { font-size: 18px; }
 
-/* Output Container */
-.output-container { background: #000; border: 1px solid #333; border-radius: 8px; position: relative; overflow: hidden; display: flex; flex-direction: column; flex: 0 0 60%; min-height: 300px; }
+/* Output Container: 填滿左側高度 */
+.output-container { 
+    background: #000; border: 1px solid #333; border-radius: 8px; 
+    position: relative; overflow: hidden; display: flex; flex-direction: column; 
+    flex: 1; /* Key change: Fills height */
+    min-height: 0; 
+}
+
 .output-header-bar {
     background: #1a1a1a; padding: 10px 15px; border-bottom: 1px solid #333;
     display: flex; justify-content: space-between; align-items: center;
@@ -305,8 +312,14 @@ input:checked + .slider:before { transform: translateX(14px); }
 .slot-action:hover { background: #333; color: #fff; }
 .slot-action.danger:hover { background: #D32F2F; }
 
-/* Source List */
-.source-list-panel { flex: 1; background: #1E1E1E; border: 1px solid #333; border-radius: 8px; display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
+/* Source List: 填滿上方空間 */
+.source-list-panel { 
+    background: #1E1E1E; border: 1px solid #333; border-radius: 8px; 
+    display: flex; flex-direction: column; overflow: hidden; 
+    flex: 1; /* Key change: Fills remaining space */
+    min-height: 0; 
+}
+
 .list-toolbar { padding: 10px 20px; border-bottom: 1px solid #333; background: #252526; display: flex; justify-content: space-between; align-items: center; }
 .source-list-scroll { overflow-y: auto; flex: 1; }
 .source-list-table { width: 100%; border-collapse: collapse; }
@@ -331,13 +344,20 @@ input:checked + .slider:before { transform: translateX(14px); }
 .ptz-header { background: transparent; padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; cursor: default; }
 .ptz-drag-handle { width: 20px; } /* Spacer */
 .ptz-title { font-size: 13px; color: #ddd; font-weight: 500; }
-.ptz-body { padding: 10px 15px; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; flex:1; }
+.ptz-body { padding: 10px 15px; display: flex; flex-direction: column; gap: 15px; overflow-y: hidden; }
 .ptz-target-info { font-size: 12px; color: #007AFF; text-align: center; margin-bottom: 5px; margin-top: -5px; font-weight: bold; }
 .ptz-preset-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
 .btn-xs-save { background: #333; border: 1px solid #555; color: #ccc; font-size: 10px; padding: 2px 8px; border-radius: 2px; cursor: pointer; }
 .btn-xs-save:hover { background: #444; color: #fff; }
 .disabled-ui { opacity: 0.3; pointer-events: none; filter: grayscale(1); }
-.ptz-pad-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; background: transparent; }
+
+/* PTZ Pad 縮小版 */
+.ptz-pad-container { 
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; background: transparent; 
+    max-width: 180px; /* Key change: Shrinks pad */
+    margin: 0 auto; 
+}
+
 .ptz-btn { aspect-ratio: 1; background: #424242; border: none; border-radius: 2px; color: #ccc; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.1s; }
 .ptz-btn:hover { background: #555; color: #fff; }
 .ptz-btn:active { background: #666; }
@@ -356,7 +376,6 @@ input[type=range].ptz-range::-webkit-slider-thumb { height: 14px; width: 14px; b
 .preset-controls { display: flex; align-items: center; gap: 6px; }
 .ptz-arrow-btn { background: transparent; border: none; color: #888; font-size: 16px; cursor: pointer; padding: 0 4px; }
 .ptz-arrow-btn:hover { color: #fff; }
-/* Modified Grid for 3 columns (1-9) */
 .preset-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; flex: 1; }
 .preset-grid button { background: #424242; border: none; color: #bbb; font-size: 12px; padding: 10px 0; cursor: pointer; border-radius: 2px; }
 .preset-grid button:hover { background: #555; color: #fff; }
@@ -372,20 +391,8 @@ input[type=range].ptz-range::-webkit-slider-thumb { height: 14px; width: 14px; b
 .search-list-item:hover { background: #333; color: #fff; }
 .search-list-item.selected { background: var(--theme-color); color: #fff; }
 
-/* Large Settings Modal - Full Screen Modification */
-#modal-large-settings .modal-box { 
-    width: 100% !important; 
-    height: 100% !important; 
-    max-width: none; 
-    max-height: none; 
-    border-radius: 0; 
-    border: none;
-    padding: 0; 
-    overflow: hidden; 
-    display: flex; 
-    flex-direction: row; 
-}
-
+/* Large Settings Modal */
+#modal-large-settings .modal-box { width: 100% !important; height: 100% !important; max-width: none; max-height: none; border-radius: 0; border: none; padding: 0; overflow: hidden; display: flex; flex-direction: row; }
 .settings-sidebar { width: 250px; flex-shrink: 0; background: #1a1a1a; border-right: 1px solid #333; display: flex; flex-direction: column; padding: 30px 0; }
 .sidebar-category { padding: 10px 30px 5px 30px; color: #666; font-size: 11px; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; }
 .sidebar-item { padding: 12px 30px; color: #ccc; font-size: 14px; cursor: pointer; transition: 0.2s; border-left: 3px solid transparent; }
