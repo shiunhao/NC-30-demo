@@ -1,4 +1,4 @@
-/* script.js - Logic for NC30 Demo (V20 Layout Tuned) */
+/* script.js - Final Demo Version (V25 - Active State & Auto Load) */
 
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
@@ -15,23 +15,45 @@ let sourceToRemoveId = null;
 let pendingRebootMode = null; 
 
 document.addEventListener('DOMContentLoaded', () => {
-    // If somehow we land on the app shell directly (e.g. refresh), re-init
     if(document.getElementById('view-decoder').style.display !== 'none') {
         renderSourceList();
         updateLiveHeader();
     }
 });
 
-// === Login Logic (直接進入 Encoder) ===
+// === Login Logic ===
 function doLogin() {
     const btn = document.querySelector('#page-login .btn-primary');
     btn.innerHTML = "Logging in...";
     
     setTimeout(() => { 
         document.getElementById('page-login').style.display = 'none'; 
-        // 預設進入 Encoder 模式
         performSwitch('encoder');
     }, 800);
+}
+
+// === Auto Load Source ===
+function loadDefaultSource() {
+    const slot = document.getElementById('slot-1');
+    if(!slot) return;
+
+    // 1. Try first online source
+    const firstOnline = sourcesData.find(s => s.status === 'online');
+    
+    if (firstOnline) {
+        // Reuse drop logic manually
+        slot.dataset.sourceId = firstOnline.id;
+        slot.classList.remove('offline-state');
+        slot.innerHTML = `<div class="video-layer" style="background-image: url('${firstOnline.thumb || 'https://picsum.photos/id/237/400/300'}');"></div><div class="video-overlay-gradient"></div><div class="slot-label">Window 1</div><div class="slot-content"><div class="slot-name">${firstOnline.name}</div><div class="slot-meta" style="color:#4CAF50;">● Live</div></div>${renderSlotMenu(slot.id)}`;
+        slot.classList.add('active-slot');
+        selectSlot(slot.id); // Updates PTZ
+    } else {
+        // 2. Fallback
+        slot.innerHTML = `<div class="slot-label">Window 1</div><div class="slot-content" style="text-align:center;"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div>`;
+        delete slot.dataset.sourceId;
+        slot.classList.remove('active-slot');
+        selectSlot(slot.id); // Updates PTZ to disabled
+    }
 }
 
 // === Refresh with Loading ===
@@ -39,7 +61,7 @@ function refreshSourceList() {
     const btn = document.getElementById('btn-refresh-list');
     if(btn) { btn.innerText = "..."; btn.disabled = true; }
     
-    const tbdDec = document.querySelector('#source-list-body');
+    const tbdDec = document.getElementById('source-list-body');
     const spinnerHtml = '<tr><td colspan="6" style="text-align:center; padding:40px;"><div class="loading-spinner-container"><div class="spinner-ring"></div><div style="margin-top:10px; color:#888; font-size:13px;">Updating sources...</div></div></td></tr>';
     
     if(tbdDec) tbdDec.innerHTML = spinnerHtml;
@@ -86,12 +108,14 @@ function selectSlot(slotId) {
         el.classList.add('selected-slot'); 
         const sourceId = el.dataset.sourceId;
         const windowNum = slotId.split('-')[1];
+        
         if (!sourceId) {
             updatePTZPanelInfo(windowNum, null);
             setPTZPanelState(false);
         } else {
             const sourceObj = sourcesData.find(s => s.id === sourceId);
-            if (sourceObj && (sourceObj.status === 'offline' || sourceObj.status === 'error')) {
+            // Modified Check: Allow Error (No 4K), Only disable on Offline
+            if (sourceObj && sourceObj.status === 'offline') {
                 updatePTZPanelInfo(windowNum, null);
                 setPTZPanelState(false);
             } else {
@@ -104,7 +128,6 @@ function selectSlot(slotId) {
 
 function updatePTZPanelInfo(windowNum, sourceName) {
     const info = document.getElementById('ptz-target-info');
-    
     let text = "";
     let color = "";
     
@@ -115,7 +138,6 @@ function updatePTZPanelInfo(windowNum, sourceName) {
         text = `Target: Unavailable`;
         color = "#D32F2F"; 
     }
-
     if(info) { info.innerText = text; info.style.color = color; }
 }
 
@@ -139,18 +161,29 @@ function savePreset() {
 function renderSourceList() {
     const tbody = document.getElementById('source-list-body');
     if(!tbody) return;
+    
+    // Check currently active source
+    const slot = document.getElementById('slot-1');
+    const activeSourceId = slot ? slot.dataset.sourceId : null;
+
     tbody.innerHTML = '';
     sourcesData.forEach(src => {
         const tr = document.createElement('tr');
-        tr.className = `source-row ${src.status === 'offline' ? 'offline' : ''}`;
+        // Add active class
+        const isActive = src.id === activeSourceId;
+        tr.className = `source-row ${src.status === 'offline' ? 'offline' : ''} ${isActive ? 'active-source-row' : ''}`;
+        
         tr.draggable = true;
         tr.setAttribute('ondragstart', 'drag(event)');
         tr.setAttribute('data-json', JSON.stringify(src));
         
         let statusHtml = `<span style="color:#4CAF50;">Online</span>`;
+        // Modified: Error msg is now gray
         if(src.status === 'error') statusHtml = `<span class="src-status-error">${src.errorMsg}</span>`;
         if(src.status === 'offline') statusHtml = `<span style="color:#888;">Offline</span>`;
         
+        if(isActive) statusHtml += ` <span style="color:#007AFF; font-weight:bold; font-size:10px; margin-left:5px;">● PREVIEW</span>`;
+
         let thumbHtml = src.status === 'offline' ? `<div class="thumb-box offline"><span>Offline</span></div>` : `<div class="thumb-box"><img src="${src.thumb}"></div>`;
         
         tr.innerHTML = `
@@ -293,6 +326,7 @@ function drop(ev) {
     slot.classList.add('active-slot');
     selectSlot(slot.id);
     updateLiveHeader();
+    renderSourceList(); // Update List State
 }
 
 function renderSlotMenu(slotId) { return `<button class="slot-menu-btn" onclick="toggleSlotMenu('${slotId}', event)">•••</button><div class="slot-dropdown" id="menu-${slotId}"><button class="slot-action danger" onclick="removeSource('${slotId}')">Clear</button></div>`; }
@@ -300,7 +334,14 @@ function toggleSlotMenu(slotId, event) { event.stopPropagation(); document.query
 function removeSource(slotId, targetSourceId = null) { 
     if (targetSourceId) { const slot = document.querySelector(`.preview-slot[data-source-id="${targetSourceId}"]`); if (slot) slotId = slot.id; else return; }
     const slot = document.getElementById(slotId);
-    if(slot) { delete slot.dataset.sourceId; slot.classList.remove('active-slot', 'offline-state'); slot.innerHTML = `<div class="slot-label">Window ${slotId.split('-')[1]}</div><div class="slot-content" style="text-align:center;"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div>`; updateLiveHeader(); selectSlot(slotId); }
+    if(slot) { 
+        delete slot.dataset.sourceId; 
+        slot.classList.remove('active-slot', 'offline-state'); 
+        slot.innerHTML = `<div class="slot-label">Window ${slotId.split('-')[1]}</div><div class="slot-content" style="text-align:center;"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div>`; 
+        updateLiveHeader(); 
+        selectSlot(slotId); 
+        renderSourceList(); // Update List State
+    }
 }
 
 function showRebootWarning(targetMode) {
@@ -335,6 +376,7 @@ function enterView(mode) {
     
     if(mode === 'decoder') { 
         renderSourceList(); 
+        loadDefaultSource(); // Auto Load Logic
         updateLiveHeader(); 
         selectSlot('slot-1'); 
     }
