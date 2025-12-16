@@ -1,4 +1,4 @@
-/* script.js - Final Demo Version (V27 Consolidated) */
+/* script.js - Final Demo Version (V28 Consolidated) */
 
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
@@ -214,7 +214,7 @@ function switchSettingsTab(tabId) {
     let htmlContent = '';
 
     // === 1. Video & Audio (Combined) ===
-    if (tabId === 'av-settings' || tabId === 'video') { // Handle both IDs
+    if (tabId === 'av-settings') {
         titleEl.innerText = "Video & Audio Settings";
         
         let encBtnClass = currentSystemMode === 'encoder' ? 'mode-switch-btn active' : 'mode-switch-btn';
@@ -251,8 +251,8 @@ function switchSettingsTab(tabId) {
                 <div class="form-group"><label class="form-label">Encoding Type</label><select class="form-select darker-input"><option>H.264</option><option>H.265</option></select></div>
             `;
         } else {
+            // Removed Output Switch Mode for Decoder
             htmlContent += `
-                <div class="form-group"><label class="form-label">Output Switch Mode</label><div class="mode-switch-container"><div class="mode-switch-btn ${currentOutputMode==='Single'?'active':''}" onclick="switchOutputMode(1)">Single</div><div class="mode-switch-btn ${currentOutputMode==='Quad'?'active':''}" onclick="switchOutputMode(4)">Quad</div></div></div>
                 <div class="form-group"><label class="form-label">Resolution</label><select class="form-select"><option>3840 X 2160</option><option selected>1920 X 1080</option></select></div>
                 <div class="form-group"><label class="form-label">Color Space</label><select class="form-select"><option>RGB</option><option>YUV 4:4:4</option></select></div>
             `;
@@ -264,7 +264,13 @@ function switchSettingsTab(tabId) {
             <div class="settings-subsection" style="margin-top:30px; border-top:1px solid #333; padding-top:20px;">
                 <div class="settings-group-title"><div class="settings-group-icon">🔊</div> Audio Settings</div>
                 <div class="form-group"><label class="form-label">Source Select</label><select class="form-select"><option>Auto</option><option>HDMI</option><option>3.5mm</option></select></div>
-                <div class="form-group"><label class="form-label">Volume (Gain)</label><input type="range" class="ptz-range" style="width:100%;"></div>
+                <div class="form-group">
+                    <label class="form-label">Volume (Gain)</label>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <input type="range" class="ptz-range" min="0" max="100" value="80" style="flex:1;" oninput="document.getElementById('vol-value-disp').innerText = this.value">
+                        <span id="vol-value-disp" style="width:30px; text-align:right; font-size:12px; color:#ccc;">80</span>
+                    </div>
+                </div>
             </div>
         `;
     }
@@ -336,6 +342,7 @@ function switchSettingsTab(tabId) {
             <div class="settings-subsection" style="margin-top:30px; border-top:1px solid #333; padding-top:20px;">
                 <div class="settings-group-title">Account</div>
                 <div class="form-group"><label class="form-label">Admin Password</label><input type="password" class="form-input" placeholder="New Password"></div>
+                <div class="form-group"><label class="form-label">User Password</label><input type="password" class="form-input" placeholder="User Password"></div>
                 <button class="btn btn-primary btn-sm">Update Password</button>
             </div>
             <div class="settings-subsection" style="margin-top:30px; border-top:1px solid #333; padding-top:20px;">
