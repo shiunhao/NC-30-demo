@@ -1,4 +1,4 @@
-/* script.js - Logic for NC30 Demo (V16 Integrated) */
+/* script.js - Logic for NC30 Demo (V17 Layout) */
 
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
@@ -12,6 +12,7 @@ let sourcesData = [
 let editingSourceId = null;
 let selectedAutoSearchIp = null;
 let sourceToRemoveId = null;
+let pendingRebootMode = null; // Store target mode for reboot
 
 document.addEventListener('DOMContentLoaded', () => {
     // If somehow we land on the app shell directly (e.g. refresh), re-init
@@ -35,10 +36,17 @@ function doLogin() {
 
 // === Refresh with Loading ===
 function refreshSourceList() {
-    const tbody = document.querySelector('#source-list-body');
     const btn = document.getElementById('btn-refresh-list');
     if(btn) { btn.innerText = "Loading..."; btn.disabled = true; }
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:40px;"><div class="loading-spinner-container"><div class="spinner-ring"></div><div style="margin-top:10px; color:#888; font-size:13px;">Updating sources...</div></div></td></tr>';
+    
+    // Show spinner in both tables
+    const tbdDec = document.querySelector('#source-list-body');
+    const tbdEnc = document.querySelector('#enc-source-list-body');
+    const spinnerHtml = '<tr><td colspan="6" style="text-align:center; padding:40px;"><div class="loading-spinner-container"><div class="spinner-ring"></div><div style="margin-top:10px; color:#888; font-size:13px;">Updating sources...</div></div></td></tr>';
+    
+    if(tbdDec) tbdDec.innerHTML = spinnerHtml;
+    if(tbdEnc) tbdEnc.innerHTML = spinnerHtml;
+
     setTimeout(() => {
         renderSourceList(); 
         if(btn) { btn.innerText = "Refresh"; btn.disabled = false; }
@@ -103,66 +111,88 @@ function selectSlot(slotId) {
 
 function updatePTZPanelInfo(windowNum, sourceName) {
     const info = document.getElementById('ptz-target-info');
-    if(!info) return;
+    const encInfo = document.getElementById('enc-ptz-target-info');
+    
+    let text = "";
+    let color = "";
+    
     if(sourceName) {
-        info.innerText = `Target: Window ${windowNum}`;
-        info.style.color = "#007AFF"; // Blue
+        text = `Target: ${sourceName}`;
+        color = "#007AFF"; 
     } else {
-        info.innerText = `Target: Unavailable`;
-        info.style.color = "#D32F2F"; // Red
+        text = `Target: Unavailable`;
+        color = "#D32F2F"; 
     }
+
+    if(info) { info.innerText = text; info.style.color = color; }
+    if(encInfo) { encInfo.innerText = text; encInfo.style.color = color; }
 }
 
 function setPTZPanelState(enabled) {
     const wrapper = document.getElementById('ptz-controls-wrapper');
-    if(!wrapper) return;
-    if(enabled) {
-        wrapper.classList.remove('disabled-ui');
-    } else {
-        wrapper.classList.add('disabled-ui');
+    if(wrapper) {
+         if(enabled) wrapper.classList.remove('disabled-ui'); else wrapper.classList.add('disabled-ui');
     }
+    // Static panel in Encoder mode is always enabled for demo or needs similar logic
 }
 
 function savePreset() {
-    const wrapper = document.getElementById('ptz-controls-wrapper');
-    if(wrapper && wrapper.classList.contains('disabled-ui')) {
-        showToast("Cannot save preset: Source unavailable", "error");
-        return;
-    }
     showToast("Preset Saved", "success");
 }
 
 function renderSourceList() {
-    const tbody = document.querySelector('#source-list-body');
-    if(!tbody) return;
-    tbody.innerHTML = '';
-    sourcesData.forEach(src => {
-        const tr = document.createElement('tr');
-        tr.className = `source-row ${src.status === 'offline' ? 'offline' : ''}`;
-        tr.draggable = true;
-        tr.setAttribute('ondragstart', 'drag(event)');
-        tr.setAttribute('data-json', JSON.stringify(src));
-        let statusHtml = `<span style="color:#4CAF50;">Online</span>`;
-        if(src.status === 'error') statusHtml = `<span class="src-status-error">${src.errorMsg}</span>`;
-        if(src.status === 'offline') statusHtml = `<span style="color:#888;">Offline</span>`;
-        let thumbHtml = src.status === 'offline' ? `<div class="thumb-box offline"><span>Offline</span></div>` : `<div class="thumb-box"><img src="${src.thumb}"></div>`;
-        
-        tr.innerHTML = `
-            <td class="drag-col"><span class="drag-handle-icon">⋮⋮</span></td>
-            <td class="thumb-col">${thumbHtml}</td>
-            <td class="info-col">
-                <div class="src-name" style="${src.status==='offline'?'color:#888':''}">${src.name}</div>
-                <div class="src-meta">${src.ip} | ${statusHtml}</div>
-            </td>
-            <td><span style="color:#aaa; font-size:12px;">${src.group}</span></td>
-            <td class="preset-col">${src.id === 'src_01' ? '<span class="preset-badge">1</span>' : ''}</td>
-            <td class="action-col">
-                <button class="btn-icon-action" onclick="openEditSourceModal('${src.id}')" title="Edit">✎</button>
-                <button class="btn-icon-action danger" onclick="askRemoveSource('${src.id}')" title="Remove">🗑️</button>
-            </td>
-        `;
-        tbody.appendChild(tr);
-    });
+    const renderTable = (tbodyId, isEncoder) => {
+        const tbody = document.getElementById(tbodyId);
+        if(!tbody) return;
+        tbody.innerHTML = '';
+        sourcesData.forEach(src => {
+            const tr = document.createElement('tr');
+            tr.className = `source-row ${src.status === 'offline' ? 'offline' : ''}`;
+            tr.draggable = true;
+            tr.setAttribute('ondragstart', 'drag(event)');
+            tr.setAttribute('data-json', JSON.stringify(src));
+            
+            let statusHtml = `<span style="color:#4CAF50;">Online</span>`;
+            if(src.status === 'error') statusHtml = `<span class="src-status-error">${src.errorMsg}</span>`;
+            if(src.status === 'offline') statusHtml = `<span style="color:#888;">Offline</span>`;
+            
+            let thumbHtml = src.status === 'offline' ? `<div class="thumb-box offline"><span>Offline</span></div>` : `<div class="thumb-box"><img src="${src.thumb}"></div>`;
+            
+            if (isEncoder) {
+                // Simplified list for Encoder side bar
+                tr.innerHTML = `
+                    <td class="drag-col"><span class="drag-handle-icon">⋮⋮</span></td>
+                    <td class="info-col">
+                        <div class="src-name" style="${src.status==='offline'?'color:#888':''}">${src.name}</div>
+                        <div class="src-meta">${statusHtml}</div>
+                    </td>
+                    <td class="action-col" style="width:50px;">
+                        <button class="btn-icon-action" onclick="openEditSourceModal('${src.id}')">⚙️</button>
+                    </td>
+                `;
+            } else {
+                // Full list for Decoder
+                tr.innerHTML = `
+                    <td class="drag-col"><span class="drag-handle-icon">⋮⋮</span></td>
+                    <td class="thumb-col">${thumbHtml}</td>
+                    <td class="info-col">
+                        <div class="src-name" style="${src.status==='offline'?'color:#888':''}">${src.name}</div>
+                        <div class="src-meta">${src.ip} | ${statusHtml}</div>
+                    </td>
+                    <td><span style="color:#aaa; font-size:12px;">${src.group}</span></td>
+                    <td class="preset-col">${src.id === 'src_01' ? '<span class="preset-badge">1</span>' : ''}</td>
+                    <td class="action-col">
+                        <button class="btn-icon-action" onclick="openEditSourceModal('${src.id}')" title="Edit">✎</button>
+                        <button class="btn-icon-action danger" onclick="askRemoveSource('${src.id}')" title="Remove">🗑️</button>
+                    </td>
+                `;
+            }
+            tbody.appendChild(tr);
+        });
+    };
+
+    renderTable('source-list-body', false);
+    renderTable('enc-source-list-body', true);
 }
 
 function showModal(type) {
@@ -301,19 +331,21 @@ function removeSource(slotId, targetSourceId = null) {
 }
 
 function showRebootWarning(targetMode) {
-    const box = document.getElementById('modalContentBox');
-    box.style.background = "#1a1a1a"; box.style.border = "1px solid #333"; box.style.width = "400px"; box.style.textAlign = "center";
-    box.innerHTML = `<h3 style="color:#fff; margin-bottom:20px; font-size:18px;">Reboot Required</h3><div style="display:flex; justify-content:center; gap:15px;"><button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-danger" style="background:transparent; border:1px solid #D32F2F;" onclick="confirmReboot('${targetMode}')">Reboot</button></div>`;
-    document.getElementById('modalOverlay').style.display = 'flex';
+    pendingRebootMode = targetMode; // Store intended mode
+    // 直接顯示 Reboot Warning Modal，不關閉 Settings (讓它疊在上面)
+    document.getElementById('modal-reboot-warning').style.display = 'flex';
 }
 
-function confirmReboot(targetMode) {
-    closeModal();
-    // 關閉可能開啟的設定視窗
-    document.getElementById('modal-large-settings').style.display = 'none';
+function executeReboot() {
+    document.getElementById('modal-reboot-warning').style.display = 'none';
+    document.getElementById('modal-large-settings').style.display = 'none'; // Close settings now
     
     document.getElementById('reboot-overlay').style.display = 'flex';
-    setTimeout(() => { document.getElementById('reboot-overlay').style.display = 'none'; performSwitch(targetMode); }, 2000);
+    setTimeout(() => { 
+        document.getElementById('reboot-overlay').style.display = 'none'; 
+        performSwitch(pendingRebootMode); 
+        pendingRebootMode = null;
+    }, 2000);
 }
 
 function performSwitch(mode) { 
@@ -330,8 +362,10 @@ function enterView(mode) {
     document.getElementById('current-mode-badge').innerText = mode.toUpperCase() + ' MODE';
     document.documentElement.style.setProperty('--theme-color', mode === 'encoder' ? '#007AFF' : '#FF9500');
     
+    // Always render lists for both to update status
+    renderSourceList();
+    
     if(mode === 'decoder') { 
-        renderSourceList(); 
         updateLiveHeader(); 
         selectSlot('slot-1'); 
     }
@@ -370,7 +404,7 @@ function switchSettingsTab(tabId) {
     const bodyEl = document.getElementById('settings-body-content');
     let htmlContent = '';
 
-    // === 新增的整合邏輯：Stream & Mode ===
+    // === Stream & Mode ===
     if (tabId === 'stream') {
         titleEl.innerText = "Stream Settings & Mode";
         
@@ -422,7 +456,7 @@ function switchSettingsTab(tabId) {
                 </div>
                 <div id="enc-tab-audio" style="display:none; margin-top:20px;">
                     <div class="enc-settings-group no-border">
-                       <div style="height:100px; display:flex; align-items:center; justify-content:center; color:#666;">Audio specific settings here</div>
+                    <div style="height:100px; display:flex; align-items:center; justify-content:center; color:#666;">Audio specific settings here</div>
                     </div>
                 </div>
                 <div class="enc-settings-group with-border-top">
