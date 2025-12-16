@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NC30 Pro AV Interface (V26 Final Polish)</title>
+    <title>NC30 Pro AV Interface (V27 Consolidated)</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="mobile.css">
 </head>
@@ -57,7 +57,7 @@
                 </div>
 
                 <div class="settings-container">
-                    <div id="btn-settings-gear" class="settings-btn" onclick="openFullSettings('video')">⚙️</div>
+                    <div id="btn-settings-gear" class="settings-btn" onclick="openFullSettings('av-settings')">⚙️</div>
                 </div>
             </div>
         </div>
@@ -124,7 +124,6 @@
                             <div class="list-toolbar">
                                 <span style="font-weight:bold; font-size:14px; color:#ddd;">Sources</span>
                                 <div style="display:flex; gap:5px;">
-                                    <button class="btn btn-primary btn-sm" onclick="showModal('Add Manual Source')">Add</button>
                                     <button class="btn btn-outline btn-sm" id="btn-refresh-list" onclick="refreshSourceList()">↻</button>
                                 </div>
                             </div>
@@ -232,15 +231,13 @@
     <div id="modal-large-settings" style="display:none;" class="modal-overlay" onclick="closeSpecificModal('modal-large-settings')">
         <div class="modal-box" onclick="event.stopPropagation()">
             <div class="settings-sidebar">
-                <div class="sidebar-item" onclick="switchSettingsTab('video')" id="tab-video">Video</div>
+                <div class="sidebar-item" onclick="switchSettingsTab('av-settings')" id="tab-av-settings">Video & Audio</div>
                 
-                <div class="sidebar-item" onclick="switchSettingsTab('audio')" id="tab-audio">Audio Settings</div>
-                <div class="sidebar-item" onclick="switchSettingsTab('network')" id="tab-network">IP Configuration</div>
-                <div class="sidebar-item" onclick="switchSettingsTab('ndi')" id="tab-ndi">Advanced NDI</div>
-                <div class="sidebar-item" onclick="switchSettingsTab('general')" id="tab-general">General</div>
-                <div class="sidebar-item" onclick="switchSettingsTab('account')" id="tab-account">Account</div>
-                <div class="sidebar-item" onclick="switchSettingsTab('datetime')" id="tab-datetime">Date & Time</div>
-                <div class="sidebar-item" onclick="switchSettingsTab('maintenance')" id="tab-maintenance">Maintenance</div>
+                <div class="sidebar-item" onclick="switchSettingsTab('source')" id="tab-source">Source</div>
+                
+                <div class="sidebar-item" onclick="switchSettingsTab('network')" id="tab-network">Network</div>
+                
+                <div class="sidebar-item" onclick="switchSettingsTab('system')" id="tab-system">System</div>
             </div>
             <div class="settings-content-area">
                 <div class="settings-header">
