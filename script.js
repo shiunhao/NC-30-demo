@@ -1,4 +1,4 @@
-/* script.js - Logic for NC30 Demo (V19 PTZ Updated) */
+/* script.js - Logic for NC30 Demo (V20 Layout Tuned) */
 
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
@@ -476,7 +476,6 @@ let isDragging = false, startX, startY, initialLeft, initialTop;
 ptzHeader.onmousedown = (e) => { isDragging = true; startX = e.clientX; startY = e.clientY; initialLeft = ptzPanel.offsetLeft; initialTop = ptzPanel.offsetTop; e.preventDefault(); };
 document.onmousemove = (e) => { if(isDragging) { ptzPanel.style.left = (initialLeft + e.clientX - startX) + "px"; ptzPanel.style.top = (initialTop + e.clientY - startY) + "px"; } };
 document.onmouseup = () => isDragging = false;
-function togglePTZ() { if(ptzPanel.style.display === 'flex') { ptzPanel.style.display = 'none'; } else { ptzPanel.style.display = 'flex'; if(!ptzPanel.style.top) { ptzPanel.style.top = '100px'; ptzPanel.style.left = (window.innerWidth / 2 - 130) + 'px'; } } }
 window.onclick = function(e) { if(!e.target.matches('.slot-menu-btn')) document.querySelectorAll('.slot-dropdown').forEach(el => el.classList.remove('show')); if(!e.target.matches('#btn-account-avatar')) document.getElementById('accountMenu').classList.remove('show'); }
 
 // === MODIFIED LOGOUT ===
