@@ -1,4 +1,4 @@
-/* script.js - Logic for NC30 Demo (Modified V14) */
+/* script.js - Logic for NC30 Demo (V15 Streamlined) */
 
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
@@ -14,11 +14,24 @@ let selectedAutoSearchIp = null;
 let sourceToRemoveId = null;
 
 document.addEventListener('DOMContentLoaded', () => {
+    // If somehow we land on the app shell directly (e.g. refresh), re-init
     if(document.getElementById('view-decoder').style.display !== 'none') {
         renderSourceList();
         updateLiveHeader();
     }
 });
+
+// === Login Logic (直接進入 Encoder) ===
+function doLogin() {
+    const btn = document.querySelector('#page-login .btn-primary');
+    btn.innerHTML = "Logging in...";
+    
+    setTimeout(() => { 
+        document.getElementById('page-login').style.display = 'none'; 
+        // 預設進入 Encoder 模式
+        performSwitch('encoder');
+    }, 800);
+}
 
 // === Refresh with Loading ===
 function refreshSourceList() {
@@ -60,35 +73,29 @@ function updateLiveHeader() {
     }
 }
 
-// === PTZ LOGIC UPDATED FOR V13 ===
+// === PTZ LOGIC ===
 function selectSlot(slotId) { 
     document.querySelectorAll('.preview-slot').forEach(el => el.classList.remove('selected-slot')); 
     const el = document.getElementById(slotId); 
     if(el) { 
         el.classList.add('selected-slot'); 
-        
-        // 1. Update Header Button
         const headerBtn = document.getElementById('btn-ptz-ctrl');
         const sourceId = el.dataset.sourceId;
         const windowNum = slotId.split('-')[1];
-        
         if (!sourceId) {
             if(headerBtn) headerBtn.disabled = true;
             updatePTZPanelInfo(windowNum, null);
             setPTZPanelState(false);
         } else {
             const sourceObj = sourcesData.find(s => s.id === sourceId);
-            // Check status
             if (sourceObj && (sourceObj.status === 'offline' || sourceObj.status === 'error')) {
-                // Invalid Source
-                if(headerBtn) headerBtn.disabled = false; // Panel can open, but controls disabled
-                updatePTZPanelInfo(windowNum, null); // Show Error
-                setPTZPanelState(false); // Disable controls
+                if(headerBtn) headerBtn.disabled = false;
+                updatePTZPanelInfo(windowNum, null);
+                setPTZPanelState(false);
             } else {
-                // Valid Source
                 if(headerBtn) headerBtn.disabled = false;
                 updatePTZPanelInfo(windowNum, sourceObj ? sourceObj.name : "Unknown");
-                setPTZPanelState(true); // Enable controls
+                setPTZPanelState(true);
             }
         }
     } 
@@ -117,7 +124,6 @@ function setPTZPanelState(enabled) {
 }
 
 function savePreset() {
-    // Check if UI is disabled
     const wrapper = document.getElementById('ptz-controls-wrapper');
     if(wrapper && wrapper.classList.contains('disabled-ui')) {
         showToast("Cannot save preset: Source unavailable", "error");
@@ -294,16 +300,6 @@ function removeSource(slotId, targetSourceId = null) {
     if(slot) { delete slot.dataset.sourceId; slot.classList.remove('active-slot', 'offline-state'); slot.innerHTML = `<div class="slot-label">Window ${slotId.split('-')[1]}</div><div class="slot-content" style="text-align:center;"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div>`; updateLiveHeader(); selectSlot(slotId); /* Updates PTZ */ }
 }
 
-function doLogin() {
-    document.querySelector('#page-login .btn-primary').innerHTML = "Logging in...";
-    setTimeout(() => { document.getElementById('page-login').style.display = 'none'; document.getElementById('page-home').style.display = 'flex'; }, 800);
-}
-
-function checkModeSwitch(targetMode) {
-    if (!currentSystemMode) { performSwitch(targetMode); return; }
-    if (currentSystemMode === targetMode) { enterView(targetMode); } else { showRebootWarning(targetMode); }
-}
-
 function showRebootWarning(targetMode) {
     const box = document.getElementById('modalContentBox');
     box.style.background = "#1a1a1a"; box.style.border = "1px solid #333"; box.style.width = "400px"; box.style.textAlign = "center";
@@ -313,22 +309,33 @@ function showRebootWarning(targetMode) {
 
 function confirmReboot(targetMode) {
     closeModal();
+    // 關閉可能開啟的設定視窗
+    document.getElementById('modal-large-settings').style.display = 'none';
+    
     document.getElementById('reboot-overlay').style.display = 'flex';
     setTimeout(() => { document.getElementById('reboot-overlay').style.display = 'none'; performSwitch(targetMode); }, 2000);
 }
 
-function performSwitch(mode) { currentSystemMode = mode; updateHomeUI(); enterView(mode); }
+function performSwitch(mode) { 
+    currentSystemMode = mode; 
+    enterView(mode); 
+}
+
 function enterView(mode) {
-    document.getElementById('page-home').style.display = 'none';
     document.getElementById('app-shell').style.display = 'grid';
     document.getElementById('view-encoder').style.display = (mode === 'encoder') ? 'block' : 'none';
     document.getElementById('view-decoder').style.display = (mode === 'decoder') ? 'block' : 'none';
+    
+    // Update Badge
     document.getElementById('current-mode-badge').innerText = mode.toUpperCase() + ' MODE';
     document.documentElement.style.setProperty('--theme-color', mode === 'encoder' ? '#007AFF' : '#FF9500');
-    if(mode === 'decoder') { renderSourceList(); updateLiveHeader(); /* Select slot 1 default? */ selectSlot('slot-1'); }
+    
+    if(mode === 'decoder') { 
+        renderSourceList(); 
+        updateLiveHeader(); 
+        selectSlot('slot-1'); 
+    }
 }
-function updateHomeUI() { document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('selected-mode')); if(currentSystemMode === 'encoder') document.getElementById('card-enc').classList.add('selected-mode'); if(currentSystemMode === 'decoder') document.getElementById('card-dec').classList.add('selected-mode'); }
-function goHome() { document.getElementById('app-shell').style.display = 'none'; document.getElementById('page-home').style.display = 'flex'; }
 
 function switchOutputMode(count) { 
     currentOutputMode = count === 1 ? 'Single' : 'Quad'; 
@@ -363,88 +370,117 @@ function switchSettingsTab(tabId) {
     const bodyEl = document.getElementById('settings-body-content');
     let htmlContent = '';
 
-    // === 新增的部分：模式選擇 ===
+    // === 改進後的 Mode 切換選單 ===
     if (tabId === 'mode') {
         titleEl.innerText = "Mode Selection (模式切換)";
+        
+        let encBtnClass = currentSystemMode === 'encoder' ? 'mode-switch-btn active' : 'mode-switch-btn';
+        let decBtnClass = currentSystemMode === 'decoder' ? 'mode-switch-btn active' : 'mode-switch-btn';
+        
+        // 判斷按鈕是否可點擊 (如果已經是該模式，就不能再點擊)
+        let encClick = currentSystemMode === 'encoder' ? '' : `onclick="showRebootWarning('encoder')"`;
+        let decClick = currentSystemMode === 'decoder' ? '' : `onclick="showRebootWarning('decoder')"`;
+        
         htmlContent = `
             <div class="settings-subsection">
-                <div class="settings-subsection-title">Switch Operation Mode</div>
+                <div class="settings-subsection-title">Current Mode: <span style="color:var(--theme-color);">${currentSystemMode.toUpperCase()}</span></div>
                 <p style="color:#aaa; font-size:13px; margin-bottom:20px;">
                     Select the operating mode for this device. Switching modes requires a system reboot.
                 </p>
-                <div style="display:flex; gap:20px;">
-                    <div class="mode-card" style="width:100%; height:200px; padding:20px;" onclick="closeSpecificModal('modal-large-settings'); goHome();">
-                        <div class="card-icon" style="width:50px; height:50px; font-size:24px;">🏠</div>
-                        <div class="card-title" style="font-size:18px;">Return to Home</div>
-                        <div class="card-desc">Go back to the main lobby to select Encoder or Decoder mode.</div>
+                <div class="mode-switch-container">
+                    <div class="${encBtnClass}" ${encClick}>
+                        <div class="mode-btn-icon">📡</div>
+                        <span>Encoder Mode</span>
+                    </div>
+                    <div class="${decBtnClass}" ${decClick}>
+                        <div class="mode-btn-icon">🖥️</div>
+                        <span>Decoder Mode</span>
                     </div>
                 </div>
             </div>
         `;
     }
-    // === 新增的部分：Encoder 設定 (從原本 HTML 搬過來) ===
+    // === Encoder Settings ===
     else if (tabId === 'enc-settings') {
-        titleEl.innerText = "Encoding Settings";
-        htmlContent = `
-            <div class="enc-settings-group no-border" style="margin-top:0;">
-                <div class="enc-group-header"><div class="enc-icon-square">Icon</div> <span style="margin-left:10px;">Input Source</span></div>
-                <div class="form-group"><label class="form-label">Video Source</label><input type="text" class="form-input darker-input" value="HDMI (Auto detect)" readonly></div>
-                <div class="form-group"><label class="form-label">Audio Source</label><select class="form-select darker-input"><option>HDMI</option><option>Analog (3.5mm)</option></select></div>
-            </div>
-            <div class="enc-tabs-container">
-                <div class="enc-tab active" onclick="switchEncTab('video')">Video</div>
-                <div class="enc-tab" onclick="switchEncTab('audio')">Audio</div>
-                <div class="enc-tab-line"></div>
-            </div>
-            <div id="enc-tab-video" style="margin-top:20px;">
-                <div class="enc-settings-group no-border">
-                    <div class="form-group"><label class="form-label">Resolution</label><select class="form-select darker-input"><option>3840 x 2160</option><option>1920 x 1080</option><option>1280 x 720</option></select></div>
-                    <div class="form-group"><label class="form-label">Framerate</label><select class="form-select darker-input"><option>60 FPS</option><option>30 FPS</option><option>24 FPS</option></select></div>
-                    <div class="form-group"><label class="form-label">Bitrate</label><select class="form-select darker-input"><option>Auto</option><option>20 Mbps</option><option>10 Mbps</option></select></div>
-                    <div class="form-group"><label class="form-label">Rate Control</label><select class="form-select darker-input"><option>CBR</option><option>VBR</option></select></div>
-                    <div class="form-group"><label class="form-label">Encoding Type</label><select class="form-select darker-input"><option>H.264</option><option>H.265</option></select></div>
+        if(currentSystemMode !== 'encoder') {
+            titleEl.innerText = "Encoding Settings";
+            htmlContent = `<div style="height:200px; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#888;">
+                <div style="font-size:30px; margin-bottom:10px;">🚫</div>
+                <div>Currently in Decoder Mode</div>
+                <div style="font-size:12px;">Switch to Encoder Mode to edit these settings.</div>
+            </div>`;
+        } else {
+            titleEl.innerText = "Encoding Settings";
+            htmlContent = `
+                <div class="enc-settings-group no-border" style="margin-top:0;">
+                    <div class="enc-group-header"><div class="enc-icon-square">Icon</div> <span style="margin-left:10px;">Input Source</span></div>
+                    <div class="form-group"><label class="form-label">Video Source</label><input type="text" class="form-input darker-input" value="HDMI (Auto detect)" readonly></div>
+                    <div class="form-group"><label class="form-label">Audio Source</label><select class="form-select darker-input"><option>HDMI</option><option>Analog (3.5mm)</option></select></div>
                 </div>
-            </div>
-            <div id="enc-tab-audio" style="display:none; margin-top:20px;">
-                <div class="enc-settings-group no-border">
-                   <div style="height:100px; display:flex; align-items:center; justify-content:center; color:#666;">Audio specific settings here</div>
+                <div class="enc-tabs-container">
+                    <div class="enc-tab active" onclick="switchEncTab('video')">Video</div>
+                    <div class="enc-tab" onclick="switchEncTab('audio')">Audio</div>
+                    <div class="enc-tab-line"></div>
                 </div>
-            </div>
-            <div class="enc-settings-group with-border-top">
-                <div class="enc-group-header"><div class="enc-icon-square">Icon</div> <span style="margin-left:10px;">NDI Settings</span></div>
-                <div class="form-group"><label class="form-label">Group Name</label><input type="text" class="form-input darker-input" placeholder="NDI Group Name" value="NDI Group Name"></div>
-            </div>
-        `;
-    }
-    // === 新增的部分：Decoder 設定 (從原本 HTML 搬過來) ===
-    else if (tabId === 'dec-settings') {
-        titleEl.innerText = "Decoding Settings";
-        htmlContent = `
-            <div>
-                <div class="settings-group-title"><div class="settings-group-icon">📺</div> Output Settings</div>
-                <div class="form-group">
-                    <label class="form-label">Output Switch Mode</label>
-                    <div class="mode-switch-container">
-                        <div class="mode-switch-btn ${currentOutputMode === 'Single' ? 'active' : ''}" id="mode-single" onclick="switchOutputMode(1)">
-                            <div class="mode-btn-icon">⬛</div><span>High Quality (4K)</span>
-                        </div>
-                        <div class="mode-switch-btn ${currentOutputMode === 'Quad' ? 'active' : ''}" id="mode-quad" onclick="switchOutputMode(4)">
-                            <div class="mode-btn-icon">田</div><span>Multiview - Quad</span>
-                        </div>
+                <div id="enc-tab-video" style="margin-top:20px;">
+                    <div class="enc-settings-group no-border">
+                        <div class="form-group"><label class="form-label">Resolution</label><select class="form-select darker-input"><option>3840 x 2160</option><option>1920 x 1080</option><option>1280 x 720</option></select></div>
+                        <div class="form-group"><label class="form-label">Framerate</label><select class="form-select darker-input"><option>60 FPS</option><option>30 FPS</option><option>24 FPS</option></select></div>
+                        <div class="form-group"><label class="form-label">Bitrate</label><select class="form-select darker-input"><option>Auto</option><option>20 Mbps</option><option>10 Mbps</option></select></div>
+                        <div class="form-group"><label class="form-label">Rate Control</label><select class="form-select darker-input"><option>CBR</option><option>VBR</option></select></div>
+                        <div class="form-group"><label class="form-label">Encoding Type</label><select class="form-select darker-input"><option>H.264</option><option>H.265</option></select></div>
                     </div>
                 </div>
-                <div class="form-group"><label class="form-label">Resolution</label><select class="form-select"><option>3840 X 2160</option><option selected>1920 X 1080</option></select></div>
-                <div class="form-group"><label class="form-label">Color Space</label><select class="form-select"><option>RGB</option><option>YUV 4:4:4</option></select></div>
-                <div class="form-group"><label class="form-label">Audio output source</label><select class="form-select"><option>HDMI</option><option>Line Out</option></select></div>
-            </div>
-            <div style="margin-top:20px;">
-                <div class="settings-group-title"><div class="settings-group-icon">🔌</div> USB (Theme Mode)</div>
-                <div class="form-group"><label class="form-label">USB Output</label><div style="display:flex; gap:15px; margin-top:5px;"><label class="radio-custom"><input type="radio" name="usb"><span>On</span></label><label class="radio-custom"><input type="radio" name="usb" checked><span>Off</span></label></div></div>
-            </div>
-        `;
+                <div id="enc-tab-audio" style="display:none; margin-top:20px;">
+                    <div class="enc-settings-group no-border">
+                    <div style="height:100px; display:flex; align-items:center; justify-content:center; color:#666;">Audio specific settings here</div>
+                    </div>
+                </div>
+                <div class="enc-settings-group with-border-top">
+                    <div class="enc-group-header"><div class="enc-icon-square">Icon</div> <span style="margin-left:10px;">NDI Settings</span></div>
+                    <div class="form-group"><label class="form-label">Group Name</label><input type="text" class="form-input darker-input" placeholder="NDI Group Name" value="NDI Group Name"></div>
+                </div>
+            `;
+        }
+    }
+    // === Decoder Settings ===
+    else if (tabId === 'dec-settings') {
+        if(currentSystemMode !== 'decoder') {
+            titleEl.innerText = "Decoding Settings";
+            htmlContent = `<div style="height:200px; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#888;">
+                <div style="font-size:30px; margin-bottom:10px;">🚫</div>
+                <div>Currently in Encoder Mode</div>
+                <div style="font-size:12px;">Switch to Decoder Mode to edit these settings.</div>
+            </div>`;
+        } else {
+            titleEl.innerText = "Decoding Settings";
+            htmlContent = `
+                <div>
+                    <div class="settings-group-title"><div class="settings-group-icon">📺</div> Output Settings</div>
+                    <div class="form-group">
+                        <label class="form-label">Output Switch Mode</label>
+                        <div class="mode-switch-container">
+                            <div class="mode-switch-btn ${currentOutputMode === 'Single' ? 'active' : ''}" id="mode-single" onclick="switchOutputMode(1)">
+                                <div class="mode-btn-icon">⬛</div><span>High Quality (4K)</span>
+                            </div>
+                            <div class="mode-switch-btn ${currentOutputMode === 'Quad' ? 'active' : ''}" id="mode-quad" onclick="switchOutputMode(4)">
+                                <div class="mode-btn-icon">田</div><span>Multiview - Quad</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group"><label class="form-label">Resolution</label><select class="form-select"><option>3840 X 2160</option><option selected>1920 X 1080</option></select></div>
+                    <div class="form-group"><label class="form-label">Color Space</label><select class="form-select"><option>RGB</option><option>YUV 4:4:4</option></select></div>
+                    <div class="form-group"><label class="form-label">Audio output source</label><select class="form-select"><option>HDMI</option><option>Line Out</option></select></div>
+                </div>
+                <div style="margin-top:20px;">
+                    <div class="settings-group-title"><div class="settings-group-icon">🔌</div> USB (Theme Mode)</div>
+                    <div class="form-group"><label class="form-label">USB Output</label><div style="display:flex; gap:15px; margin-top:5px;"><label class="radio-custom"><input type="radio" name="usb"><span>On</span></label><label class="radio-custom"><input type="radio" name="usb" checked><span>Off</span></label></div></div>
+                </div>
+            `;
+        }
     }
     
-    // === 原有的設定 ===
+    // === General Settings ===
     else if (tabId === 'audio') { titleEl.innerText = "Audio Settings"; htmlContent = `<div class="settings-subsection"><div class="settings-subsection-title">Audio Settings</div><div class="form-group"><label class="form-label">Source Select</label><select class="form-select"><option>Auto</option><option>HDMI</option><option>3.5mm</option></select></div><div class="form-group"><label class="form-label">Volume (Gain)</label><input type="range" class="ptz-range" style="width:100%;"></div></div>`; } 
     else if (tabId === 'network') { titleEl.innerText = "IP Configuration"; htmlContent = `<div class="settings-subsection"><div class="settings-subsection-title">IP Configuration</div><div class="form-group"><label class="form-label">Mode</label><select class="form-select"><option>DHCP</option><option>Static IP</option></select></div><div class="form-group"><label class="form-label">IP Address</label><input type="text" class="form-input" value="192.168.1.100"></div></div>`; }
     else if (tabId === 'ndi') { titleEl.innerText = "Advanced NDI"; htmlContent = `<div class="settings-subsection"><div class="settings-subsection-title">NDI Configuration</div><div class="form-group"><label class="form-label">Connection Mode (傳輸模式)</label><select class="form-select"><option>Auto (RUDP)</option><option>TCP</option><option>Multicast</option></select></div><div class="form-group"><label class="form-label">Discovery Server</label><input type="text" class="form-input" placeholder="IP Address"></div><div class="form-group"><label class="form-label">Multicast Address</label><input type="text" class="form-input" placeholder="e.g. 239.255.0.1"></div></div>`; }
@@ -475,13 +511,13 @@ function actionLogout() {
 function confirmLogout() {
     document.getElementById('modal-logout-confirm').style.display = 'none';
     document.getElementById('app-shell').style.display = 'none';
-    document.getElementById('page-home').style.display = 'none';
+    // 直接回到登入頁
     document.getElementById('page-login').style.display = 'flex';
+    document.getElementById('page-login').style.opacity = '1';
     
     // Reset state
     currentSystemMode = null;
     currentUserRole = 'admin';
-    document.getElementById('page-login').style.opacity = '1';
     
     // Reset inputs
     document.querySelector('#page-login input[type="text"]').value = 'admin';
