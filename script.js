@@ -1,4 +1,4 @@
-/* script.js - Logic for NC30 Demo (V15 Streamlined) */
+/* script.js - Logic for NC30 Demo (V16 Integrated) */
 
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
@@ -370,23 +370,21 @@ function switchSettingsTab(tabId) {
     const bodyEl = document.getElementById('settings-body-content');
     let htmlContent = '';
 
-    // === 改進後的 Mode 切換選單 ===
-    if (tabId === 'mode') {
-        titleEl.innerText = "Mode Selection (模式切換)";
+    // === 新增的整合邏輯：Stream & Mode ===
+    if (tabId === 'stream') {
+        titleEl.innerText = "Stream Settings & Mode";
         
+        // 準備按鈕狀態
         let encBtnClass = currentSystemMode === 'encoder' ? 'mode-switch-btn active' : 'mode-switch-btn';
         let decBtnClass = currentSystemMode === 'decoder' ? 'mode-switch-btn active' : 'mode-switch-btn';
         
-        // 判斷按鈕是否可點擊 (如果已經是該模式，就不能再點擊)
         let encClick = currentSystemMode === 'encoder' ? '' : `onclick="showRebootWarning('encoder')"`;
         let decClick = currentSystemMode === 'decoder' ? '' : `onclick="showRebootWarning('decoder')"`;
         
-        htmlContent = `
-            <div class="settings-subsection">
-                <div class="settings-subsection-title">Current Mode: <span style="color:var(--theme-color);">${currentSystemMode.toUpperCase()}</span></div>
-                <p style="color:#aaa; font-size:13px; margin-bottom:20px;">
-                    Select the operating mode for this device. Switching modes requires a system reboot.
-                </p>
+        // 第一部分：模式切換器 (Mode Switcher)
+        htmlContent += `
+            <div class="settings-subsection" style="margin-bottom:30px; border-bottom:1px solid #333; padding-bottom:20px;">
+                <div class="settings-group-title"><div class="settings-group-icon">⚙️</div> Operation Mode</div>
                 <div class="mode-switch-container">
                     <div class="${encBtnClass}" ${encClick}>
                         <div class="mode-btn-icon">📡</div>
@@ -399,19 +397,10 @@ function switchSettingsTab(tabId) {
                 </div>
             </div>
         `;
-    }
-    // === Encoder Settings ===
-    else if (tabId === 'enc-settings') {
-        if(currentSystemMode !== 'encoder') {
-            titleEl.innerText = "Encoding Settings";
-            htmlContent = `<div style="height:200px; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#888;">
-                <div style="font-size:30px; margin-bottom:10px;">🚫</div>
-                <div>Currently in Decoder Mode</div>
-                <div style="font-size:12px;">Switch to Encoder Mode to edit these settings.</div>
-            </div>`;
-        } else {
-            titleEl.innerText = "Encoding Settings";
-            htmlContent = `
+
+        // 第二部分：根據當前模式顯示對應的表單
+        if (currentSystemMode === 'encoder') {
+            htmlContent += `
                 <div class="enc-settings-group no-border" style="margin-top:0;">
                     <div class="enc-group-header"><div class="enc-icon-square">Icon</div> <span style="margin-left:10px;">Input Source</span></div>
                     <div class="form-group"><label class="form-label">Video Source</label><input type="text" class="form-input darker-input" value="HDMI (Auto detect)" readonly></div>
@@ -433,7 +422,7 @@ function switchSettingsTab(tabId) {
                 </div>
                 <div id="enc-tab-audio" style="display:none; margin-top:20px;">
                     <div class="enc-settings-group no-border">
-                    <div style="height:100px; display:flex; align-items:center; justify-content:center; color:#666;">Audio specific settings here</div>
+                       <div style="height:100px; display:flex; align-items:center; justify-content:center; color:#666;">Audio specific settings here</div>
                     </div>
                 </div>
                 <div class="enc-settings-group with-border-top">
@@ -441,20 +430,8 @@ function switchSettingsTab(tabId) {
                     <div class="form-group"><label class="form-label">Group Name</label><input type="text" class="form-input darker-input" placeholder="NDI Group Name" value="NDI Group Name"></div>
                 </div>
             `;
-        }
-    }
-    // === Decoder Settings ===
-    else if (tabId === 'dec-settings') {
-        if(currentSystemMode !== 'decoder') {
-            titleEl.innerText = "Decoding Settings";
-            htmlContent = `<div style="height:200px; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#888;">
-                <div style="font-size:30px; margin-bottom:10px;">🚫</div>
-                <div>Currently in Encoder Mode</div>
-                <div style="font-size:12px;">Switch to Decoder Mode to edit these settings.</div>
-            </div>`;
-        } else {
-            titleEl.innerText = "Decoding Settings";
-            htmlContent = `
+        } else if (currentSystemMode === 'decoder') {
+            htmlContent += `
                 <div>
                     <div class="settings-group-title"><div class="settings-group-icon">📺</div> Output Settings</div>
                     <div class="form-group">
@@ -480,7 +457,7 @@ function switchSettingsTab(tabId) {
         }
     }
     
-    // === General Settings ===
+    // === General Settings (Other Tabs) ===
     else if (tabId === 'audio') { titleEl.innerText = "Audio Settings"; htmlContent = `<div class="settings-subsection"><div class="settings-subsection-title">Audio Settings</div><div class="form-group"><label class="form-label">Source Select</label><select class="form-select"><option>Auto</option><option>HDMI</option><option>3.5mm</option></select></div><div class="form-group"><label class="form-label">Volume (Gain)</label><input type="range" class="ptz-range" style="width:100%;"></div></div>`; } 
     else if (tabId === 'network') { titleEl.innerText = "IP Configuration"; htmlContent = `<div class="settings-subsection"><div class="settings-subsection-title">IP Configuration</div><div class="form-group"><label class="form-label">Mode</label><select class="form-select"><option>DHCP</option><option>Static IP</option></select></div><div class="form-group"><label class="form-label">IP Address</label><input type="text" class="form-input" value="192.168.1.100"></div></div>`; }
     else if (tabId === 'ndi') { titleEl.innerText = "Advanced NDI"; htmlContent = `<div class="settings-subsection"><div class="settings-subsection-title">NDI Configuration</div><div class="form-group"><label class="form-label">Connection Mode (傳輸模式)</label><select class="form-select"><option>Auto (RUDP)</option><option>TCP</option><option>Multicast</option></select></div><div class="form-group"><label class="form-label">Discovery Server</label><input type="text" class="form-input" placeholder="IP Address"></div><div class="form-group"><label class="form-label">Multicast Address</label><input type="text" class="form-input" placeholder="e.g. 239.255.0.1"></div></div>`; }
