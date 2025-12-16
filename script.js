@@ -1,4 +1,4 @@
-/* script.js - Logic for NC30 Demo (V17 Layout) */
+/* script.js - Logic for NC30 Demo (V18 Final Layout) */
 
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
@@ -12,7 +12,7 @@ let sourcesData = [
 let editingSourceId = null;
 let selectedAutoSearchIp = null;
 let sourceToRemoveId = null;
-let pendingRebootMode = null; // Store target mode for reboot
+let pendingRebootMode = null; 
 
 document.addEventListener('DOMContentLoaded', () => {
     // If somehow we land on the app shell directly (e.g. refresh), re-init
@@ -37,19 +37,16 @@ function doLogin() {
 // === Refresh with Loading ===
 function refreshSourceList() {
     const btn = document.getElementById('btn-refresh-list');
-    if(btn) { btn.innerText = "Loading..."; btn.disabled = true; }
+    if(btn) { btn.innerText = "..."; btn.disabled = true; }
     
-    // Show spinner in both tables
     const tbdDec = document.querySelector('#source-list-body');
-    const tbdEnc = document.querySelector('#enc-source-list-body');
     const spinnerHtml = '<tr><td colspan="6" style="text-align:center; padding:40px;"><div class="loading-spinner-container"><div class="spinner-ring"></div><div style="margin-top:10px; color:#888; font-size:13px;">Updating sources...</div></div></td></tr>';
     
     if(tbdDec) tbdDec.innerHTML = spinnerHtml;
-    if(tbdEnc) tbdEnc.innerHTML = spinnerHtml;
 
     setTimeout(() => {
         renderSourceList(); 
-        if(btn) { btn.innerText = "Refresh"; btn.disabled = false; }
+        if(btn) { btn.innerText = "↻"; btn.disabled = false; }
         showToast("Source list refreshed", "success");
     }, 1000);
 }
@@ -87,21 +84,18 @@ function selectSlot(slotId) {
     const el = document.getElementById(slotId); 
     if(el) { 
         el.classList.add('selected-slot'); 
-        const headerBtn = document.getElementById('btn-ptz-ctrl');
+        const headerBtn = document.getElementById('btn-ptz-ctrl'); // Might not exist now
         const sourceId = el.dataset.sourceId;
         const windowNum = slotId.split('-')[1];
         if (!sourceId) {
-            if(headerBtn) headerBtn.disabled = true;
             updatePTZPanelInfo(windowNum, null);
             setPTZPanelState(false);
         } else {
             const sourceObj = sourcesData.find(s => s.id === sourceId);
             if (sourceObj && (sourceObj.status === 'offline' || sourceObj.status === 'error')) {
-                if(headerBtn) headerBtn.disabled = false;
                 updatePTZPanelInfo(windowNum, null);
                 setPTZPanelState(false);
             } else {
-                if(headerBtn) headerBtn.disabled = false;
                 updatePTZPanelInfo(windowNum, sourceObj ? sourceObj.name : "Unknown");
                 setPTZPanelState(true);
             }
@@ -111,7 +105,6 @@ function selectSlot(slotId) {
 
 function updatePTZPanelInfo(windowNum, sourceName) {
     const info = document.getElementById('ptz-target-info');
-    const encInfo = document.getElementById('enc-ptz-target-info');
     
     let text = "";
     let color = "";
@@ -125,15 +118,22 @@ function updatePTZPanelInfo(windowNum, sourceName) {
     }
 
     if(info) { info.innerText = text; info.style.color = color; }
-    if(encInfo) { encInfo.innerText = text; encInfo.style.color = color; }
 }
 
 function setPTZPanelState(enabled) {
     const wrapper = document.getElementById('ptz-controls-wrapper');
     if(wrapper) {
-         if(enabled) wrapper.classList.remove('disabled-ui'); else wrapper.classList.add('disabled-ui');
+         // 修正：針對嵌入式結構，可能沒有 wrapper ID，改用 class 或直接操作按鈕
+         // 但目前的 HTML 結構並沒有 ID 為 ptz-controls-wrapper，是在 embedded-ptz-panel 下
+         // 我們簡單處理：對 ptz-body 下的所有按鈕做 disable
+         const btns = document.querySelectorAll('.embedded-ptz-panel button, .embedded-ptz-panel input');
+         btns.forEach(b => b.disabled = !enabled);
+         
+         const panel = document.querySelector('.embedded-ptz-panel');
+         if(panel) {
+             if(enabled) panel.style.opacity = '1'; else panel.style.opacity = '0.5';
+         }
     }
-    // Static panel in Encoder mode is always enabled for demo or needs similar logic
 }
 
 function savePreset() {
@@ -141,58 +141,38 @@ function savePreset() {
 }
 
 function renderSourceList() {
-    const renderTable = (tbodyId, isEncoder) => {
-        const tbody = document.getElementById(tbodyId);
-        if(!tbody) return;
-        tbody.innerHTML = '';
-        sourcesData.forEach(src => {
-            const tr = document.createElement('tr');
-            tr.className = `source-row ${src.status === 'offline' ? 'offline' : ''}`;
-            tr.draggable = true;
-            tr.setAttribute('ondragstart', 'drag(event)');
-            tr.setAttribute('data-json', JSON.stringify(src));
-            
-            let statusHtml = `<span style="color:#4CAF50;">Online</span>`;
-            if(src.status === 'error') statusHtml = `<span class="src-status-error">${src.errorMsg}</span>`;
-            if(src.status === 'offline') statusHtml = `<span style="color:#888;">Offline</span>`;
-            
-            let thumbHtml = src.status === 'offline' ? `<div class="thumb-box offline"><span>Offline</span></div>` : `<div class="thumb-box"><img src="${src.thumb}"></div>`;
-            
-            if (isEncoder) {
-                // Simplified list for Encoder side bar
-                tr.innerHTML = `
-                    <td class="drag-col"><span class="drag-handle-icon">⋮⋮</span></td>
-                    <td class="info-col">
-                        <div class="src-name" style="${src.status==='offline'?'color:#888':''}">${src.name}</div>
-                        <div class="src-meta">${statusHtml}</div>
-                    </td>
-                    <td class="action-col" style="width:50px;">
-                        <button class="btn-icon-action" onclick="openEditSourceModal('${src.id}')">⚙️</button>
-                    </td>
-                `;
-            } else {
-                // Full list for Decoder
-                tr.innerHTML = `
-                    <td class="drag-col"><span class="drag-handle-icon">⋮⋮</span></td>
-                    <td class="thumb-col">${thumbHtml}</td>
-                    <td class="info-col">
-                        <div class="src-name" style="${src.status==='offline'?'color:#888':''}">${src.name}</div>
-                        <div class="src-meta">${src.ip} | ${statusHtml}</div>
-                    </td>
-                    <td><span style="color:#aaa; font-size:12px;">${src.group}</span></td>
-                    <td class="preset-col">${src.id === 'src_01' ? '<span class="preset-badge">1</span>' : ''}</td>
-                    <td class="action-col">
-                        <button class="btn-icon-action" onclick="openEditSourceModal('${src.id}')" title="Edit">✎</button>
-                        <button class="btn-icon-action danger" onclick="askRemoveSource('${src.id}')" title="Remove">🗑️</button>
-                    </td>
-                `;
-            }
-            tbody.appendChild(tr);
-        });
-    };
-
-    renderTable('source-list-body', false);
-    renderTable('enc-source-list-body', true);
+    const tbody = document.getElementById('source-list-body');
+    if(!tbody) return;
+    tbody.innerHTML = '';
+    sourcesData.forEach(src => {
+        const tr = document.createElement('tr');
+        tr.className = `source-row ${src.status === 'offline' ? 'offline' : ''}`;
+        tr.draggable = true;
+        tr.setAttribute('ondragstart', 'drag(event)');
+        tr.setAttribute('data-json', JSON.stringify(src));
+        
+        let statusHtml = `<span style="color:#4CAF50;">Online</span>`;
+        if(src.status === 'error') statusHtml = `<span class="src-status-error">${src.errorMsg}</span>`;
+        if(src.status === 'offline') statusHtml = `<span style="color:#888;">Offline</span>`;
+        
+        let thumbHtml = src.status === 'offline' ? `<div class="thumb-box offline"><span>Offline</span></div>` : `<div class="thumb-box"><img src="${src.thumb}"></div>`;
+        
+        // Full list for Decoder (Right Column)
+        // Layout adjusted for narrower column
+        tr.innerHTML = `
+            <td class="drag-col"><span class="drag-handle-icon">⋮⋮</span></td>
+            <td class="info-col">
+                <div class="src-name" style="${src.status==='offline'?'color:#888':''}">${src.name}</div>
+                <div class="src-meta" style="font-size:10px;">${src.ip}</div>
+                <div style="font-size:10px; margin-top:2px;">${statusHtml}</div>
+            </td>
+            <td class="action-col" style="white-space:nowrap;">
+                <button class="btn-icon-action" onclick="openEditSourceModal('${src.id}')" title="Edit" style="width:24px; height:24px; font-size:12px;">✎</button>
+                <button class="btn-icon-action danger" onclick="askRemoveSource('${src.id}')" title="Remove" style="width:24px; height:24px; font-size:12px;">🗑️</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
 }
 
 function showModal(type) {
@@ -319,7 +299,6 @@ function drop(ev) {
     slot.classList.add('active-slot');
     selectSlot(slot.id);
     updateLiveHeader();
-    // No updatePTZButtonState here, selectSlot handles it
 }
 
 function renderSlotMenu(slotId) { return `<button class="slot-menu-btn" onclick="toggleSlotMenu('${slotId}', event)">•••</button><div class="slot-dropdown" id="menu-${slotId}"><button class="slot-action danger" onclick="removeSource('${slotId}')">Clear</button></div>`; }
@@ -327,18 +306,17 @@ function toggleSlotMenu(slotId, event) { event.stopPropagation(); document.query
 function removeSource(slotId, targetSourceId = null) { 
     if (targetSourceId) { const slot = document.querySelector(`.preview-slot[data-source-id="${targetSourceId}"]`); if (slot) slotId = slot.id; else return; }
     const slot = document.getElementById(slotId);
-    if(slot) { delete slot.dataset.sourceId; slot.classList.remove('active-slot', 'offline-state'); slot.innerHTML = `<div class="slot-label">Window ${slotId.split('-')[1]}</div><div class="slot-content" style="text-align:center;"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div>`; updateLiveHeader(); selectSlot(slotId); /* Updates PTZ */ }
+    if(slot) { delete slot.dataset.sourceId; slot.classList.remove('active-slot', 'offline-state'); slot.innerHTML = `<div class="slot-label">Window ${slotId.split('-')[1]}</div><div class="slot-content" style="text-align:center;"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div>`; updateLiveHeader(); selectSlot(slotId); }
 }
 
 function showRebootWarning(targetMode) {
-    pendingRebootMode = targetMode; // Store intended mode
-    // 直接顯示 Reboot Warning Modal，不關閉 Settings (讓它疊在上面)
+    pendingRebootMode = targetMode; 
     document.getElementById('modal-reboot-warning').style.display = 'flex';
 }
 
 function executeReboot() {
     document.getElementById('modal-reboot-warning').style.display = 'none';
-    document.getElementById('modal-large-settings').style.display = 'none'; // Close settings now
+    document.getElementById('modal-large-settings').style.display = 'none'; 
     
     document.getElementById('reboot-overlay').style.display = 'flex';
     setTimeout(() => { 
@@ -358,14 +336,11 @@ function enterView(mode) {
     document.getElementById('view-encoder').style.display = (mode === 'encoder') ? 'block' : 'none';
     document.getElementById('view-decoder').style.display = (mode === 'decoder') ? 'block' : 'none';
     
-    // Update Badge
     document.getElementById('current-mode-badge').innerText = mode.toUpperCase() + ' MODE';
     document.documentElement.style.setProperty('--theme-color', mode === 'encoder' ? '#007AFF' : '#FF9500');
     
-    // Always render lists for both to update status
-    renderSourceList();
-    
     if(mode === 'decoder') { 
+        renderSourceList(); 
         updateLiveHeader(); 
         selectSlot('slot-1'); 
     }
@@ -386,6 +361,9 @@ function closeSpecificModal(id) { document.getElementById(id).style.display = 'n
 function showToast(msg, type) { const div = document.createElement('div'); div.className = 'toast'; div.innerHTML = `<span>${msg}</span>`; div.style.borderLeftColor = type === 'success' ? '#4CAF50' : '#007AFF'; let container = document.getElementById('toast-container'); if(!container) { container = document.createElement('div'); container.id='toast-container'; document.body.appendChild(container); } container.appendChild(div); setTimeout(() => div.remove(), 3000); }
 function openFullSettings(tab) { document.getElementById('modal-large-settings').style.display = 'flex'; switchSettingsTab(tab); }
 
+// togglePTZ is kept but empty as panel is embedded
+function togglePTZ() { console.log("PTZ is embedded now"); }
+
 function switchEncTab(tabName) {
     document.querySelectorAll('.enc-tab').forEach(t => t.classList.remove('active'));
     document.getElementById('enc-tab-video').style.display = 'none';
@@ -395,7 +373,6 @@ function switchEncTab(tabName) {
 }
 
 function switchSettingsTab(tabId) {
-    // 1. 處理側邊欄的選取狀態
     document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
     const activeTab = document.getElementById('tab-' + tabId);
     if(activeTab) activeTab.classList.add('active');
@@ -404,18 +381,15 @@ function switchSettingsTab(tabId) {
     const bodyEl = document.getElementById('settings-body-content');
     let htmlContent = '';
 
-    // === Stream & Mode ===
     if (tabId === 'stream') {
         titleEl.innerText = "Stream Settings & Mode";
         
-        // 準備按鈕狀態
         let encBtnClass = currentSystemMode === 'encoder' ? 'mode-switch-btn active' : 'mode-switch-btn';
         let decBtnClass = currentSystemMode === 'decoder' ? 'mode-switch-btn active' : 'mode-switch-btn';
         
         let encClick = currentSystemMode === 'encoder' ? '' : `onclick="showRebootWarning('encoder')"`;
         let decClick = currentSystemMode === 'decoder' ? '' : `onclick="showRebootWarning('decoder')"`;
         
-        // 第一部分：模式切換器 (Mode Switcher)
         htmlContent += `
             <div class="settings-subsection" style="margin-bottom:30px; border-bottom:1px solid #333; padding-bottom:20px;">
                 <div class="settings-group-title"><div class="settings-group-icon">⚙️</div> Operation Mode</div>
@@ -432,7 +406,6 @@ function switchSettingsTab(tabId) {
             </div>
         `;
 
-        // 第二部分：根據當前模式顯示對應的表單
         if (currentSystemMode === 'encoder') {
             htmlContent += `
                 <div class="enc-settings-group no-border" style="margin-top:0;">
@@ -456,7 +429,7 @@ function switchSettingsTab(tabId) {
                 </div>
                 <div id="enc-tab-audio" style="display:none; margin-top:20px;">
                     <div class="enc-settings-group no-border">
-                    <div style="height:100px; display:flex; align-items:center; justify-content:center; color:#666;">Audio specific settings here</div>
+                       <div style="height:100px; display:flex; align-items:center; justify-content:center; color:#666;">Audio specific settings here</div>
                     </div>
                 </div>
                 <div class="enc-settings-group with-border-top">
@@ -491,7 +464,6 @@ function switchSettingsTab(tabId) {
         }
     }
     
-    // === General Settings (Other Tabs) ===
     else if (tabId === 'audio') { titleEl.innerText = "Audio Settings"; htmlContent = `<div class="settings-subsection"><div class="settings-subsection-title">Audio Settings</div><div class="form-group"><label class="form-label">Source Select</label><select class="form-select"><option>Auto</option><option>HDMI</option><option>3.5mm</option></select></div><div class="form-group"><label class="form-label">Volume (Gain)</label><input type="range" class="ptz-range" style="width:100%;"></div></div>`; } 
     else if (tabId === 'network') { titleEl.innerText = "IP Configuration"; htmlContent = `<div class="settings-subsection"><div class="settings-subsection-title">IP Configuration</div><div class="form-group"><label class="form-label">Mode</label><select class="form-select"><option>DHCP</option><option>Static IP</option></select></div><div class="form-group"><label class="form-label">IP Address</label><input type="text" class="form-input" value="192.168.1.100"></div></div>`; }
     else if (tabId === 'ndi') { titleEl.innerText = "Advanced NDI"; htmlContent = `<div class="settings-subsection"><div class="settings-subsection-title">NDI Configuration</div><div class="form-group"><label class="form-label">Connection Mode (傳輸模式)</label><select class="form-select"><option>Auto (RUDP)</option><option>TCP</option><option>Multicast</option></select></div><div class="form-group"><label class="form-label">Discovery Server</label><input type="text" class="form-input" placeholder="IP Address"></div><div class="form-group"><label class="form-label">Multicast Address</label><input type="text" class="form-input" placeholder="e.g. 239.255.0.1"></div></div>`; }
@@ -510,7 +482,6 @@ let isDragging = false, startX, startY, initialLeft, initialTop;
 ptzHeader.onmousedown = (e) => { isDragging = true; startX = e.clientX; startY = e.clientY; initialLeft = ptzPanel.offsetLeft; initialTop = ptzPanel.offsetTop; e.preventDefault(); };
 document.onmousemove = (e) => { if(isDragging) { ptzPanel.style.left = (initialLeft + e.clientX - startX) + "px"; ptzPanel.style.top = (initialTop + e.clientY - startY) + "px"; } };
 document.onmouseup = () => isDragging = false;
-function togglePTZ() { if(ptzPanel.style.display === 'flex') { ptzPanel.style.display = 'none'; } else { ptzPanel.style.display = 'flex'; if(!ptzPanel.style.top) { ptzPanel.style.top = '100px'; ptzPanel.style.left = (window.innerWidth / 2 - 130) + 'px'; } } }
 window.onclick = function(e) { if(!e.target.matches('.slot-menu-btn')) document.querySelectorAll('.slot-dropdown').forEach(el => el.classList.remove('show')); if(!e.target.matches('#btn-account-avatar')) document.getElementById('accountMenu').classList.remove('show'); }
 
 // === MODIFIED LOGOUT ===
@@ -522,15 +493,10 @@ function actionLogout() {
 function confirmLogout() {
     document.getElementById('modal-logout-confirm').style.display = 'none';
     document.getElementById('app-shell').style.display = 'none';
-    // 直接回到登入頁
     document.getElementById('page-login').style.display = 'flex';
     document.getElementById('page-login').style.opacity = '1';
-    
-    // Reset state
     currentSystemMode = null;
     currentUserRole = 'admin';
-    
-    // Reset inputs
     document.querySelector('#page-login input[type="text"]').value = 'admin';
     document.querySelector('#page-login input[type="password"]').value = '';
     document.querySelector('#page-login .btn-primary').innerHTML = 'LOGIN';
