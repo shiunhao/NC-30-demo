@@ -1,4 +1,4 @@
-/* style.css - Final Demo Version (V26 Final Polish) */
+/* style.css - Final Demo Version (V27 Consolidated) */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -247,7 +247,7 @@ input:checked + .slider:before { transform: translateX(14px); }
 }
 .mode-btn-icon { font-size: 18px; }
 
-/* Output Container */
+/* Output Container: 填滿左側高度 */
 .output-container { 
     background: #000; border: 1px solid #333; border-radius: 8px; 
     position: relative; overflow: hidden; display: flex; flex-direction: column; 
@@ -328,6 +328,9 @@ input:checked + .slider:before { transform: translateX(14px); }
 .source-row:active { cursor: grabbing; background: #2a2a2a; }
 .source-row:hover { background-color: #252525; }
 .source-row.active-source-row { background-color: #1a2a3a; border-left: 3px solid var(--theme-color); }
+
+/* Empty State Style (New V27) */
+.empty-state { padding: 40px; text-align: center; color: #666; font-size: 13px; line-height: 1.6; }
 
 .drag-col { width: 40px; text-align: center; }
 .drag-handle-icon { color: #666; font-size: 18px; cursor: move; }
