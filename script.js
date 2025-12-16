@@ -1,18 +1,31 @@
-/* script.js - Final Demo Version (V28 Consolidated) */
+/* script.js - Final Demo Version (V29 Final Interaction) */
 
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
 let currentOutputMode = 'Single'; 
+
+// Added presets simulation data
 let sourcesData = [
-    { id: 'src_01', name: 'Main Camera 01', ip: '192.168.1.101', group: 'Studio A', status: 'online', thumb: 'https://picsum.photos/id/64/100/56' },
-    { id: 'src_02', name: 'PTZ Camera 02', ip: '192.168.1.102', group: 'Studio B', status: 'online', thumb: 'https://picsum.photos/id/1/100/56' },
-    { id: 'src_03', name: 'OBS Output', ip: '192.168.1.120', group: 'OBS', status: 'error', errorMsg: 'No support 4k▲', thumb: 'https://picsum.photos/id/48/100/56' },
-    { id: 'src_04', name: 'Outdoor Cam', ip: '192.168.1.104', group: 'Outdoor', status: 'offline', thumb: '' }
+    { 
+        id: 'src_01', name: 'Main Camera 01', ip: '192.168.1.101', group: 'Studio A', status: 'online', thumb: 'https://picsum.photos/id/64/100/56',
+        presets: { 
+            1: 'https://picsum.photos/id/65/160/90', 
+            2: 'https://picsum.photos/id/66/160/90' 
+        }
+    },
+    { 
+        id: 'src_02', name: 'PTZ Camera 02', ip: '192.168.1.102', group: 'Studio B', status: 'online', thumb: 'https://picsum.photos/id/1/100/56',
+        presets: { 1: 'https://picsum.photos/id/2/160/90' }
+    },
+    { id: 'src_03', name: 'OBS Output', ip: '192.168.1.120', group: 'OBS', status: 'error', errorMsg: 'No support 4k▲', thumb: 'https://picsum.photos/id/48/100/56', presets: {} },
+    { id: 'src_04', name: 'Outdoor Cam', ip: '192.168.1.104', group: 'Outdoor', status: 'offline', thumb: '', presets: {} }
 ];
+
 let editingSourceId = null;
 let selectedAutoSearchIp = null;
 let sourceToRemoveId = null;
 let pendingRebootMode = null; 
+let presetHoverTimer = null; // Timer for tooltip
 
 document.addEventListener('DOMContentLoaded', () => {
     if(document.getElementById('view-decoder').style.display !== 'none') {
@@ -58,7 +71,6 @@ function refreshSourceList() {
     const btn = document.getElementById('btn-refresh-list');
     if(btn) { btn.innerText = "..."; btn.disabled = true; }
     
-    // Refresh UI in both Decoder and Settings (if open)
     const tbdDec = document.getElementById('source-list-body');
     const tbdSettings = document.getElementById('settings-source-list-body');
     
@@ -69,7 +81,6 @@ function refreshSourceList() {
 
     setTimeout(() => {
         renderSourceList(); 
-        // Re-render settings table if open
         if(document.getElementById('modal-large-settings').style.display !== 'none' && document.getElementById('tab-source').classList.contains('active')) {
             switchSettingsTab('source');
         }
@@ -118,14 +129,17 @@ function selectSlot(slotId) {
         if (!sourceId) {
             updatePTZPanelInfo(windowNum, null);
             setPTZPanelState(false);
+            updatePTZPresets(null); // Clear presets
         } else {
             const sourceObj = sourcesData.find(s => s.id === sourceId);
             if (sourceObj && sourceObj.status === 'offline') {
                 updatePTZPanelInfo(windowNum, null);
                 setPTZPanelState(false);
+                updatePTZPresets(null);
             } else {
                 updatePTZPanelInfo(windowNum, sourceObj ? sourceObj.name : "Unknown");
                 setPTZPanelState(true);
+                updatePTZPresets(sourceObj); // Render presets
             }
         }
     } 
@@ -135,7 +149,6 @@ function updatePTZPanelInfo(windowNum, sourceName) {
     const info = document.getElementById('ptz-target-info');
     let text = "";
     let color = "";
-    
     if(sourceName) {
         text = `Target: ${sourceName}`;
         color = "#007AFF"; 
@@ -159,12 +172,73 @@ function setPTZPanelState(enabled) {
     }
 }
 
+// === NEW: Render Preset Buttons & Hover Logic ===
+function updatePTZPresets(sourceObj) {
+    const grid = document.getElementById('ptz-preset-grid');
+    if(!grid) return;
+    grid.innerHTML = '';
+
+    for(let i=1; i<=9; i++) {
+        const btn = document.createElement('button');
+        btn.innerText = i;
+        
+        if (sourceObj && sourceObj.presets && sourceObj.presets[i]) {
+            // Has preset image
+            const imgUrl = sourceObj.presets[i];
+            
+            // Hover events
+            btn.onmouseenter = (e) => {
+                presetHoverTimer = setTimeout(() => {
+                    showPresetTooltip(e.target, imgUrl, `Preset ${i}`);
+                }, 2000); // 2 seconds delay
+            };
+            
+            btn.onmouseleave = () => {
+                clearTimeout(presetHoverTimer);
+                hidePresetTooltip();
+            };
+            
+            btn.onclick = () => {
+                clearTimeout(presetHoverTimer);
+                hidePresetTooltip();
+                showToast(`Recall Preset ${i}`, "success");
+            };
+        } else {
+            // No preset data
+            btn.disabled = true;
+        }
+        
+        grid.appendChild(btn);
+    }
+}
+
+function showPresetTooltip(targetBtn, imgUrl, label) {
+    const tooltip = document.getElementById('presetTooltip');
+    const tooltipImg = document.getElementById('presetTooltipImg');
+    const tooltipLabel = document.getElementById('presetTooltipLabel');
+    
+    if(tooltip && tooltipImg) {
+        tooltipImg.src = imgUrl;
+        tooltipLabel.innerText = label;
+        
+        const rect = targetBtn.getBoundingClientRect();
+        tooltip.style.left = (rect.left + rect.width/2 - 80) + 'px'; // Center
+        tooltip.style.top = (rect.top - 100) + 'px'; // Above
+        
+        tooltip.style.display = 'block';
+    }
+}
+
+function hidePresetTooltip() {
+    const tooltip = document.getElementById('presetTooltip');
+    if(tooltip) tooltip.style.display = 'none';
+}
+
 function savePreset() {
     showToast("Preset Saved", "success");
 }
 
 function renderSourceList() {
-    // 1. Render Decoder Panel List
     const tbody = document.getElementById('source-list-body');
     if(tbody) {
         const slot = document.getElementById('slot-1');
@@ -194,8 +268,7 @@ function renderSourceList() {
                         <div class="src-meta" style="font-size:10px;">${src.ip}</div>
                         <div style="font-size:10px; margin-top:2px;">${statusHtml}</div>
                     </td>
-                    <td class="action-col" style="white-space:nowrap;">
-                       </td>
+                    <td class="action-col" style="white-space:nowrap;"></td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -203,7 +276,6 @@ function renderSourceList() {
     }
 }
 
-// === Settings Logic ===
 function switchSettingsTab(tabId) {
     document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
     const activeTab = document.getElementById('tab-' + tabId);
@@ -213,16 +285,13 @@ function switchSettingsTab(tabId) {
     const bodyEl = document.getElementById('settings-body-content');
     let htmlContent = '';
 
-    // === 1. Video & Audio (Combined) ===
     if (tabId === 'av-settings') {
         titleEl.innerText = "Video & Audio Settings";
-        
         let encBtnClass = currentSystemMode === 'encoder' ? 'mode-switch-btn active' : 'mode-switch-btn';
         let decBtnClass = currentSystemMode === 'decoder' ? 'mode-switch-btn active' : 'mode-switch-btn';
         let encClick = currentSystemMode === 'encoder' ? '' : `onclick="showRebootWarning('encoder')"`;
         let decClick = currentSystemMode === 'decoder' ? '' : `onclick="showRebootWarning('decoder')"`;
         
-        // Section: Mode
         htmlContent += `
             <div class="settings-subsection">
                 <div class="settings-group-title"><div class="settings-group-icon">⚙️</div> Operation Mode</div>
@@ -238,10 +307,7 @@ function switchSettingsTab(tabId) {
                 </div>
             </div>
         `;
-
-        // Section: Video Settings (Dynamic based on Mode)
         htmlContent += `<div class="settings-subsection"><div class="settings-group-title"><div class="settings-group-icon">📺</div> Video Settings (${currentSystemMode.toUpperCase()})</div>`;
-        
         if (currentSystemMode === 'encoder') {
             htmlContent += `
                 <div class="form-group"><label class="form-label">Video Source</label><input type="text" class="form-input darker-input" value="HDMI (Auto detect)" readonly></div>
@@ -251,34 +317,22 @@ function switchSettingsTab(tabId) {
                 <div class="form-group"><label class="form-label">Encoding Type</label><select class="form-select darker-input"><option>H.264</option><option>H.265</option></select></div>
             `;
         } else {
-            // Removed Output Switch Mode for Decoder
             htmlContent += `
                 <div class="form-group"><label class="form-label">Resolution</label><select class="form-select"><option>3840 X 2160</option><option selected>1920 X 1080</option></select></div>
                 <div class="form-group"><label class="form-label">Color Space</label><select class="form-select"><option>RGB</option><option>YUV 4:4:4</option></select></div>
             `;
         }
-        htmlContent += `</div>`; // End Video Section
-
-        // Section: Audio Settings (Appended)
+        htmlContent += `</div>`;
         htmlContent += `
             <div class="settings-subsection" style="margin-top:30px; border-top:1px solid #333; padding-top:20px;">
                 <div class="settings-group-title"><div class="settings-group-icon">🔊</div> Audio Settings</div>
                 <div class="form-group"><label class="form-label">Source Select</label><select class="form-select"><option>Auto</option><option>HDMI</option><option>3.5mm</option></select></div>
-                <div class="form-group">
-                    <label class="form-label">Volume (Gain)</label>
-                    <div style="display:flex; align-items:center; gap:10px;">
-                        <input type="range" class="ptz-range" min="0" max="100" value="80" style="flex:1;" oninput="document.getElementById('vol-value-disp').innerText = this.value">
-                        <span id="vol-value-disp" style="width:30px; text-align:right; font-size:12px; color:#ccc;">80</span>
-                    </div>
-                </div>
+                <div class="form-group"><label class="form-label">Volume (Gain)</label><div style="display:flex; align-items:center; gap:10px;"><input type="range" class="ptz-range" min="0" max="100" value="80" style="flex:1;" oninput="document.getElementById('vol-value-disp').innerText = this.value"><span id="vol-value-disp" style="width:30px; text-align:right; font-size:12px; color:#ccc;">80</span></div></div>
             </div>
         `;
     }
-
-    // === 2. Source (Management) ===
     else if (tabId === 'source') {
         titleEl.innerText = "Source Management";
-        // Render List with Actions
         let rows = '';
         sourcesData.forEach(src => {
             let statusColor = src.status === 'online' ? '#4CAF50' : (src.status==='error'?'#888':'#888');
@@ -297,7 +351,6 @@ function switchSettingsTab(tabId) {
                 </tr>
             `;
         });
-
         htmlContent = `
             <div style="display:flex; justify-content:flex-end; margin-bottom:20px;">
                 <button class="btn btn-primary" onclick="showModal('Add Manual Source')">+ Add Source</button>
@@ -310,8 +363,6 @@ function switchSettingsTab(tabId) {
             </div>
         `;
     }
-
-    // === 3. Network (Combined) ===
     else if (tabId === 'network') {
         titleEl.innerText = "Network Settings";
         htmlContent = `
@@ -329,8 +380,6 @@ function switchSettingsTab(tabId) {
             </div>
         `;
     }
-
-    // === 4. System (Combined) ===
     else if (tabId === 'system') {
         titleEl.innerText = "System Settings";
         htmlContent = `
@@ -356,11 +405,9 @@ function switchSettingsTab(tabId) {
             </div>
         `;
     }
-
     bodyEl.innerHTML = htmlContent;
 }
 
-// ... (Rest of the functions: showModal, saveSourceData, drag/drop, etc. remain the same)
 function showModal(type) { if(type === 'Add Manual Source') { editingSourceId = null; renderSourceModal('Add Source', '', '', ''); } }
 function openEditSourceModal(id) { const src = sourcesData.find(s => s.id === id); if(!src) return; editingSourceId = id; renderSourceModal('Edit Source', src.name, src.ip, src.group); }
 function renderSourceModal(title, name, ip, group) { const box = document.getElementById('modalContentBox'); document.getElementById('modalOverlay').style.display = 'flex'; box.innerHTML = `<div class="modal-header-row"><h3 style="margin:0; color:#fff; font-size:16px;">${title}</h3><span class="modal-close-x" onclick="closeModal()">✕</span></div><div class="modal-body-add-source"><div class="form-group"><label class="form-label">Source Name</label><input type="text" id="inputSrcName" class="form-input" value="${name}" placeholder="Camera Name" onkeyup="checkModalValidity()"></div><div class="form-group"><label class="form-label">Group</label><input type="text" id="inputSrcGroup" class="form-input" value="${group}" placeholder="Group"></div><div class="form-group"><label class="form-label">IP Address</label><div style="display:flex; gap:10px;"><input type="text" id="inputSrcIP" class="form-input" value="${ip}" placeholder="192.168.x.x" onkeyup="checkModalValidity()"><button class="btn btn-outline" style="padding:0 12px;" onclick="openAutoSearch()">🔍</button></div></div></div><div class="modal-footer"><button class="modal-footer-btn" onclick="closeModal()">Cancel</button><button class="modal-footer-btn" id="btnSaveSource" onclick="saveSourceData()" disabled>Save</button></div>`; checkModalValidity(); }
@@ -368,7 +415,7 @@ function checkModalValidity() { const name = document.getElementById('inputSrcNa
 function openAutoSearch() { document.getElementById('modal-auto-search').style.display = 'flex'; selectedAutoSearchIp = null; const list = document.getElementById('search-list-content'); list.innerHTML = ''; const devices = [ { ip: '192.168.1.101', name: 'Camera 01' }, { ip: '192.168.1.105', name: 'PTZ Cam' }, { ip: '192.168.1.200', name: 'PC Stream' }, { ip: '192.168.1.205', name: 'Meeting Room' } ]; devices.forEach(d => { const el = document.createElement('div'); el.className = 'search-list-item'; el.innerText = `${d.ip} (${d.name})`; el.onclick = function() { document.querySelectorAll('.search-list-item').forEach(i => i.classList.remove('selected')); el.classList.add('selected'); selectedAutoSearchIp = d.ip; }; list.appendChild(el); }); }
 function closeAutoSearch() { document.getElementById('modal-auto-search').style.display = 'none'; }
 function confirmAutoSearch() { if(selectedAutoSearchIp) { document.getElementById('inputSrcIP').value = selectedAutoSearchIp; checkModalValidity(); closeAutoSearch(); } else { showToast("Please select an IP first", "error"); } }
-function saveSourceData() { const name = document.getElementById('inputSrcName').value; const ip = document.getElementById('inputSrcIP').value; const group = document.getElementById('inputSrcGroup').value; if(editingSourceId) { const idx = sourcesData.findIndex(s => s.id === editingSourceId); if(idx !== -1) { sourcesData[idx].name = name; sourcesData[idx].ip = ip; sourcesData[idx].group = group; updatePreviewLabels(editingSourceId, name); showToast(`Updated: ${name}`, "success"); } } else { const newId = 'src_' + Date.now(); sourcesData.push({ id: newId, name: name, ip: ip, group: group, status: 'online', thumb: 'https://picsum.photos/id/237/100/56' }); showToast(`Added: ${name}`, "success"); } refreshSourceList(); closeModal(); updateLiveHeader(); }
+function saveSourceData() { const name = document.getElementById('inputSrcName').value; const ip = document.getElementById('inputSrcIP').value; const group = document.getElementById('inputSrcGroup').value; if(editingSourceId) { const idx = sourcesData.findIndex(s => s.id === editingSourceId); if(idx !== -1) { sourcesData[idx].name = name; sourcesData[idx].ip = ip; sourcesData[idx].group = group; updatePreviewLabels(editingSourceId, name); showToast(`Updated: ${name}`, "success"); } } else { const newId = 'src_' + Date.now(); sourcesData.push({ id: newId, name: name, ip: ip, group: group, status: 'online', thumb: 'https://picsum.photos/id/237/100/56', presets: {} }); showToast(`Added: ${name}`, "success"); } refreshSourceList(); closeModal(); updateLiveHeader(); }
 function askRemoveSource(id) { sourceToRemoveId = id; document.getElementById('modal-remove-confirm').style.display = 'flex'; }
 function confirmRemoveSource() { if(sourceToRemoveId) { removeSource(null, sourceToRemoveId); sourcesData = sourcesData.filter(s => s.id !== sourceToRemoveId); refreshSourceList(); showToast("Source Removed", "success"); document.getElementById('modal-remove-confirm').style.display = 'none'; sourceToRemoveId = null; } }
 function cancelRemoveSource() { document.getElementById('modal-remove-confirm').style.display = 'none'; sourceToRemoveId = null; }
@@ -390,4 +437,3 @@ function closeSpecificModal(id) { document.getElementById(id).style.display = 'n
 function showToast(msg, type) { const div = document.createElement('div'); div.className = 'toast'; div.innerHTML = `<span>${msg}</span>`; div.style.borderLeftColor = type === 'success' ? '#4CAF50' : '#007AFF'; let container = document.getElementById('toast-container'); if(!container) { container = document.createElement('div'); container.id='toast-container'; document.body.appendChild(container); } container.appendChild(div); setTimeout(() => div.remove(), 3000); }
 function openFullSettings(tab) { document.getElementById('modal-large-settings').style.display = 'flex'; switchSettingsTab(tab); }
 function togglePTZ() { console.log("PTZ is embedded now"); }
-function switchEncTab(tabName) { document.querySelectorAll('.enc-tab').forEach(t => t.classList.remove('active')); document.getElementById('enc-tab-video').style.display = 'none'; document.getElementById('enc-tab-audio').style.display = 'none'; event.target.classList.add('active'); document.getElementById('enc-tab-' + tabName).style.display = 'block'; }
