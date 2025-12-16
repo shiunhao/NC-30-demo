@@ -1,4 +1,4 @@
-/* style.css - Final Demo Version (V25 - Active State & Auto Load) */
+/* style.css - Final Demo Version (V26 Final Polish) */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -247,7 +247,7 @@ input:checked + .slider:before { transform: translateX(14px); }
 }
 .mode-btn-icon { font-size: 18px; }
 
-/* Output Container: 填滿左側高度 */
+/* Output Container */
 .output-container { 
     background: #000; border: 1px solid #333; border-radius: 8px; 
     position: relative; overflow: hidden; display: flex; flex-direction: column; 
@@ -327,7 +327,6 @@ input:checked + .slider:before { transform: translateX(14px); }
 .source-row { border-bottom: 1px solid #2a2a2a; transition: background 0.1s; cursor: grab; }
 .source-row:active { cursor: grabbing; background: #2a2a2a; }
 .source-row:hover { background-color: #252525; }
-/* Modified: Active State */
 .source-row.active-source-row { background-color: #1a2a3a; border-left: 3px solid var(--theme-color); }
 
 .drag-col { width: 40px; text-align: center; }
@@ -338,7 +337,6 @@ input:checked + .slider:before { transform: translateX(14px); }
 .thumb-box.offline { background: #000; color: #aaa; display: flex; flex-direction: column; font-size: 9px; }
 .src-name { font-weight: bold; font-size: 13px; display: block; color: #fff; margin-bottom: 4px; }
 .src-meta { font-size: 11px; color: #888; font-family: monospace; }
-/* Modified: Error Text Color */
 .src-status-error { color: #888; font-weight: bold; margin-left: 5px; }
 
 .preset-col { width: 100px; text-align: center; }
