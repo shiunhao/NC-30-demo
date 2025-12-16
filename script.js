@@ -1,4 +1,4 @@
-/* script.js - Final Demo Version (V25 - Active State & Auto Load) */
+/* script.js - Final Demo Version (V26 Final Polish) */
 
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
@@ -37,22 +37,19 @@ function loadDefaultSource() {
     const slot = document.getElementById('slot-1');
     if(!slot) return;
 
-    // 1. Try first online source
     const firstOnline = sourcesData.find(s => s.status === 'online');
     
     if (firstOnline) {
-        // Reuse drop logic manually
         slot.dataset.sourceId = firstOnline.id;
         slot.classList.remove('offline-state');
         slot.innerHTML = `<div class="video-layer" style="background-image: url('${firstOnline.thumb || 'https://picsum.photos/id/237/400/300'}');"></div><div class="video-overlay-gradient"></div><div class="slot-label">Window 1</div><div class="slot-content"><div class="slot-name">${firstOnline.name}</div><div class="slot-meta" style="color:#4CAF50;">● Live</div></div>${renderSlotMenu(slot.id)}`;
         slot.classList.add('active-slot');
-        selectSlot(slot.id); // Updates PTZ
+        selectSlot(slot.id); 
     } else {
-        // 2. Fallback
         slot.innerHTML = `<div class="slot-label">Window 1</div><div class="slot-content" style="text-align:center;"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div>`;
         delete slot.dataset.sourceId;
         slot.classList.remove('active-slot');
-        selectSlot(slot.id); // Updates PTZ to disabled
+        selectSlot(slot.id); 
     }
 }
 
@@ -114,7 +111,6 @@ function selectSlot(slotId) {
             setPTZPanelState(false);
         } else {
             const sourceObj = sourcesData.find(s => s.id === sourceId);
-            // Modified Check: Allow Error (No 4K), Only disable on Offline
             if (sourceObj && sourceObj.status === 'offline') {
                 updatePTZPanelInfo(windowNum, null);
                 setPTZPanelState(false);
@@ -162,14 +158,12 @@ function renderSourceList() {
     const tbody = document.getElementById('source-list-body');
     if(!tbody) return;
     
-    // Check currently active source
     const slot = document.getElementById('slot-1');
     const activeSourceId = slot ? slot.dataset.sourceId : null;
 
     tbody.innerHTML = '';
     sourcesData.forEach(src => {
         const tr = document.createElement('tr');
-        // Add active class
         const isActive = src.id === activeSourceId;
         tr.className = `source-row ${src.status === 'offline' ? 'offline' : ''} ${isActive ? 'active-source-row' : ''}`;
         
@@ -178,7 +172,6 @@ function renderSourceList() {
         tr.setAttribute('data-json', JSON.stringify(src));
         
         let statusHtml = `<span style="color:#4CAF50;">Online</span>`;
-        // Modified: Error msg is now gray
         if(src.status === 'error') statusHtml = `<span class="src-status-error">${src.errorMsg}</span>`;
         if(src.status === 'offline') statusHtml = `<span style="color:#888;">Offline</span>`;
         
@@ -326,7 +319,7 @@ function drop(ev) {
     slot.classList.add('active-slot');
     selectSlot(slot.id);
     updateLiveHeader();
-    renderSourceList(); // Update List State
+    renderSourceList(); 
 }
 
 function renderSlotMenu(slotId) { return `<button class="slot-menu-btn" onclick="toggleSlotMenu('${slotId}', event)">•••</button><div class="slot-dropdown" id="menu-${slotId}"><button class="slot-action danger" onclick="removeSource('${slotId}')">Clear</button></div>`; }
@@ -340,7 +333,7 @@ function removeSource(slotId, targetSourceId = null) {
         slot.innerHTML = `<div class="slot-label">Window ${slotId.split('-')[1]}</div><div class="slot-content" style="text-align:center;"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div>`; 
         updateLiveHeader(); 
         selectSlot(slotId); 
-        renderSourceList(); // Update List State
+        renderSourceList(); 
     }
 }
 
@@ -376,7 +369,7 @@ function enterView(mode) {
     
     if(mode === 'decoder') { 
         renderSourceList(); 
-        loadDefaultSource(); // Auto Load Logic
+        loadDefaultSource(); 
         updateLiveHeader(); 
         selectSlot('slot-1'); 
     }
@@ -397,7 +390,6 @@ function closeSpecificModal(id) { document.getElementById(id).style.display = 'n
 function showToast(msg, type) { const div = document.createElement('div'); div.className = 'toast'; div.innerHTML = `<span>${msg}</span>`; div.style.borderLeftColor = type === 'success' ? '#4CAF50' : '#007AFF'; let container = document.getElementById('toast-container'); if(!container) { container = document.createElement('div'); container.id='toast-container'; document.body.appendChild(container); } container.appendChild(div); setTimeout(() => div.remove(), 3000); }
 function openFullSettings(tab) { document.getElementById('modal-large-settings').style.display = 'flex'; switchSettingsTab(tab); }
 
-// togglePTZ is kept but empty as panel is embedded
 function togglePTZ() { console.log("PTZ is embedded now"); }
 
 function switchEncTab(tabName) {
@@ -417,8 +409,9 @@ function switchSettingsTab(tabId) {
     const bodyEl = document.getElementById('settings-body-content');
     let htmlContent = '';
 
-    if (tabId === 'stream') {
-        titleEl.innerText = "Stream Settings & Mode";
+    // === Renamed to Video (was Stream & Mode) ===
+    if (tabId === 'video') {
+        titleEl.innerText = "Video Settings & Mode";
         
         let encBtnClass = currentSystemMode === 'encoder' ? 'mode-switch-btn active' : 'mode-switch-btn';
         let decBtnClass = currentSystemMode === 'decoder' ? 'mode-switch-btn active' : 'mode-switch-btn';
