@@ -1,4 +1,4 @@
-/* style.css - Final Demo Version (V23 - 4:1 Ratio) */
+/* style.css - Final Demo Version (V24 - Right Panel 40/60 Split) */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -151,7 +151,7 @@ input:checked + .slider:before { transform: translateX(14px); }
     max-width: 1800px; margin: 0 auto; 
 }
 
-/* Decoder Layout: Split Left/Right (Modified to 4:1) */
+/* Decoder Layout: Split Left/Right (4:1) */
 .decoder-layout { 
     display: grid; 
     grid-template-columns: 4fr 1fr; /* Preview 4 : Controls 1 */
@@ -199,9 +199,9 @@ input:checked + .slider:before { transform: translateX(14px); }
     display: flex; flex-direction: column; overflow: hidden; height: auto; padding: 0;
 }
 
-/* PTZ Panel: 50% Split */
+/* PTZ Panel: 60% Split (flex: 3) */
 .embedded-ptz-panel { 
-    flex: 1; 
+    flex: 3; /* Key Change: 60% */
     min-height: 0;
     padding-bottom: 20px;
 }
@@ -247,11 +247,11 @@ input:checked + .slider:before { transform: translateX(14px); }
 }
 .mode-btn-icon { font-size: 18px; }
 
-/* Output Container: 填滿左側高度 */
+/* Output Container */
 .output-container { 
     background: #000; border: 1px solid #333; border-radius: 8px; 
     position: relative; overflow: hidden; display: flex; flex-direction: column; 
-    flex: 1; /* Key change: Fills height */
+    flex: 1; 
     min-height: 0; 
 }
 
@@ -312,11 +312,11 @@ input:checked + .slider:before { transform: translateX(14px); }
 .slot-action:hover { background: #333; color: #fff; }
 .slot-action.danger:hover { background: #D32F2F; }
 
-/* Source List: 50% Split */
+/* Source List: 40% Split (flex: 2) */
 .source-list-panel { 
     background: #1E1E1E; border: 1px solid #333; border-radius: 8px; 
     display: flex; flex-direction: column; overflow: hidden; 
-    flex: 1; 
+    flex: 2; /* Key Change: 40% */
     min-height: 0; 
 }
 
