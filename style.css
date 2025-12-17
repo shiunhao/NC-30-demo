@@ -1,4 +1,4 @@
-/* style.css - Final Demo Version (V30 Resolution Logic) */
+/* style.css - Final Demo Version (V31 Corrected) */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -329,7 +329,7 @@ input:checked + .slider:before { transform: translateX(14px); }
 .source-row:hover { background-color: #252525; }
 .source-row.active-source-row { background-color: #1a2a3a; border-left: 3px solid var(--theme-color); }
 
-/* Empty State Style (New V27) */
+/* Empty State Style */
 .empty-state { padding: 40px; text-align: center; color: #666; font-size: 13px; line-height: 1.6; }
 
 .drag-col { width: 40px; text-align: center; }
@@ -339,7 +339,7 @@ input:checked + .slider:before { transform: translateX(14px); }
 .thumb-box img { width: 100%; height: 100%; object-fit: cover; }
 .thumb-box.offline { background: #000; color: #aaa; display: flex; flex-direction: column; font-size: 9px; }
 
-/* Unsupported Overlay (New V30) */
+/* Unsupported Overlay (V30) */
 .thumb-box.unsupported { position: relative; }
 .thumb-box.unsupported::after {
     content: "UNSUPPORTED";
