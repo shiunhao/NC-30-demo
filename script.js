@@ -1,12 +1,13 @@
-/* script.js - Final Demo Version (V33 Flow Fix) */
+/* script.js - Final Demo Version (V34 Empty State Flow) */
 
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
 let currentOutputMode = 'Single'; 
 let maxDecResolution = 2160; 
 
-// Initial Data
+// Initial Data (Empty this array to see empty states)
 let sourcesData = [
+    // Remove items manually in UI to test empty state
     { 
         id: 'src_01', name: 'Main Camera 01', ip: '192.168.1.101', group: 'Studio A', status: 'online', thumb: 'https://picsum.photos/id/64/100/56',
         resHeight: 2160, resolution: '3840x2160',
@@ -48,6 +49,13 @@ function doLogin() {
 function loadDefaultSource() {
     const slot = document.getElementById('slot-1');
     if(!slot) return;
+    
+    // Check Empty State Logic first
+    if(sourcesData.length === 0) {
+        checkEmptyState();
+        return;
+    }
+
     const firstOnline = sourcesData.find(s => s.status === 'online' && s.resHeight <= maxDecResolution);
     if (firstOnline) {
         slot.dataset.sourceId = firstOnline.id;
@@ -60,6 +68,26 @@ function loadDefaultSource() {
         delete slot.dataset.sourceId;
         slot.classList.remove('active-slot');
         selectSlot(slot.id); 
+    }
+}
+
+// === Check Empty State for Live Preview ===
+function checkEmptyState() {
+    const layout = document.getElementById('outputLayout');
+    if(sourcesData.length === 0) {
+        layout.innerHTML = `
+            <div class="empty-state-wrapper">
+                <div class="empty-icon-placeholder">📷</div>
+                <div class="empty-text-title">You have not set up any device.</div>
+                <div class="empty-text-desc">Please go to Add.</div>
+                <button class="empty-btn-primary" onclick="openFullSettings('source', true)">Go to Settings</button>
+            </div>
+        `;
+        // Disable PTZ
+        selectSlot('none');
+    } else {
+        // Restore layout if needed (simple single/quad restore)
+        if(!document.getElementById('slot-1')) switchOutputMode(currentOutputMode === 'Single' ? 1 : 4);
     }
 }
 
@@ -119,12 +147,20 @@ function setMaxVideoInput(val) {
 
 // === PTZ LOGIC ===
 function selectSlot(slotId) { 
+    if(slotId === 'none') {
+        updatePTZPanelInfo(null, null);
+        setPTZPanelState(false);
+        updatePTZPresets(null);
+        return;
+    }
+
     document.querySelectorAll('.preview-slot').forEach(el => el.classList.remove('selected-slot')); 
     const el = document.getElementById(slotId); 
     if(el) { 
         el.classList.add('selected-slot'); 
         const sourceId = el.dataset.sourceId;
         const windowNum = slotId.split('-')[1];
+        
         if (!sourceId) {
             updatePTZPanelInfo(windowNum, null);
             setPTZPanelState(false);
@@ -191,17 +227,24 @@ function showPresetTooltip(targetBtn, imgUrl, label) {
 function hidePresetTooltip() { const tooltip = document.getElementById('presetTooltip'); if(tooltip) tooltip.style.display = 'none'; }
 function savePreset() { showToast("Preset Saved", "success"); }
 
-// === Render Source List (Handles Empty State & Active Preview) ===
+// === Render Source List ===
 function renderSourceList() {
+    // 1. Decoder Panel List
     const tbody = document.getElementById('source-list-body');
     if(tbody) {
         const slot = document.getElementById('slot-1');
         const activeSourceId = slot ? slot.dataset.sourceId : null;
         tbody.innerHTML = '';
+        
         if (sourcesData.length === 0) {
-            // New Empty State with Button that opens Settings
-            tbody.innerHTML = `<tr><td colspan="3" class="empty-state">Currently no sources.<br>Please click the Add Source button to add.<br><button class="empty-state-btn" onclick="openFullSettings('source')">+ Add Source</button></td></tr>`;
+            // Right Panel: Only Icon
+            tbody.innerHTML = '<tr><td colspan="3"><div class="simple-empty-icon">📁</div><div style="text-align:center; color:#666; font-size:12px;">No Source</div></td></tr>';
+            // Trigger Left Panel Empty State
+            checkEmptyState();
         } else {
+            // Restore Layout if data exists
+            if(document.querySelector('.empty-state-wrapper')) switchOutputMode(currentOutputMode === 'Single' ? 1 : 4);
+            
             sourcesData.forEach(src => {
                 const tr = document.createElement('tr');
                 const isActive = src.id === activeSourceId;
@@ -262,7 +305,7 @@ function switchSettingsTab(tabId) {
         }
         htmlContent += `</div><div class="settings-subsection" style="margin-top:30px; border-top:1px solid #333; padding-top:20px;"><div class="settings-group-title"><div class="settings-group-icon">🔊</div> Audio Settings</div><div class="form-group"><label class="form-label">Source Select</label><select class="form-select"><option>Auto</option><option>HDMI</option><option>3.5mm</option></select></div><div class="form-group"><label class="form-label">Volume (Gain)</label><div style="display:flex; align-items:center; gap:10px;"><input type="range" class="ptz-range" min="0" max="100" value="80" style="flex:1;" oninput="document.getElementById('vol-value-disp').innerText = this.value"><span id="vol-value-disp" style="width:30px; text-align:right; font-size:12px; color:#ccc;">80</span></div></div></div>`;
     }
-    // === Logic for Source Tab Restriction in Encoder Mode ===
+    // === Logic for Source Tab (Encoder Disabled) ===
     else if (tabId === 'source') {
         titleEl.innerText = "Source Management";
         
@@ -308,7 +351,7 @@ function switchSettingsTab(tabId) {
     bodyEl.innerHTML = htmlContent;
 }
 
-// ... (Rest of functions)
+// ... (Rest of modal/helper functions)
 function showModal(t){if(t==='Add Manual Source'){editingSourceId=null;renderSourceModal('Add Source','','','')}}
 function openEditSourceModal(id){const s=sourcesData.find(i=>i.id===id);if(s){editingSourceId=id;renderSourceModal('Edit Source',s.name,s.ip,s.group)}}
 function renderSourceModal(t,n,i,g){document.getElementById('modalContentBox').innerHTML=`<div class="modal-header-row"><h3 style="margin:0;color:#fff;">${t}</h3><span class="modal-close-x" onclick="closeModal()">✕</span></div><div class="modal-body-add-source"><div class="form-group"><label class="form-label">Source Name</label><input type="text" id="inputSrcName" class="form-input" value="${n}" onkeyup="checkModalValidity()"></div><div class="form-group"><label class="form-label">Group</label><input type="text" id="inputSrcGroup" class="form-input" value="${g}" placeholder="Group"></div><div class="form-group"><label class="form-label">IP Address</label><div style="display:flex; gap:10px;"><input type="text" id="inputSrcIP" class="form-input" value="${i}" placeholder="192.168.x.x" onkeyup="checkModalValidity()"><button class="btn btn-outline" style="padding:0 12px;" onclick="openAutoSearch()">🔍</button></div></div></div><div class="modal-footer"><button class="modal-footer-btn" onclick="closeModal()">Cancel</button><button class="modal-footer-btn" id="btnSaveSource" onclick="saveSourceData()" disabled>Save</button></div>`;document.getElementById('modalOverlay').style.display='flex';checkModalValidity()}
@@ -336,6 +379,12 @@ function toggleAccountMenu() { document.getElementById('accountMenu').classList.
 function closeModal(e) { if(!e || e.target.id === 'modalOverlay' || e.target.classList.contains('modal-close-x')) document.getElementById('modalOverlay').style.display = 'none'; }
 function closeSpecificModal(id) { document.getElementById(id).style.display = 'none'; }
 function showToast(msg, type) { const div = document.createElement('div'); div.className = 'toast'; div.innerHTML = `<span>${msg}</span>`; div.style.borderLeftColor = type === 'success' ? '#4CAF50' : '#007AFF'; let container = document.getElementById('toast-container'); if(!container) { container = document.createElement('div'); container.id='toast-container'; document.body.appendChild(container); } container.appendChild(div); setTimeout(() => div.remove(), 3000); }
-function openFullSettings(tab) { document.getElementById('modal-large-settings').style.display = 'flex'; switchSettingsTab(tab); }
+function openFullSettings(tab, autoAdd=false) { 
+    document.getElementById('modal-large-settings').style.display = 'flex'; 
+    switchSettingsTab(tab); 
+    if(autoAdd && tab === 'source') {
+        setTimeout(() => showModal('Add Manual Source'), 300);
+    }
+}
 function togglePTZ() { console.log("PTZ is embedded now"); }
 function switchEncTab(tabName) { document.querySelectorAll('.enc-tab').forEach(t => t.classList.remove('active')); document.getElementById('enc-tab-video').style.display = 'none'; document.getElementById('enc-tab-audio').style.display = 'none'; event.target.classList.add('active'); document.getElementById('enc-tab-' + tabName).style.display = 'block'; }
