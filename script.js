@@ -1,13 +1,13 @@
-/* script.js - Final Demo Version (V34 Empty State Flow) */
+/* script.js - Final Demo Version (V35 Final Fix) */
 
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
 let currentOutputMode = 'Single'; 
 let maxDecResolution = 2160; 
 
-// Initial Data (Empty this array to see empty states)
+// Initial Data - Empty this to see empty states
+// let sourcesData = []; 
 let sourcesData = [
-    // Remove items manually in UI to test empty state
     { 
         id: 'src_01', name: 'Main Camera 01', ip: '192.168.1.101', group: 'Studio A', status: 'online', thumb: 'https://picsum.photos/id/64/100/56',
         resHeight: 2160, resolution: '3840x2160',
@@ -50,7 +50,7 @@ function loadDefaultSource() {
     const slot = document.getElementById('slot-1');
     if(!slot) return;
     
-    // Check Empty State Logic first
+    // Check Empty State First
     if(sourcesData.length === 0) {
         checkEmptyState();
         return;
@@ -71,10 +71,11 @@ function loadDefaultSource() {
     }
 }
 
-// === Check Empty State for Live Preview ===
+// === Check Empty State (Live Preview) ===
 function checkEmptyState() {
     const layout = document.getElementById('outputLayout');
-    if(sourcesData.length === 0) {
+    // Only show big empty state in Decoder mode and if no sources
+    if(sourcesData.length === 0 && currentSystemMode === 'decoder') {
         layout.innerHTML = `
             <div class="empty-state-wrapper">
                 <div class="empty-icon-placeholder">📷</div>
@@ -83,11 +84,7 @@ function checkEmptyState() {
                 <button class="empty-btn-primary" onclick="openFullSettings('source', true)">Go to Settings</button>
             </div>
         `;
-        // Disable PTZ
-        selectSlot('none');
-    } else {
-        // Restore layout if needed (simple single/quad restore)
-        if(!document.getElementById('slot-1')) switchOutputMode(currentOutputMode === 'Single' ? 1 : 4);
+        selectSlot('none'); // Disable PTZ
     }
 }
 
@@ -160,7 +157,6 @@ function selectSlot(slotId) {
         el.classList.add('selected-slot'); 
         const sourceId = el.dataset.sourceId;
         const windowNum = slotId.split('-')[1];
-        
         if (!sourceId) {
             updatePTZPanelInfo(windowNum, null);
             setPTZPanelState(false);
@@ -229,7 +225,6 @@ function savePreset() { showToast("Preset Saved", "success"); }
 
 // === Render Source List ===
 function renderSourceList() {
-    // 1. Decoder Panel List
     const tbody = document.getElementById('source-list-body');
     if(tbody) {
         const slot = document.getElementById('slot-1');
@@ -237,13 +232,18 @@ function renderSourceList() {
         tbody.innerHTML = '';
         
         if (sourcesData.length === 0) {
-            // Right Panel: Only Icon
+            // Empty State Logic
             tbody.innerHTML = '<tr><td colspan="3"><div class="simple-empty-icon">📁</div><div style="text-align:center; color:#666; font-size:12px;">No Source</div></td></tr>';
-            // Trigger Left Panel Empty State
+            // Also trigger live preview empty state
             checkEmptyState();
         } else {
-            // Restore Layout if data exists
-            if(document.querySelector('.empty-state-wrapper')) switchOutputMode(currentOutputMode === 'Single' ? 1 : 4);
+            // Restore Layout if data exists (if currently in empty state)
+            if(document.querySelector('.empty-state-wrapper') && currentSystemMode === 'decoder') {
+                 // Re-render layout structure
+                 const container = document.getElementById('outputContainer');
+                 // Reset to slots
+                 switchOutputMode(currentOutputMode === 'Single' ? 1 : 4);
+            }
             
             sourcesData.forEach(src => {
                 const tr = document.createElement('tr');
@@ -305,37 +305,22 @@ function switchSettingsTab(tabId) {
         }
         htmlContent += `</div><div class="settings-subsection" style="margin-top:30px; border-top:1px solid #333; padding-top:20px;"><div class="settings-group-title"><div class="settings-group-icon">🔊</div> Audio Settings</div><div class="form-group"><label class="form-label">Source Select</label><select class="form-select"><option>Auto</option><option>HDMI</option><option>3.5mm</option></select></div><div class="form-group"><label class="form-label">Volume (Gain)</label><div style="display:flex; align-items:center; gap:10px;"><input type="range" class="ptz-range" min="0" max="100" value="80" style="flex:1;" oninput="document.getElementById('vol-value-disp').innerText = this.value"><span id="vol-value-disp" style="width:30px; text-align:right; font-size:12px; color:#ccc;">80</span></div></div></div>`;
     }
-    // === Logic for Source Tab (Encoder Disabled) ===
     else if (tabId === 'source') {
         titleEl.innerText = "Source Management";
         
-        // Check if Encoder Mode
         if (currentSystemMode === 'encoder') {
-            // Disabled State
-            let rows = '';
-            if(sourcesData.length === 0) {
-                 rows = '<tr><td colspan="4" class="empty-state">No sources found.</td></tr>';
-            } else {
-                sourcesData.forEach(src => {
-                    rows += `<tr class="source-row disabled-content"><td style="padding:10px;"><div class="thumb-box" style="width:80px; height:45px;"><img src="${src.thumb || ''}" style="width:100%; height:100%; object-fit:cover; display:${src.thumb?'block':'none'}"></div></td><td style="padding:10px;"><div style="font-weight:bold; color:#fff;">${src.name}</div><div style="font-size:12px; color:#888;">${src.ip}</div></td><td style="padding:10px; color:#888; font-size:12px;">${src.status.toUpperCase()}</td><td style="padding:10px; text-align:right;"><button class="btn btn-outline btn-sm" disabled>Edit</button> <button class="btn btn-danger btn-sm" disabled>Delete</button></td></tr>`;
-                });
-            }
-            htmlContent = `
-                <div style="background:#332b00; border:1px solid #d4b106; color:#ffeeba; padding:10px; border-radius:4px; margin-bottom:20px; font-size:13px;">
-                    ⚠️ Source management is only available in Decoder Mode.
-                </div>
-                <div style="display:flex; justify-content:flex-end; margin-bottom:20px;">
-                    <button class="btn btn-primary" disabled style="opacity:0.5; cursor:not-allowed;">+ Add Source</button>
-                </div>
-                <div class="source-list-panel" style="border:1px solid #333; border-radius:8px; overflow:hidden;">
-                    <table class="source-list-table"><thead class="source-list-header"><tr><th>Preview</th><th>Name & IP</th><th>Status</th><th style="text-align:right;">Actions</th></tr></thead><tbody id="settings-source-list-body">${rows}</tbody></table>
-                </div>
-            `;
+            // Encoder Disabled State
+             let rows = '';
+            if(sourcesData.length === 0) rows = '<tr><td colspan="4" class="empty-state">No sources found.</td></tr>';
+            else sourcesData.forEach(src => { rows += `<tr class="source-row disabled-content"><td style="padding:10px;"><div class="thumb-box" style="width:80px; height:45px;"><img src="${src.thumb || ''}" style="width:100%; height:100%; object-fit:cover; display:${src.thumb?'block':'none'}"></div></td><td style="padding:10px;"><div style="font-weight:bold; color:#fff;">${src.name}</div><div style="font-size:12px; color:#888;">${src.ip}</div></td><td style="padding:10px; color:#888; font-size:12px;">${src.status.toUpperCase()}</td><td style="padding:10px; text-align:right;"><button class="btn btn-outline btn-sm" disabled>Edit</button> <button class="btn btn-danger btn-sm" disabled>Delete</button></td></tr>`; });
+            
+            htmlContent = `<div style="background:#332b00; border:1px solid #d4b106; color:#ffeeba; padding:10px; border-radius:4px; margin-bottom:20px; font-size:13px;">⚠️ Source management is only available in Decoder Mode.</div><div style="display:flex; justify-content:flex-end; margin-bottom:20px;"><button class="btn btn-primary" disabled style="opacity:0.5; cursor:not-allowed;">+ Add Source</button></div><div class="source-list-panel" style="border:1px solid #333; border-radius:8px; overflow:hidden;"><table class="source-list-table"><thead class="source-list-header"><tr><th>Preview</th><th>Name & IP</th><th>Status</th><th style="text-align:right;">Actions</th></tr></thead><tbody id="settings-source-list-body">${rows}</tbody></table></div>`;
         } else {
-            // Decoder Mode (Normal)
+            // Decoder Normal State
             let rows = '';
             if(sourcesData.length === 0) {
-                rows = '<tr><td colspan="4" class="empty-state">No sources found.</td></tr>';
+                // Empty State with big icon logic
+                rows = `<tr><td colspan="4"><div class="empty-state-wrapper" style="padding:40px;"><div class="empty-icon-placeholder">📷</div><div class="empty-text-title">You have not set up any device.</div><div class="empty-text-desc">Please click the Add Source button.</div></div></td></tr>`;
             } else {
                 sourcesData.forEach(src => {
                     let statusColor = src.status === 'online' ? '#4CAF50' : (src.status==='error'?'#888':'#888');
@@ -351,7 +336,7 @@ function switchSettingsTab(tabId) {
     bodyEl.innerHTML = htmlContent;
 }
 
-// ... (Rest of modal/helper functions)
+// ... (Rest of helper functions)
 function showModal(t){if(t==='Add Manual Source'){editingSourceId=null;renderSourceModal('Add Source','','','')}}
 function openEditSourceModal(id){const s=sourcesData.find(i=>i.id===id);if(s){editingSourceId=id;renderSourceModal('Edit Source',s.name,s.ip,s.group)}}
 function renderSourceModal(t,n,i,g){document.getElementById('modalContentBox').innerHTML=`<div class="modal-header-row"><h3 style="margin:0;color:#fff;">${t}</h3><span class="modal-close-x" onclick="closeModal()">✕</span></div><div class="modal-body-add-source"><div class="form-group"><label class="form-label">Source Name</label><input type="text" id="inputSrcName" class="form-input" value="${n}" onkeyup="checkModalValidity()"></div><div class="form-group"><label class="form-label">Group</label><input type="text" id="inputSrcGroup" class="form-input" value="${g}" placeholder="Group"></div><div class="form-group"><label class="form-label">IP Address</label><div style="display:flex; gap:10px;"><input type="text" id="inputSrcIP" class="form-input" value="${i}" placeholder="192.168.x.x" onkeyup="checkModalValidity()"><button class="btn btn-outline" style="padding:0 12px;" onclick="openAutoSearch()">🔍</button></div></div></div><div class="modal-footer"><button class="modal-footer-btn" onclick="closeModal()">Cancel</button><button class="modal-footer-btn" id="btnSaveSource" onclick="saveSourceData()" disabled>Save</button></div>`;document.getElementById('modalOverlay').style.display='flex';checkModalValidity()}
@@ -379,12 +364,6 @@ function toggleAccountMenu() { document.getElementById('accountMenu').classList.
 function closeModal(e) { if(!e || e.target.id === 'modalOverlay' || e.target.classList.contains('modal-close-x')) document.getElementById('modalOverlay').style.display = 'none'; }
 function closeSpecificModal(id) { document.getElementById(id).style.display = 'none'; }
 function showToast(msg, type) { const div = document.createElement('div'); div.className = 'toast'; div.innerHTML = `<span>${msg}</span>`; div.style.borderLeftColor = type === 'success' ? '#4CAF50' : '#007AFF'; let container = document.getElementById('toast-container'); if(!container) { container = document.createElement('div'); container.id='toast-container'; document.body.appendChild(container); } container.appendChild(div); setTimeout(() => div.remove(), 3000); }
-function openFullSettings(tab, autoAdd=false) { 
-    document.getElementById('modal-large-settings').style.display = 'flex'; 
-    switchSettingsTab(tab); 
-    if(autoAdd && tab === 'source') {
-        setTimeout(() => showModal('Add Manual Source'), 300);
-    }
-}
+function openFullSettings(tab, autoAdd=false) { document.getElementById('modal-large-settings').style.display = 'flex'; switchSettingsTab(tab); if(autoAdd && tab === 'source') { setTimeout(() => showModal('Add Manual Source'), 300); } }
 function togglePTZ() { console.log("PTZ is embedded now"); }
 function switchEncTab(tabName) { document.querySelectorAll('.enc-tab').forEach(t => t.classList.remove('active')); document.getElementById('enc-tab-video').style.display = 'none'; document.getElementById('enc-tab-audio').style.display = 'none'; event.target.classList.add('active'); document.getElementById('enc-tab-' + tabName).style.display = 'block'; }
