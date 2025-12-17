@@ -1,11 +1,10 @@
-/* script.js - Final Demo Version (V31 Corrected) */
+/* script.js - Final Demo Version (V32 System Fix) */
 
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
 let currentOutputMode = 'Single'; 
-let maxDecResolution = 2160; // Default 4K
+let maxDecResolution = 2160; 
 
-// Merged Data from V30 + V29
 let sourcesData = [
     { 
         id: 'src_01', name: 'Main Camera 01', ip: '192.168.1.101', group: 'Studio A', status: 'online', thumb: 'https://picsum.photos/id/64/100/56',
@@ -34,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// === Login Logic ===
+// ... (Login / Auto Load / Refresh functions same as V31) ...
 function doLogin() {
     const btn = document.querySelector('#page-login .btn-primary');
     btn.innerHTML = "Logging in...";
@@ -44,7 +43,6 @@ function doLogin() {
     }, 800);
 }
 
-// === Auto Load Source ===
 function loadDefaultSource() {
     const slot = document.getElementById('slot-1');
     if(!slot) return;
@@ -63,25 +61,19 @@ function loadDefaultSource() {
     }
 }
 
-// === Refresh with Loading ===
 function refreshSourceList() {
     const btn = document.getElementById('btn-refresh-list');
     if(btn) { btn.innerText = "..."; btn.disabled = true; }
-    
     const tbdDec = document.getElementById('source-list-body');
     const tbdSettings = document.getElementById('settings-source-list-body');
-    
     const spinnerHtml = '<tr><td colspan="6" style="text-align:center; padding:40px;"><div class="loading-spinner-container"><div class="spinner-ring"></div><div style="margin-top:10px; color:#888; font-size:13px;">Updating sources...</div></div></td></tr>';
-    
     if(tbdDec) tbdDec.innerHTML = spinnerHtml;
     if(tbdSettings) tbdSettings.innerHTML = spinnerHtml;
-
     setTimeout(() => {
         renderSourceList(); 
         if(document.getElementById('modal-large-settings').style.display !== 'none' && document.getElementById('tab-source').classList.contains('active')) {
             switchSettingsTab('source');
         }
-        
         if(btn) { btn.innerText = "↻"; btn.disabled = false; }
         showToast("Source list refreshed", "success");
     }, 1000);
@@ -114,13 +106,11 @@ function updateLiveHeader() {
     }
 }
 
-// === Resolution Logic ===
 function setMaxVideoInput(val) {
     maxDecResolution = parseInt(val);
-    renderSourceList(); // Update List Warnings
+    renderSourceList(); 
 }
 
-// === PTZ LOGIC ===
 function selectSlot(slotId) { 
     document.querySelectorAll('.preview-slot').forEach(el => el.classList.remove('selected-slot')); 
     const el = document.getElementById(slotId); 
@@ -128,7 +118,6 @@ function selectSlot(slotId) {
         el.classList.add('selected-slot'); 
         const sourceId = el.dataset.sourceId;
         const windowNum = slotId.split('-')[1];
-        
         if (!sourceId) {
             updatePTZPanelInfo(windowNum, null);
             setPTZPanelState(false);
@@ -150,29 +139,14 @@ function selectSlot(slotId) {
 
 function updatePTZPanelInfo(windowNum, sourceName) {
     const info = document.getElementById('ptz-target-info');
-    let text = "";
-    let color = "";
-    if(sourceName) {
-        text = `Target: ${sourceName}`;
-        color = "#007AFF"; 
-    } else {
-        text = `Target: Unavailable`;
-        color = "#D32F2F"; 
-    }
+    let text = ""; let color = "";
+    if(sourceName) { text = `Target: ${sourceName}`; color = "#007AFF"; } else { text = `Target: Unavailable`; color = "#D32F2F"; }
     if(info) { info.innerText = text; info.style.color = color; }
 }
 
 function setPTZPanelState(enabled) {
     const panel = document.querySelector('.embedded-ptz-panel');
-    if(panel) {
-         if(enabled) {
-             panel.classList.remove('disabled-ui');
-             panel.style.opacity = '1';
-         } else {
-             panel.classList.add('disabled-ui');
-             panel.style.opacity = '0.5';
-         }
-    }
+    if(panel) { if(enabled) { panel.classList.remove('disabled-ui'); panel.style.opacity = '1'; } else { panel.classList.add('disabled-ui'); panel.style.opacity = '0.5'; } }
 }
 
 function updatePTZPresets(sourceObj) {
@@ -199,8 +173,7 @@ function showPresetTooltip(targetBtn, imgUrl, label) {
     const tooltipImg = document.getElementById('presetTooltipImg');
     const tooltipLabel = document.getElementById('presetTooltipLabel');
     if(tooltip && tooltipImg) {
-        tooltipImg.src = imgUrl;
-        tooltipLabel.innerText = label;
+        tooltipImg.src = imgUrl; tooltipLabel.innerText = label;
         const rect = targetBtn.getBoundingClientRect();
         tooltip.style.left = (rect.left + rect.width/2 - 80) + 'px'; 
         tooltip.style.top = (rect.top - 100) + 'px'; 
@@ -208,14 +181,8 @@ function showPresetTooltip(targetBtn, imgUrl, label) {
     }
 }
 
-function hidePresetTooltip() {
-    const tooltip = document.getElementById('presetTooltip');
-    if(tooltip) tooltip.style.display = 'none';
-}
-
-function savePreset() {
-    showToast("Preset Saved", "success");
-}
+function hidePresetTooltip() { const tooltip = document.getElementById('presetTooltip'); if(tooltip) tooltip.style.display = 'none'; }
+function savePreset() { showToast("Preset Saved", "success"); }
 
 function renderSourceList() {
     const tbody = document.getElementById('source-list-body');
@@ -223,7 +190,6 @@ function renderSourceList() {
         const slot = document.getElementById('slot-1');
         const activeSourceId = slot ? slot.dataset.sourceId : null;
         tbody.innerHTML = '';
-        
         if (sourcesData.length === 0) {
             tbody.innerHTML = '<tr><td colspan="3" class="empty-state">No sources available.<br>Go to Settings > Source to add.</td></tr>';
         } else {
@@ -231,7 +197,6 @@ function renderSourceList() {
                 const tr = document.createElement('tr');
                 const isActive = src.id === activeSourceId;
                 const isUnsupported = src.resHeight > maxDecResolution;
-                
                 tr.className = `source-row ${src.status === 'offline' ? 'offline' : ''} ${isActive ? 'active-source-row' : ''}`;
                 tr.draggable = !isUnsupported;
                 tr.setAttribute('ondragstart', 'drag(event)');
@@ -240,17 +205,13 @@ function renderSourceList() {
                 let statusHtml = `<span style="color:#4CAF50;">Online</span>`;
                 if(src.status === 'error') statusHtml = `<span class="src-status-error">${src.errorMsg}</span>`;
                 if(src.status === 'offline') statusHtml = `<span style="color:#888;">Offline</span>`;
-                
                 if(isUnsupported) statusHtml += `<span class="src-status-warning">Resolution Exceeded</span>`;
                 else if(isActive) statusHtml += ` <span style="color:#007AFF; font-weight:bold; font-size:10px; margin-left:5px;">● PREVIEW</span>`;
 
                 let thumbClass = "thumb-box";
                 if(src.status === 'offline') thumbClass += " offline";
                 if(isUnsupported) thumbClass += " unsupported";
-
-                let thumbHtml = src.status === 'offline' && !src.thumb ? 
-                    `<div class="${thumbClass}"><span>Offline</span></div>` : 
-                    `<div class="${thumbClass}"><img src="${src.thumb}"></div>`;
+                let thumbHtml = src.status === 'offline' && !src.thumb ? `<div class="${thumbClass}"><span>Offline</span></div>` : `<div class="${thumbClass}"><img src="${src.thumb}"></div>`;
                 
                 tr.innerHTML = `
                     <td class="drag-col"><span class="drag-handle-icon" style="opacity:${isUnsupported?0.3:1}">⋮⋮</span></td>
@@ -267,11 +228,11 @@ function renderSourceList() {
     }
 }
 
+// === Settings Logic ===
 function switchSettingsTab(tabId) {
     document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
     const activeTab = document.getElementById('tab-' + tabId);
     if(activeTab) activeTab.classList.add('active');
-
     const titleEl = document.getElementById('settings-title');
     const bodyEl = document.getElementById('settings-body-content');
     let htmlContent = '';
@@ -284,49 +245,65 @@ function switchSettingsTab(tabId) {
         let decClick = currentSystemMode === 'decoder' ? '' : `onclick="showRebootWarning('decoder')"`;
         
         htmlContent += `
-            <div class="settings-subsection">
-                <div class="settings-group-title"><div class="settings-group-icon">⚙️</div> Operation Mode</div>
-                <div class="mode-switch-container" style="margin-bottom:30px;">
-                    <div class="${encBtnClass}" ${encClick}><div class="mode-btn-icon">📡</div><span>Encoder Mode</span></div>
-                    <div class="${decBtnClass}" ${decClick}><div class="mode-btn-icon">🖥️</div><span>Decoder Mode</span></div>
-                </div>
-            </div>
+            <div class="settings-subsection"><div class="settings-group-title"><div class="settings-group-icon">⚙️</div> Operation Mode</div>
+            <div class="mode-switch-container" style="margin-bottom:30px;"><div class="${encBtnClass}" ${encClick}><div class="mode-btn-icon">📡</div><span>Encoder Mode</span></div><div class="${decBtnClass}" ${decClick}><div class="mode-btn-icon">🖥️</div><span>Decoder Mode</span></div></div></div>
+            <div class="settings-subsection"><div class="settings-group-title"><div class="settings-group-icon">📺</div> Video Settings (${currentSystemMode.toUpperCase()})</div>
         `;
-        htmlContent += `<div class="settings-subsection"><div class="settings-group-title"><div class="settings-group-icon">📺</div> Video Settings (${currentSystemMode.toUpperCase()})</div>`;
         if (currentSystemMode === 'encoder') {
-            htmlContent += `
-                <div class="form-group"><label class="form-label">Video Source</label><input type="text" class="form-input darker-input" value="HDMI (Auto detect)" readonly></div>
-                <div class="form-group"><label class="form-label">Resolution</label><select class="form-select darker-input"><option>3840 x 2160</option><option>1920 x 1080</option></select></div>
-            `;
+            htmlContent += `<div class="form-group"><label class="form-label">Video Source</label><input type="text" class="form-input darker-input" value="HDMI (Auto detect)" readonly></div><div class="form-group"><label class="form-label">Resolution</label><select class="form-select darker-input"><option>3840 x 2160</option><option>1920 x 1080</option></select></div>`;
         } else {
             htmlContent += `
-                <div class="form-group">
-                    <label class="form-label">Maximum Video Input</label>
-                    <select class="form-select" onchange="setMaxVideoInput(this.value)">
-                        <option value="2160" ${maxDecResolution==2160?'selected':''}>2160p60 (4K)</option>
-                        <option value="1080" ${maxDecResolution==1080?'selected':''}>1080p60</option>
-                        <option value="720" ${maxDecResolution==720?'selected':''}>720p60</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Current Video Input Resolution</label>
-                    <input type="text" class="form-input darker-input" value="1080p/60" readonly style="color:#888;">
-                </div>
+                <div class="form-group"><label class="form-label">Maximum Video Input</label><select class="form-select" onchange="setMaxVideoInput(this.value)"><option value="2160" ${maxDecResolution==2160?'selected':''}>2160p60 (4K)</option><option value="1080" ${maxDecResolution==1080?'selected':''}>1080p60</option><option value="720" ${maxDecResolution==720?'selected':''}>720p60</option></select></div>
+                <div class="form-group"><label class="form-label">Current Video Input Resolution</label><input type="text" class="form-input darker-input" value="1080p/60" readonly style="color:#888;"></div>
                 <div class="form-group"><label class="form-label">Resolution</label><select class="form-select"><option>3840 X 2160</option><option selected>1920 X 1080</option></select></div>
                 <div class="form-group"><label class="form-label">Color Space</label><select class="form-select"><option>RGB</option><option>YUV 4:4:4</option></select></div>
             `;
         }
-        htmlContent += `</div>`;
-        htmlContent += `<div class="settings-subsection" style="margin-top:30px; border-top:1px solid #333; padding-top:20px;"><div class="settings-group-title"><div class="settings-group-icon">🔊</div> Audio Settings</div><div class="form-group"><label class="form-label">Source Select</label><select class="form-select"><option>Auto</option><option>HDMI</option><option>3.5mm</option></select></div><div class="form-group"><label class="form-label">Volume (Gain)</label><div style="display:flex; align-items:center; gap:10px;"><input type="range" class="ptz-range" min="0" max="100" value="80" style="flex:1;" oninput="document.getElementById('vol-value-disp').innerText = this.value"><span id="vol-value-disp" style="width:30px; text-align:right; font-size:12px; color:#ccc;">80</span></div></div></div>`;
+        htmlContent += `</div><div class="settings-subsection" style="margin-top:30px; border-top:1px solid #333; padding-top:20px;"><div class="settings-group-title"><div class="settings-group-icon">🔊</div> Audio Settings</div><div class="form-group"><label class="form-label">Source Select</label><select class="form-select"><option>Auto</option><option>HDMI</option><option>3.5mm</option></select></div><div class="form-group"><label class="form-label">Volume (Gain)</label><div style="display:flex; align-items:center; gap:10px;"><input type="range" class="ptz-range" min="0" max="100" value="80" style="flex:1;" oninput="document.getElementById('vol-value-disp').innerText = this.value"><span id="vol-value-disp" style="width:30px; text-align:right; font-size:12px; color:#ccc;">80</span></div></div></div>`;
     }
-    else if (tabId === 'source') { /* ... Source Logic ... */ titleEl.innerText = "Source Management"; let rows = ''; sourcesData.forEach(src => { let statusColor = src.status === 'online' ? '#4CAF50' : (src.status==='error'?'#888':'#888'); rows += `<tr class="source-row"><td style="padding:10px;"><div class="thumb-box" style="width:80px; height:45px;"><img src="${src.thumb || ''}" style="width:100%; height:100%; object-fit:cover; display:${src.thumb?'block':'none'}"></div></td><td style="padding:10px;"><div style="font-weight:bold; color:#fff;">${src.name}</div><div style="font-size:12px; color:#888;">${src.ip}</div></td><td style="padding:10px; color:${statusColor}; font-size:12px;">${src.status.toUpperCase()}</td><td style="padding:10px; text-align:right;"><button class="btn btn-outline btn-sm" onclick="openEditSourceModal('${src.id}')">Edit</button> <button class="btn btn-danger btn-sm" onclick="askRemoveSource('${src.id}')">Delete</button></td></tr>`; }); htmlContent = `<div style="display:flex; justify-content:flex-end; margin-bottom:20px;"><button class="btn btn-primary" onclick="showModal('Add Manual Source')">+ Add Source</button></div><div class="source-list-panel" style="border:1px solid #333; border-radius:8px; overflow:hidden;"><table class="source-list-table"><thead class="source-list-header"><tr><th>Preview</th><th>Name & IP</th><th>Status</th><th style="text-align:right;">Actions</th></tr></thead><tbody id="settings-source-list-body">${rows}</tbody></table></div>`; }
-    else if (tabId === 'network') { titleEl.innerText = "Network Settings"; htmlContent = `<div class="settings-subsection"><div class="settings-group-title">IP Configuration</div><div class="form-group"><label class="form-label">Mode</label><select class="form-select"><option>DHCP</option><option>Static IP</option></select></div><div class="form-group"><label class="form-label">IP Address</label><input type="text" class="form-input" value="192.168.1.100"></div></div><div class="settings-subsection" style="margin-top:30px; border-top:1px solid #333; padding-top:20px;"><div class="settings-group-title">Advanced NDI</div><div class="form-group"><label class="form-label">Connection Mode</label><select class="form-select"><option>Auto (RUDP)</option><option>TCP</option></select></div></div>`; }
-    else if (tabId === 'work') { /* Renamed from System */ titleEl.innerText = "Work Settings"; htmlContent = `<div class="settings-subsection"><div class="settings-group-title">General</div><div class="form-group"><label class="form-label">Device Name</label><input type="text" class="form-input" value="AVer NC30"></div></div><div class="settings-subsection" style="margin-top:30px; border-top:1px solid #333; padding-top:20px;"><div class="settings-group-title">Account</div><div class="form-group"><label class="form-label">Admin Password</label><input type="password" class="form-input" placeholder="New Password"></div><div class="form-group"><label class="form-label">User Password</label><input type="password" class="form-input" placeholder="User Password"></div><button class="btn btn-primary btn-sm">Update Password</button></div>`; }
-    
+    else if (tabId === 'source') {
+        titleEl.innerText = "Source Management";
+        let rows = '';
+        sourcesData.forEach(src => {
+            let statusColor = src.status === 'online' ? '#4CAF50' : (src.status==='error'?'#888':'#888');
+            rows += `<tr class="source-row"><td style="padding:10px;"><div class="thumb-box" style="width:80px; height:45px;"><img src="${src.thumb || ''}" style="width:100%; height:100%; object-fit:cover; display:${src.thumb?'block':'none'}"></div></td><td style="padding:10px;"><div style="font-weight:bold; color:#fff;">${src.name}</div><div style="font-size:12px; color:#888;">${src.ip}</div></td><td style="padding:10px; color:${statusColor}; font-size:12px;">${src.status.toUpperCase()}</td><td style="padding:10px; text-align:right;"><button class="btn btn-outline btn-sm" onclick="openEditSourceModal('${src.id}')">Edit</button> <button class="btn btn-danger btn-sm" onclick="askRemoveSource('${src.id}')">Delete</button></td></tr>`;
+        });
+        htmlContent = `<div style="display:flex; justify-content:flex-end; margin-bottom:20px;"><button class="btn btn-primary" onclick="showModal('Add Manual Source')">+ Add Source</button></div><div class="source-list-panel" style="border:1px solid #333; border-radius:8px; overflow:hidden;"><table class="source-list-table"><thead class="source-list-header"><tr><th>Preview</th><th>Name & IP</th><th>Status</th><th style="text-align:right;">Actions</th></tr></thead><tbody id="settings-source-list-body">${rows}</tbody></table></div>`;
+    }
+    else if (tabId === 'network') {
+        titleEl.innerText = "Network Settings";
+        htmlContent = `<div class="settings-subsection"><div class="settings-group-title">IP Configuration</div><div class="form-group"><label class="form-label">Mode</label><select class="form-select"><option>DHCP</option><option>Static IP</option></select></div><div class="form-group"><label class="form-label">IP Address</label><input type="text" class="form-input" value="192.168.1.100"></div></div><div class="settings-subsection" style="margin-top:30px; border-top:1px solid #333; padding-top:20px;"><div class="settings-group-title">Advanced NDI</div><div class="form-group"><label class="form-label">Connection Mode</label><select class="form-select"><option>Auto (RUDP)</option><option>TCP</option></select></div></div>`;
+    }
+    // === REVERTED SYSTEM TAB ===
+    else if (tabId === 'system') {
+        titleEl.innerText = "System Settings";
+        htmlContent = `
+            <div class="settings-subsection">
+                <div class="settings-group-title">General</div>
+                <div class="form-group"><label class="form-label">Device Name</label><input type="text" class="form-input" value="AVer NC30"></div>
+                <div class="form-group"><label class="form-label">Language</label><select class="form-select"><option>English</option><option>Traditional Chinese</option></select></div>
+            </div>
+            <div class="settings-subsection" style="margin-top:30px; border-top:1px solid #333; padding-top:20px;">
+                <div class="settings-group-title">Account</div>
+                <div class="form-group"><label class="form-label">Admin Password</label><input type="password" class="form-input" placeholder="New Password"></div>
+                <div class="form-group"><label class="form-label">User Password</label><input type="password" class="form-input" placeholder="User Password"></div>
+                <button class="btn btn-primary btn-sm">Update Password</button>
+            </div>
+            <div class="settings-subsection" style="margin-top:30px; border-top:1px solid #333; padding-top:20px;">
+                <div class="settings-group-title">Date & Time</div>
+                <div class="form-group"><label class="form-label">NTP Server</label><input type="text" class="form-input" value="pool.ntp.org"></div>
+            </div>
+            <div class="settings-subsection" style="margin-top:30px; border-top:1px solid #333; padding-top:20px;">
+                <div class="settings-group-title">Maintenance</div>
+                <div class="form-group"><label class="form-label">Firmware</label><button class="btn btn-outline btn-sm">Check Update</button></div>
+                <div style="display:flex; gap:10px; margin-top:10px;"><button class="btn btn-danger" style="flex:1;">Reboot</button><button class="btn btn-danger" style="flex:1;">Factory Default</button></div>
+            </div>
+        `;
+    }
     bodyEl.innerHTML = htmlContent;
 }
 
-// ... (Rest of functions remain same as V29/V30)
+// ... (Helper functions same as before)
 function showModal(t){if(t==='Add Manual Source'){editingSourceId=null;renderSourceModal('Add Source','','','')}}
 function openEditSourceModal(id){const s=sourcesData.find(i=>i.id===id);if(s){editingSourceId=id;renderSourceModal('Edit Source',s.name,s.ip,s.group)}}
 function renderSourceModal(t,n,i,g){document.getElementById('modalContentBox').innerHTML=`<div class="modal-header-row"><h3 style="margin:0;color:#fff;">${t}</h3><span class="modal-close-x" onclick="closeModal()">✕</span></div><div class="modal-body-add-source"><div class="form-group"><label class="form-label">Source Name</label><input type="text" id="inputSrcName" class="form-input" value="${n}" onkeyup="checkModalValidity()"></div><div class="form-group"><label class="form-label">Group</label><input type="text" id="inputSrcGroup" class="form-input" value="${g}" placeholder="Group"></div><div class="form-group"><label class="form-label">IP Address</label><div style="display:flex; gap:10px;"><input type="text" id="inputSrcIP" class="form-input" value="${i}" placeholder="192.168.x.x" onkeyup="checkModalValidity()"><button class="btn btn-outline" style="padding:0 12px;" onclick="openAutoSearch()">🔍</button></div></div></div><div class="modal-footer"><button class="modal-footer-btn" onclick="closeModal()">Cancel</button><button class="modal-footer-btn" id="btnSaveSource" onclick="saveSourceData()" disabled>Save</button></div>`;document.getElementById('modalOverlay').style.display='flex';checkModalValidity()}
