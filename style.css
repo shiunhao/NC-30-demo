@@ -1,4 +1,4 @@
-/* style.css - Final Demo Version (V35 Final Fix) */
+/* style.css - Final Demo Version (V36 Final Fix) */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -329,16 +329,18 @@ input:checked + .slider:before { transform: translateX(14px); }
 .source-row:hover { background-color: #252525; }
 .source-row.active-source-row { background-color: #1a2a3a; border-left: 3px solid var(--theme-color); }
 
-/* --- NEW EMPTY STATE STYLES (V35) --- */
-/* For Live Preview Area */
+/* --- REFINED EMPTY STATE STYLES (V36) --- */
 .empty-state-wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100%;
+    height: 100%; /* Important for centering */
+    width: 100%;
     color: #666;
     text-align: center;
+    padding: 20px;
+    flex: 1; /* Grow to fill */
 }
 .empty-icon-placeholder {
     width: 80px; height: 80px;
@@ -358,10 +360,20 @@ input:checked + .slider:before { transform: translateX(14px); }
 .empty-btn-primary:hover { background-color: var(--theme-hover); }
 
 /* For Right Source List (Simple) */
-.simple-empty-icon { font-size: 40px; color: #333; display: block; margin: 40px auto; }
-
-/* For Global Settings List (Same as Preview but different context) */
-/* Re-use empty-state-wrapper structure via JS */
+.simple-empty-icon { 
+    font-size: 40px; color: #333; 
+    margin-bottom: 10px;
+}
+.empty-list-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #555;
+    font-size: 12px;
+}
+/* ------------------------------- */
 
 .drag-col { width: 40px; text-align: center; }
 .drag-handle-icon { color: #666; font-size: 18px; cursor: move; }
