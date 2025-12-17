@@ -1,4 +1,4 @@
-/* style.css - Final Demo Version (V33 Empty State Added) */
+/* style.css - Final Demo Version (V33 Flow Fix) */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -329,7 +329,7 @@ input:checked + .slider:before { transform: translateX(14px); }
 .source-row:hover { background-color: #252525; }
 .source-row.active-source-row { background-color: #1a2a3a; border-left: 3px solid var(--theme-color); }
 
-/* Empty State Style (Added V33) */
+/* Empty State Style (Modified V33) */
 .empty-state { 
     padding: 60px 20px; 
     text-align: center; 
@@ -339,6 +339,20 @@ input:checked + .slider:before { transform: translateX(14px); }
     display: block;
     width: 100%;
 }
+.empty-state-btn {
+    margin-top: 15px;
+    background: var(--theme-color);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+}
+.empty-state-btn:hover { background: var(--theme-hover); }
+
+/* Disabled content style for encoder mode */
+.disabled-content { opacity: 0.5; pointer-events: none; filter: grayscale(1); }
 
 .drag-col { width: 40px; text-align: center; }
 .drag-handle-icon { color: #666; font-size: 18px; cursor: move; }
