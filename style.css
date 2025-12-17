@@ -1,4 +1,4 @@
-/* style.css - Final Demo Version (V34 Empty State Flow) */
+/* style.css - Final Demo Version (V35 Final Fix) */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -199,7 +199,7 @@ input:checked + .slider:before { transform: translateX(14px); }
     display: flex; flex-direction: column; overflow: hidden; height: auto; padding: 0;
 }
 
-/* PTZ Panel: 60% Split */
+/* PTZ Panel: 60% Split (flex: 3) */
 .embedded-ptz-panel { 
     flex: 3; 
     min-height: 0;
@@ -312,7 +312,7 @@ input:checked + .slider:before { transform: translateX(14px); }
 .slot-action:hover { background: #333; color: #fff; }
 .slot-action.danger:hover { background: #D32F2F; }
 
-/* Source List: 40% Split */
+/* Source List: 40% Split (flex: 2) */
 .source-list-panel { 
     background: #1E1E1E; border: 1px solid #333; border-radius: 8px; 
     display: flex; flex-direction: column; overflow: hidden; 
@@ -329,7 +329,8 @@ input:checked + .slider:before { transform: translateX(14px); }
 .source-row:hover { background-color: #252525; }
 .source-row.active-source-row { background-color: #1a2a3a; border-left: 3px solid var(--theme-color); }
 
-/* --- NEW EMPTY STATE STYLES (V34) --- */
+/* --- NEW EMPTY STATE STYLES (V35) --- */
+/* For Live Preview Area */
 .empty-state-wrapper {
     display: flex;
     flex-direction: column;
@@ -339,54 +340,28 @@ input:checked + .slider:before { transform: translateX(14px); }
     color: #666;
     text-align: center;
 }
-
 .empty-icon-placeholder {
-    width: 80px;
-    height: 80px;
+    width: 80px; height: 80px;
     background-color: #2a2a2a;
     border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     margin-bottom: 20px;
-    font-size: 40px;
-    color: #444;
-    border: 2px dashed #444;
+    font-size: 40px; color: #444; border: 2px dashed #444;
 }
-
-.empty-text-title {
-    font-size: 14px;
-    color: #eee;
-    margin-bottom: 10px;
-}
-
-.empty-text-desc {
-    font-size: 12px;
-    color: #888;
-    margin-bottom: 20px;
-}
-
+.empty-text-title { font-size: 14px; color: #eee; margin-bottom: 10px; }
+.empty-text-desc { font-size: 12px; color: #888; margin-bottom: 20px; }
 .empty-btn-primary {
-    background-color: var(--theme-color);
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 4px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.2s;
+    background-color: var(--theme-color); color: white; border: none;
+    padding: 10px 20px; border-radius: 4px; font-weight: bold;
+    cursor: pointer; transition: all 0.2s;
 }
 .empty-btn-primary:hover { background-color: var(--theme-hover); }
 
-/* Simple Icon for Right List */
-.simple-empty-icon {
-    font-size: 40px;
-    color: #333;
-    display: block;
-    margin: 40px auto;
-}
+/* For Right Source List (Simple) */
+.simple-empty-icon { font-size: 40px; color: #333; display: block; margin: 40px auto; }
 
-/* --- END EMPTY STATE --- */
+/* For Global Settings List (Same as Preview but different context) */
+/* Re-use empty-state-wrapper structure via JS */
 
 .drag-col { width: 40px; text-align: center; }
 .drag-handle-icon { color: #666; font-size: 18px; cursor: move; }
