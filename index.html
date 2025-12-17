@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NC30 Pro AV Interface (V35 Final Fix)</title>
+    <title>NC30 Pro AV Interface (V36 Final Fix)</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="mobile.css">
 </head>
@@ -102,21 +102,7 @@
                 <div class="decoder-layout">
                     <div class="dec-left-col">
                         <div class="output-container" id="outputContainer">
-                            <div class="output-header-bar">
-                                <div class="header-left">
-                                    <div class="header-title">NC 30 Live Preview</div>
-                                </div>
-                                <div class="header-info-container" id="live-header-info">
-                                </div>
                             </div>
-
-                            <div id="outputLayout" class="output-layout-single">
-                                <div class="preview-slot" ondrop="drop(event)" ondragover="allowDrop(event)" id="slot-1" onclick="selectSlot('slot-1')">
-                                    <div class="slot-label">Window 1</div>
-                                    <div class="slot-content" style="text-align:center;"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
 
                     <div class="dec-right-col">
@@ -127,8 +113,8 @@
                                     <button class="btn btn-outline btn-sm" id="btn-refresh-list" onclick="refreshSourceList()">↻</button>
                                 </div>
                             </div>
-                            <div class="source-list-scroll">
-                                <table class="source-list-table">
+                            <div class="source-list-scroll" id="right-panel-list-container">
+                                <table class="source-list-table" id="right-panel-table">
                                     <thead class="source-list-header">
                                         <tr>
                                             <th style="width:40px;"></th>
@@ -199,6 +185,17 @@
 
     <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
         <div class="modal-box" id="modalContentBox"></div>
+    </div>
+
+    <div id="modal-alert" class="modal-overlay" style="z-index: 2300;">
+        <div class="modal-box" style="width:350px; text-align:center;">
+            <div style="font-size:40px; margin-bottom:10px;">⚠️</div>
+            <h3 style="color:#fff; margin-bottom:10px;" id="modal-alert-title">Limit Reached</h3>
+            <p style="color:#ccc; font-size:13px; margin-bottom:20px;" id="modal-alert-msg">Maximum 4 sources allowed.</p>
+            <div style="display:flex; justify-content:center;">
+                <button class="btn btn-primary" onclick="closeSpecificModal('modal-alert')">OK</button>
+            </div>
+        </div>
     </div>
 
     <div id="modal-remove-confirm" class="modal-overlay" style="z-index: 2200;">
