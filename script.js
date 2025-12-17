@@ -1,11 +1,11 @@
-/* script.js - Final Demo Version (V33 Empty State Added) */
+/* script.js - Final Demo Version (V33 Flow Fix) */
 
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
 let currentOutputMode = 'Single'; 
 let maxDecResolution = 2160; 
 
-// Default Data (Remove these manually in UI to see empty state)
+// Initial Data
 let sourcesData = [
     { 
         id: 'src_01', name: 'Main Camera 01', ip: '192.168.1.101', group: 'Studio A', status: 'online', thumb: 'https://picsum.photos/id/64/100/56',
@@ -117,6 +117,7 @@ function setMaxVideoInput(val) {
     renderSourceList(); 
 }
 
+// === PTZ LOGIC ===
 function selectSlot(slotId) { 
     document.querySelectorAll('.preview-slot').forEach(el => el.classList.remove('selected-slot')); 
     const el = document.getElementById(slotId); 
@@ -190,7 +191,7 @@ function showPresetTooltip(targetBtn, imgUrl, label) {
 function hidePresetTooltip() { const tooltip = document.getElementById('presetTooltip'); if(tooltip) tooltip.style.display = 'none'; }
 function savePreset() { showToast("Preset Saved", "success"); }
 
-// === Render Source List with Empty State ===
+// === Render Source List (Handles Empty State & Active Preview) ===
 function renderSourceList() {
     const tbody = document.getElementById('source-list-body');
     if(tbody) {
@@ -198,8 +199,8 @@ function renderSourceList() {
         const activeSourceId = slot ? slot.dataset.sourceId : null;
         tbody.innerHTML = '';
         if (sourcesData.length === 0) {
-            // Empty State
-            tbody.innerHTML = '<tr><td colspan="3" class="empty-state">No sources available.<br>Go to Settings > Source to add.</td></tr>';
+            // New Empty State with Button that opens Settings
+            tbody.innerHTML = `<tr><td colspan="3" class="empty-state">Currently no sources.<br>Please click the Add Source button to add.<br><button class="empty-state-btn" onclick="openFullSettings('source')">+ Add Source</button></td></tr>`;
         } else {
             sourcesData.forEach(src => {
                 const tr = document.createElement('tr');
@@ -245,7 +246,6 @@ function switchSettingsTab(tabId) {
     const bodyEl = document.getElementById('settings-body-content');
     let htmlContent = '';
 
-    // ... (Video & Audio, Network tabs same as before) ...
     if (tabId === 'av-settings') {
         titleEl.innerText = "Video & Audio Settings";
         let encBtnClass = currentSystemMode === 'encoder' ? 'mode-switch-btn active' : 'mode-switch-btn';
@@ -262,53 +262,53 @@ function switchSettingsTab(tabId) {
         }
         htmlContent += `</div><div class="settings-subsection" style="margin-top:30px; border-top:1px solid #333; padding-top:20px;"><div class="settings-group-title"><div class="settings-group-icon">🔊</div> Audio Settings</div><div class="form-group"><label class="form-label">Source Select</label><select class="form-select"><option>Auto</option><option>HDMI</option><option>3.5mm</option></select></div><div class="form-group"><label class="form-label">Volume (Gain)</label><div style="display:flex; align-items:center; gap:10px;"><input type="range" class="ptz-range" min="0" max="100" value="80" style="flex:1;" oninput="document.getElementById('vol-value-disp').innerText = this.value"><span id="vol-value-disp" style="width:30px; text-align:right; font-size:12px; color:#ccc;">80</span></div></div></div>`;
     }
+    // === Logic for Source Tab Restriction in Encoder Mode ===
     else if (tabId === 'source') {
         titleEl.innerText = "Source Management";
-        let rows = '';
-        if(sourcesData.length === 0) {
-            rows = '<tr><td colspan="4" class="empty-state">No sources found.</td></tr>';
+        
+        // Check if Encoder Mode
+        if (currentSystemMode === 'encoder') {
+            // Disabled State
+            let rows = '';
+            if(sourcesData.length === 0) {
+                 rows = '<tr><td colspan="4" class="empty-state">No sources found.</td></tr>';
+            } else {
+                sourcesData.forEach(src => {
+                    rows += `<tr class="source-row disabled-content"><td style="padding:10px;"><div class="thumb-box" style="width:80px; height:45px;"><img src="${src.thumb || ''}" style="width:100%; height:100%; object-fit:cover; display:${src.thumb?'block':'none'}"></div></td><td style="padding:10px;"><div style="font-weight:bold; color:#fff;">${src.name}</div><div style="font-size:12px; color:#888;">${src.ip}</div></td><td style="padding:10px; color:#888; font-size:12px;">${src.status.toUpperCase()}</td><td style="padding:10px; text-align:right;"><button class="btn btn-outline btn-sm" disabled>Edit</button> <button class="btn btn-danger btn-sm" disabled>Delete</button></td></tr>`;
+                });
+            }
+            htmlContent = `
+                <div style="background:#332b00; border:1px solid #d4b106; color:#ffeeba; padding:10px; border-radius:4px; margin-bottom:20px; font-size:13px;">
+                    ⚠️ Source management is only available in Decoder Mode.
+                </div>
+                <div style="display:flex; justify-content:flex-end; margin-bottom:20px;">
+                    <button class="btn btn-primary" disabled style="opacity:0.5; cursor:not-allowed;">+ Add Source</button>
+                </div>
+                <div class="source-list-panel" style="border:1px solid #333; border-radius:8px; overflow:hidden;">
+                    <table class="source-list-table"><thead class="source-list-header"><tr><th>Preview</th><th>Name & IP</th><th>Status</th><th style="text-align:right;">Actions</th></tr></thead><tbody id="settings-source-list-body">${rows}</tbody></table>
+                </div>
+            `;
         } else {
-            sourcesData.forEach(src => {
-                let statusColor = src.status === 'online' ? '#4CAF50' : (src.status==='error'?'#888':'#888');
-                rows += `<tr class="source-row"><td style="padding:10px;"><div class="thumb-box" style="width:80px; height:45px;"><img src="${src.thumb || ''}" style="width:100%; height:100%; object-fit:cover; display:${src.thumb?'block':'none'}"></div></td><td style="padding:10px;"><div style="font-weight:bold; color:#fff;">${src.name}</div><div style="font-size:12px; color:#888;">${src.ip}</div></td><td style="padding:10px; color:${statusColor}; font-size:12px;">${src.status.toUpperCase()}</td><td style="padding:10px; text-align:right;"><button class="btn btn-outline btn-sm" onclick="openEditSourceModal('${src.id}')">Edit</button> <button class="btn btn-danger btn-sm" onclick="askRemoveSource('${src.id}')">Delete</button></td></tr>`;
-            });
+            // Decoder Mode (Normal)
+            let rows = '';
+            if(sourcesData.length === 0) {
+                rows = '<tr><td colspan="4" class="empty-state">No sources found.</td></tr>';
+            } else {
+                sourcesData.forEach(src => {
+                    let statusColor = src.status === 'online' ? '#4CAF50' : (src.status==='error'?'#888':'#888');
+                    rows += `<tr class="source-row"><td style="padding:10px;"><div class="thumb-box" style="width:80px; height:45px;"><img src="${src.thumb || ''}" style="width:100%; height:100%; object-fit:cover; display:${src.thumb?'block':'none'}"></div></td><td style="padding:10px;"><div style="font-weight:bold; color:#fff;">${src.name}</div><div style="font-size:12px; color:#888;">${src.ip}</div></td><td style="padding:10px; color:${statusColor}; font-size:12px;">${src.status.toUpperCase()}</td><td style="padding:10px; text-align:right;"><button class="btn btn-outline btn-sm" onclick="openEditSourceModal('${src.id}')">Edit</button> <button class="btn btn-danger btn-sm" onclick="askRemoveSource('${src.id}')">Delete</button></td></tr>`;
+                });
+            }
+            htmlContent = `<div style="display:flex; justify-content:flex-end; margin-bottom:20px;"><button class="btn btn-primary" onclick="showModal('Add Manual Source')">+ Add Source</button></div><div class="source-list-panel" style="border:1px solid #333; border-radius:8px; overflow:hidden;"><table class="source-list-table"><thead class="source-list-header"><tr><th>Preview</th><th>Name & IP</th><th>Status</th><th style="text-align:right;">Actions</th></tr></thead><tbody id="settings-source-list-body">${rows}</tbody></table></div>`;
         }
-        htmlContent = `<div style="display:flex; justify-content:flex-end; margin-bottom:20px;"><button class="btn btn-primary" onclick="showModal('Add Manual Source')">+ Add Source</button></div><div class="source-list-panel" style="border:1px solid #333; border-radius:8px; overflow:hidden;"><table class="source-list-table"><thead class="source-list-header"><tr><th>Preview</th><th>Name & IP</th><th>Status</th><th style="text-align:right;">Actions</th></tr></thead><tbody id="settings-source-list-body">${rows}</tbody></table></div>`;
     }
-    else if (tabId === 'network') {
-        titleEl.innerText = "Network Settings";
-        htmlContent = `<div class="settings-subsection"><div class="settings-group-title">IP Configuration</div><div class="form-group"><label class="form-label">Mode</label><select class="form-select"><option>DHCP</option><option>Static IP</option></select></div><div class="form-group"><label class="form-label">IP Address</label><input type="text" class="form-input" value="192.168.1.100"></div></div><div class="settings-subsection" style="margin-top:30px; border-top:1px solid #333; padding-top:20px;"><div class="settings-group-title">Advanced NDI</div><div class="form-group"><label class="form-label">Connection Mode</label><select class="form-select"><option>Auto (RUDP)</option><option>TCP</option></select></div></div>`;
-    }
-    else if (tabId === 'system') {
-        titleEl.innerText = "System Settings";
-        htmlContent = `
-            <div class="settings-subsection">
-                <div class="settings-group-title">General</div>
-                <div class="form-group"><label class="form-label">Device Name</label><input type="text" class="form-input" value="AVer NC30"></div>
-                <div class="form-group"><label class="form-label">Language</label><select class="form-select"><option>English</option><option>Traditional Chinese</option></select></div>
-            </div>
-            <div class="settings-subsection" style="margin-top:30px; border-top:1px solid #333; padding-top:20px;">
-                <div class="settings-group-title">Account</div>
-                <div class="form-group"><label class="form-label">Admin Password</label><input type="password" class="form-input" placeholder="New Password"></div>
-                <div class="form-group"><label class="form-label">User Password</label><input type="password" class="form-input" placeholder="User Password"></div>
-                <button class="btn btn-primary btn-sm">Update Password</button>
-            </div>
-            <div class="settings-subsection" style="margin-top:30px; border-top:1px solid #333; padding-top:20px;">
-                <div class="settings-group-title">Date & Time</div>
-                <div class="form-group"><label class="form-label">NTP Server</label><input type="text" class="form-input" value="pool.ntp.org"></div>
-            </div>
-            <div class="settings-subsection" style="margin-top:30px; border-top:1px solid #333; padding-top:20px;">
-                <div class="settings-group-title">Maintenance</div>
-                <div class="form-group"><label class="form-label">Firmware</label><button class="btn btn-outline btn-sm">Check Update</button></div>
-                <div style="display:flex; gap:10px; margin-top:10px;"><button class="btn btn-danger" style="flex:1;">Reboot</button><button class="btn btn-danger" style="flex:1;">Factory Default</button></div>
-            </div>
-        `;
-    }
+    else if (tabId === 'network') { titleEl.innerText = "Network Settings"; htmlContent = `<div class="settings-subsection"><div class="settings-group-title">IP Configuration</div><div class="form-group"><label class="form-label">Mode</label><select class="form-select"><option>DHCP</option><option>Static IP</option></select></div><div class="form-group"><label class="form-label">IP Address</label><input type="text" class="form-input" value="192.168.1.100"></div></div><div class="settings-subsection" style="margin-top:30px; border-top:1px solid #333; padding-top:20px;"><div class="settings-group-title">Advanced NDI</div><div class="form-group"><label class="form-label">Connection Mode</label><select class="form-select"><option>Auto (RUDP)</option><option>TCP</option></select></div></div>`; }
+    else if (tabId === 'system') { titleEl.innerText = "System Settings"; htmlContent = `<div class="settings-subsection"><div class="settings-group-title">General</div><div class="form-group"><label class="form-label">Device Name</label><input type="text" class="form-input" value="AVer NC30"></div></div><div class="settings-subsection" style="margin-top:30px; border-top:1px solid #333; padding-top:20px;"><div class="settings-group-title">Account</div><div class="form-group"><label class="form-label">Admin Password</label><input type="password" class="form-input" placeholder="New Password"></div><div class="form-group"><label class="form-label">User Password</label><input type="password" class="form-input" placeholder="User Password"></div><button class="btn btn-primary btn-sm">Update Password</button></div>`; }
     
     bodyEl.innerHTML = htmlContent;
 }
 
-// ... (Rest of modal/helper functions same as V31)
+// ... (Rest of functions)
 function showModal(t){if(t==='Add Manual Source'){editingSourceId=null;renderSourceModal('Add Source','','','')}}
 function openEditSourceModal(id){const s=sourcesData.find(i=>i.id===id);if(s){editingSourceId=id;renderSourceModal('Edit Source',s.name,s.ip,s.group)}}
 function renderSourceModal(t,n,i,g){document.getElementById('modalContentBox').innerHTML=`<div class="modal-header-row"><h3 style="margin:0;color:#fff;">${t}</h3><span class="modal-close-x" onclick="closeModal()">✕</span></div><div class="modal-body-add-source"><div class="form-group"><label class="form-label">Source Name</label><input type="text" id="inputSrcName" class="form-input" value="${n}" onkeyup="checkModalValidity()"></div><div class="form-group"><label class="form-label">Group</label><input type="text" id="inputSrcGroup" class="form-input" value="${g}" placeholder="Group"></div><div class="form-group"><label class="form-label">IP Address</label><div style="display:flex; gap:10px;"><input type="text" id="inputSrcIP" class="form-input" value="${i}" placeholder="192.168.x.x" onkeyup="checkModalValidity()"><button class="btn btn-outline" style="padding:0 12px;" onclick="openAutoSearch()">🔍</button></div></div></div><div class="modal-footer"><button class="modal-footer-btn" onclick="closeModal()">Cancel</button><button class="modal-footer-btn" id="btnSaveSource" onclick="saveSourceData()" disabled>Save</button></div>`;document.getElementById('modalOverlay').style.display='flex';checkModalValidity()}
