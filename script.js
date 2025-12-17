@@ -1,12 +1,11 @@
-/* script.js - Final Demo Version (V35 Final Fix) */
+/* script.js - Final Demo Version (V36 Final Fix) */
 
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
 let currentOutputMode = 'Single'; 
 let maxDecResolution = 2160; 
 
-// Initial Data - Empty this to see empty states
-// let sourcesData = []; 
+// Initial Data
 let sourcesData = [
     { 
         id: 'src_01', name: 'Main Camera 01', ip: '192.168.1.101', group: 'Studio A', status: 'online', thumb: 'https://picsum.photos/id/64/100/56',
@@ -50,7 +49,6 @@ function loadDefaultSource() {
     const slot = document.getElementById('slot-1');
     if(!slot) return;
     
-    // Check Empty State First
     if(sourcesData.length === 0) {
         checkEmptyState();
         return;
@@ -71,20 +69,21 @@ function loadDefaultSource() {
     }
 }
 
-// === Check Empty State (Live Preview) ===
+// === Check Empty State for Live Preview ===
 function checkEmptyState() {
     const layout = document.getElementById('outputLayout');
-    // Only show big empty state in Decoder mode and if no sources
     if(sourcesData.length === 0 && currentSystemMode === 'decoder') {
         layout.innerHTML = `
             <div class="empty-state-wrapper">
                 <div class="empty-icon-placeholder">📷</div>
-                <div class="empty-text-title">You have not set up any device.</div>
+                <div class="empty-text-title">You have not set up any source.</div>
                 <div class="empty-text-desc">Please go to Add.</div>
                 <button class="empty-btn-primary" onclick="openFullSettings('source', true)">Go to Settings</button>
             </div>
         `;
-        selectSlot('none'); // Disable PTZ
+        selectSlot('none'); 
+    } else {
+        if(!document.getElementById('slot-1')) switchOutputMode(currentOutputMode === 'Single' ? 1 : 4);
     }
 }
 
@@ -93,18 +92,28 @@ function refreshSourceList() {
     const btn = document.getElementById('btn-refresh-list');
     if(btn) { btn.innerText = "..."; btn.disabled = true; }
     
-    const tbdDec = document.getElementById('source-list-body');
-    const tbdSettings = document.getElementById('settings-source-list-body');
-    const spinnerHtml = '<tr><td colspan="6" style="text-align:center; padding:40px;"><div class="loading-spinner-container"><div class="spinner-ring"></div><div style="margin-top:10px; color:#888; font-size:13px;">Updating sources...</div></div></td></tr>';
+    // Show spinners
+    const listContainer = document.getElementById('right-panel-list-container');
+    const settingsTbody = document.getElementById('settings-source-list-body');
     
-    if(tbdDec) tbdDec.innerHTML = spinnerHtml;
-    if(tbdSettings) tbdSettings.innerHTML = spinnerHtml;
+    // Save current content to restore structure
+    const originalListContent = listContainer.innerHTML;
+    
+    // Spinner HTML
+    const spinnerHtml = '<div style="height:100%; display:flex; align-items:center; justify-content:center; padding:40px;"><div class="loading-spinner-container"><div class="spinner-ring"></div><div style="margin-top:10px; color:#888; font-size:13px;">Updating sources...</div></div></div>';
+    
+    listContainer.innerHTML = spinnerHtml;
+    if(settingsTbody) settingsTbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:40px;"><div class="loading-spinner-container"><div class="spinner-ring"></div><div style="margin-top:10px; color:#888; font-size:13px;">Updating sources...</div></div></td></tr>';
 
     setTimeout(() => {
+        // Restore container structure before rendering
+        listContainer.innerHTML = `<table class="source-list-table" id="right-panel-table"><thead class="source-list-header"><tr><th style="width:40px;"></th><th>Source Name</th><th style="width:50px; text-align:right;">Act</th></tr></thead><tbody id="source-list-body"></tbody></table>`;
+        
         renderSourceList(); 
         if(document.getElementById('modal-large-settings').style.display !== 'none' && document.getElementById('tab-source').classList.contains('active')) {
             switchSettingsTab('source');
         }
+        
         if(btn) { btn.innerText = "↻"; btn.disabled = false; }
         showToast("Source list refreshed", "success");
     }, 1000);
@@ -150,7 +159,6 @@ function selectSlot(slotId) {
         updatePTZPresets(null);
         return;
     }
-
     document.querySelectorAll('.preview-slot').forEach(el => el.classList.remove('selected-slot')); 
     const el = document.getElementById(slotId); 
     if(el) { 
@@ -225,23 +233,41 @@ function savePreset() { showToast("Preset Saved", "success"); }
 
 // === Render Source List ===
 function renderSourceList() {
-    const tbody = document.getElementById('source-list-body');
-    if(tbody) {
-        const slot = document.getElementById('slot-1');
-        const activeSourceId = slot ? slot.dataset.sourceId : null;
-        tbody.innerHTML = '';
+    const listContainer = document.getElementById('right-panel-list-container');
+    const refreshBtn = document.getElementById('btn-refresh-list');
+    
+    // Check Empty State Logic
+    if (sourcesData.length === 0) {
+        // Hide Refresh Button
+        if(refreshBtn) refreshBtn.style.display = 'none';
         
-        if (sourcesData.length === 0) {
-            // Empty State Logic
-            tbody.innerHTML = '<tr><td colspan="3"><div class="simple-empty-icon">📁</div><div style="text-align:center; color:#666; font-size:12px;">No Source</div></td></tr>';
-            // Also trigger live preview empty state
-            checkEmptyState();
-        } else {
-            // Restore Layout if data exists (if currently in empty state)
+        // Show Right Panel Empty State
+        if(listContainer) {
+            listContainer.innerHTML = `
+                <div class="empty-list-container">
+                    <div class="simple-empty-icon">📁</div>
+                    <div>No Source</div>
+                </div>
+            `;
+        }
+        checkEmptyState(); // Trigger left panel state
+    } else {
+        // Show Refresh Button
+        if(refreshBtn) refreshBtn.style.display = 'flex';
+        
+        // Restore table structure if needed
+        if(listContainer && !listContainer.querySelector('table')) {
+            listContainer.innerHTML = `<table class="source-list-table"><thead class="source-list-header"><tr><th style="width:40px;"></th><th>Source Name</th><th style="width:50px; text-align:right;">Act</th></tr></thead><tbody id="source-list-body"></tbody></table>`;
+        }
+
+        const tbody = document.getElementById('source-list-body');
+        if(tbody) {
+            const slot = document.getElementById('slot-1');
+            const activeSourceId = slot ? slot.dataset.sourceId : null;
+            tbody.innerHTML = '';
+            
+            // Restore Layout if coming from empty state
             if(document.querySelector('.empty-state-wrapper') && currentSystemMode === 'decoder') {
-                 // Re-render layout structure
-                 const container = document.getElementById('outputContainer');
-                 // Reset to slots
                  switchOutputMode(currentOutputMode === 'Single' ? 1 : 4);
             }
             
@@ -305,22 +331,22 @@ function switchSettingsTab(tabId) {
         }
         htmlContent += `</div><div class="settings-subsection" style="margin-top:30px; border-top:1px solid #333; padding-top:20px;"><div class="settings-group-title"><div class="settings-group-icon">🔊</div> Audio Settings</div><div class="form-group"><label class="form-label">Source Select</label><select class="form-select"><option>Auto</option><option>HDMI</option><option>3.5mm</option></select></div><div class="form-group"><label class="form-label">Volume (Gain)</label><div style="display:flex; align-items:center; gap:10px;"><input type="range" class="ptz-range" min="0" max="100" value="80" style="flex:1;" oninput="document.getElementById('vol-value-disp').innerText = this.value"><span id="vol-value-disp" style="width:30px; text-align:right; font-size:12px; color:#ccc;">80</span></div></div></div>`;
     }
+    // === Logic for Source Tab (Encoder Disabled + Limit) ===
     else if (tabId === 'source') {
         titleEl.innerText = "Source Management";
         
         if (currentSystemMode === 'encoder') {
-            // Encoder Disabled State
              let rows = '';
             if(sourcesData.length === 0) rows = '<tr><td colspan="4" class="empty-state">No sources found.</td></tr>';
             else sourcesData.forEach(src => { rows += `<tr class="source-row disabled-content"><td style="padding:10px;"><div class="thumb-box" style="width:80px; height:45px;"><img src="${src.thumb || ''}" style="width:100%; height:100%; object-fit:cover; display:${src.thumb?'block':'none'}"></div></td><td style="padding:10px;"><div style="font-weight:bold; color:#fff;">${src.name}</div><div style="font-size:12px; color:#888;">${src.ip}</div></td><td style="padding:10px; color:#888; font-size:12px;">${src.status.toUpperCase()}</td><td style="padding:10px; text-align:right;"><button class="btn btn-outline btn-sm" disabled>Edit</button> <button class="btn btn-danger btn-sm" disabled>Delete</button></td></tr>`; });
             
             htmlContent = `<div style="background:#332b00; border:1px solid #d4b106; color:#ffeeba; padding:10px; border-radius:4px; margin-bottom:20px; font-size:13px;">⚠️ Source management is only available in Decoder Mode.</div><div style="display:flex; justify-content:flex-end; margin-bottom:20px;"><button class="btn btn-primary" disabled style="opacity:0.5; cursor:not-allowed;">+ Add Source</button></div><div class="source-list-panel" style="border:1px solid #333; border-radius:8px; overflow:hidden;"><table class="source-list-table"><thead class="source-list-header"><tr><th>Preview</th><th>Name & IP</th><th>Status</th><th style="text-align:right;">Actions</th></tr></thead><tbody id="settings-source-list-body">${rows}</tbody></table></div>`;
         } else {
-            // Decoder Normal State
+            // Decoder Mode
             let rows = '';
             if(sourcesData.length === 0) {
-                // Empty State with big icon logic
-                rows = `<tr><td colspan="4"><div class="empty-state-wrapper" style="padding:40px;"><div class="empty-icon-placeholder">📷</div><div class="empty-text-title">You have not set up any device.</div><div class="empty-text-desc">Please click the Add Source button.</div></div></td></tr>`;
+                // Settings Empty State
+                rows = `<tr><td colspan="4"><div class="empty-state-wrapper" style="padding:40px;"><div class="empty-icon-placeholder">📷</div><div class="empty-text-title">You have not set up any source.</div><div class="empty-text-desc">Please click the Add Source button.</div></div></td></tr>`;
             } else {
                 sourcesData.forEach(src => {
                     let statusColor = src.status === 'online' ? '#4CAF50' : (src.status==='error'?'#888':'#888');
@@ -337,7 +363,16 @@ function switchSettingsTab(tabId) {
 }
 
 // ... (Rest of helper functions)
-function showModal(t){if(t==='Add Manual Source'){editingSourceId=null;renderSourceModal('Add Source','','','')}}
+function showModal(t){
+    if(t==='Add Manual Source'){
+        // Check Limit
+        if (sourcesData.length >= 4) {
+            document.getElementById('modal-alert').style.display = 'flex';
+            return;
+        }
+        editingSourceId=null;renderSourceModal('Add Source','','','')
+    }
+}
 function openEditSourceModal(id){const s=sourcesData.find(i=>i.id===id);if(s){editingSourceId=id;renderSourceModal('Edit Source',s.name,s.ip,s.group)}}
 function renderSourceModal(t,n,i,g){document.getElementById('modalContentBox').innerHTML=`<div class="modal-header-row"><h3 style="margin:0;color:#fff;">${t}</h3><span class="modal-close-x" onclick="closeModal()">✕</span></div><div class="modal-body-add-source"><div class="form-group"><label class="form-label">Source Name</label><input type="text" id="inputSrcName" class="form-input" value="${n}" onkeyup="checkModalValidity()"></div><div class="form-group"><label class="form-label">Group</label><input type="text" id="inputSrcGroup" class="form-input" value="${g}" placeholder="Group"></div><div class="form-group"><label class="form-label">IP Address</label><div style="display:flex; gap:10px;"><input type="text" id="inputSrcIP" class="form-input" value="${i}" placeholder="192.168.x.x" onkeyup="checkModalValidity()"><button class="btn btn-outline" style="padding:0 12px;" onclick="openAutoSearch()">🔍</button></div></div></div><div class="modal-footer"><button class="modal-footer-btn" onclick="closeModal()">Cancel</button><button class="modal-footer-btn" id="btnSaveSource" onclick="saveSourceData()" disabled>Save</button></div>`;document.getElementById('modalOverlay').style.display='flex';checkModalValidity()}
 function checkModalValidity(){const n=document.getElementById('inputSrcName').value.trim();const i=document.getElementById('inputSrcIP').value.trim();document.getElementById('btnSaveSource').disabled=!(n&&i)}
