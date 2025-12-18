@@ -1,4 +1,4 @@
-/* style.css - Final Demo Version (V36 Final Fix) */
+/* style.css - Final Demo Version (V37 Fixed Interactions) */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -11,6 +11,8 @@
     --text-sub: #AAA;
     --theme-color: #007AFF; 
     --theme-hover: #005bb5;
+    --highlight-orange: #FF9500; /* Add Orange for Call to Action */
+    --highlight-orange-hover: #e08300;
     --danger-color: #D32F2F;
     --success-color: #4CAF50;
     --ptz-bg: #222222;
@@ -199,7 +201,7 @@ input:checked + .slider:before { transform: translateX(14px); }
     display: flex; flex-direction: column; overflow: hidden; height: auto; padding: 0;
 }
 
-/* PTZ Panel: 60% Split (flex: 3) */
+/* PTZ Panel: 60% Split */
 .embedded-ptz-panel { 
     flex: 3; 
     min-height: 0;
@@ -335,12 +337,12 @@ input:checked + .slider:before { transform: translateX(14px); }
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100%; /* Important for centering */
+    height: 100%;
     width: 100%;
     color: #666;
     text-align: center;
     padding: 20px;
-    flex: 1; /* Grow to fill */
+    flex: 1; 
 }
 .empty-icon-placeholder {
     width: 80px; height: 80px;
@@ -353,11 +355,12 @@ input:checked + .slider:before { transform: translateX(14px); }
 .empty-text-title { font-size: 14px; color: #eee; margin-bottom: 10px; }
 .empty-text-desc { font-size: 12px; color: #888; margin-bottom: 20px; }
 .empty-btn-primary {
-    background-color: var(--theme-color); color: white; border: none;
+    background-color: var(--highlight-orange); /* Changed to Orange */
+    color: white; border: none;
     padding: 10px 20px; border-radius: 4px; font-weight: bold;
     cursor: pointer; transition: all 0.2s;
 }
-.empty-btn-primary:hover { background-color: var(--theme-hover); }
+.empty-btn-primary:hover { background-color: var(--highlight-orange-hover); }
 
 /* For Right Source List (Simple) */
 .simple-empty-icon { 
@@ -373,7 +376,6 @@ input:checked + .slider:before { transform: translateX(14px); }
     color: #555;
     font-size: 12px;
 }
-/* ------------------------------- */
 
 .drag-col { width: 40px; text-align: center; }
 .drag-handle-icon { color: #666; font-size: 18px; cursor: move; }
@@ -382,7 +384,7 @@ input:checked + .slider:before { transform: translateX(14px); }
 .thumb-box img { width: 100%; height: 100%; object-fit: cover; }
 .thumb-box.offline { background: #000; color: #aaa; display: flex; flex-direction: column; font-size: 9px; }
 
-/* Unsupported Overlay (V30) */
+/* Unsupported Overlay */
 .thumb-box.unsupported { position: relative; }
 .thumb-box.unsupported::after {
     content: "UNSUPPORTED";
@@ -395,7 +397,6 @@ input:checked + .slider:before { transform: translateX(14px); }
 .src-name { font-weight: bold; font-size: 13px; display: block; color: #fff; margin-bottom: 4px; }
 .src-meta { font-size: 11px; color: #888; font-family: monospace; }
 .src-status-error { color: #888; font-weight: bold; margin-left: 5px; }
-/* Warning Color for Resolution Mismatch */
 .src-status-warning { color: #FF3B30; font-weight: bold; font-size: 10px; display: block; margin-top:2px; }
 
 .preset-col { width: 100px; text-align: center; }
@@ -404,7 +405,7 @@ input:checked + .slider:before { transform: translateX(14px); }
 
 /* Embedded PTZ Fixed */
 .ptz-header { background: transparent; padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; cursor: default; }
-.ptz-drag-handle { width: 20px; } /* Spacer */
+.ptz-drag-handle { width: 20px; }
 .ptz-title { font-size: 13px; color: #ddd; font-weight: 500; }
 .ptz-body { padding: 10px 15px; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; flex:1; }
 .ptz-target-info { font-size: 12px; color: #007AFF; text-align: center; margin-bottom: 5px; margin-top: -5px; font-weight: bold; }
@@ -412,15 +413,14 @@ input:checked + .slider:before { transform: translateX(14px); }
 .btn-xs-save { background: #333; border: 1px solid #555; color: #ccc; font-size: 10px; padding: 2px 8px; border-radius: 2px; cursor: pointer; }
 .btn-xs-save:hover { background: #444; color: #fff; }
 .disabled-ui { opacity: 0.3; pointer-events: none; filter: grayscale(1); }
-.disabled-content { opacity: 0.5; pointer-events: none; filter: grayscale(1); } /* Added for settings */
+.disabled-content { opacity: 0.5; pointer-events: none; filter: grayscale(1); }
 
-/* PTZ Pad 縮小版 */
+/* PTZ Pad */
 .ptz-pad-container { 
     display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; background: transparent; 
     max-width: 180px; 
     margin: 0 auto; 
 }
-
 .ptz-btn { aspect-ratio: 1; background: #424242; border: none; border-radius: 2px; color: #ccc; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.1s; }
 .ptz-btn:hover { background: #555; color: #fff; }
 .ptz-btn:active { background: #666; }
@@ -443,6 +443,7 @@ input[type=range].ptz-range::-webkit-slider-thumb { height: 14px; width: 14px; b
 .preset-grid button { background: #424242; border: none; color: #bbb; font-size: 12px; padding: 10px 0; cursor: pointer; border-radius: 2px; }
 .preset-grid button:hover { background: #555; color: #fff; }
 .preset-grid button:active { background: var(--ptz-thumb); color: #000; }
+/* Modified: Button style for disabled state (still visible) */
 .preset-grid button:disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
 
 /* Preset Preview Tooltip */
@@ -452,8 +453,13 @@ input[type=range].ptz-range::-webkit-slider-thumb { height: 14px; width: 14px; b
 .preset-preview-tooltip img { width: 100%; height: 100%; object-fit: cover; }
 .preset-preview-tooltip .tooltip-label { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.7); color: #fff; font-size: 10px; padding: 2px 5px; text-align: center; }
 
-/* Modals */
-.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(3px); }
+/* Z-Index Fix for Modal Overlay */
+.modal-overlay { 
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+    background: rgba(0,0,0,0.8); 
+    z-index: 3000; /* Increased Z-Index to cover Settings */
+    display: none; align-items: center; justify-content: center; backdrop-filter: blur(3px); 
+}
 .modal-box { background: var(--panel-color); width: 500px; border-radius: 8px; border: 1px solid #444; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex; flex-direction: column; }
 .modal-header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 20px; }
 .modal-close-x { cursor: pointer; color: #888; font-size: 20px; line-height: 1; }
@@ -462,7 +468,8 @@ input[type=range].ptz-range::-webkit-slider-thumb { height: 14px; width: 14px; b
 .search-list-item:hover { background: #333; color: #fff; }
 .search-list-item.selected { background: var(--theme-color); color: #fff; }
 
-/* Large Settings Modal */
+/* Large Settings Modal (Z-Index 2000) */
+#modal-large-settings { z-index: 2000 !important; }
 #modal-large-settings .modal-box { width: 100% !important; height: 100% !important; max-width: none; max-height: none; border-radius: 0; border: none; padding: 0; overflow: hidden; display: flex; flex-direction: row; }
 .settings-sidebar { width: 250px; flex-shrink: 0; background: #1a1a1a; border-right: 1px solid #333; display: flex; flex-direction: column; padding: 30px 0; }
 .sidebar-category { padding: 10px 30px 5px 30px; color: #666; font-size: 11px; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; }
@@ -477,7 +484,7 @@ input[type=range].ptz-range::-webkit-slider-thumb { height: 14px; width: 14px; b
 .settings-body { flex: 1; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; max-width: 1000px; margin: 0 auto; width: 100%; }
 
 /* Toasts & Reboot */
-#toast-container { position: fixed; top: 80px; right: 20px; z-index: 3000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+#toast-container { position: fixed; top: 80px; right: 20px; z-index: 4000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
 .toast { min-width: 250px; background: #252526; color: #fff; padding: 12px 16px; border-left: 4px solid var(--theme-color); border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); font-size: 13px; animation: slideIn 0.3s ease-out forwards; display: flex; align-items: center; pointer-events: auto; }
 @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 #reboot-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #000; z-index: 5000; display: none; flex-direction: column; align-items: center; justify-content: center; }
