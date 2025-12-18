@@ -1,4 +1,4 @@
-/* script.js - Final Demo Version (V39 Fixes) */
+/* script.js - Final Demo Version (V40 Fixes) */
 
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
@@ -78,7 +78,6 @@ function checkEmptyState() {
 function refreshSourceList() {
     const btn = document.getElementById('btn-refresh-list');
     if(btn) { btn.innerText = "..."; btn.disabled = true; }
-    
     const tbdDec = document.getElementById('source-list-body');
     const tbdSettings = document.getElementById('settings-source-list-body');
     const spinnerHtml = '<tr><td colspan="6" style="text-align:center; padding:40px;"><div class="loading-spinner-container"><div class="spinner-ring"></div><div style="margin-top:10px; color:#888; font-size:13px;">Updating sources...</div></div></td></tr>';
@@ -249,10 +248,11 @@ function renderSourceList() {
                 const isUnsupported = src.resHeight > maxDecResolution;
                 tr.className = `source-row ${src.status === 'offline' ? 'offline' : ''} ${isActive ? 'active-source-row' : ''}`;
                 
-                // Fix Drag & Drop
+                // Fix Drag & Drop: Use text/plain and source ID
                 tr.draggable = !isUnsupported;
-                tr.ondragstart = (event) => drag(event); // Explicitly call drag
-                tr.setAttribute('data-json', JSON.stringify(src));
+                tr.ondragstart = (event) => {
+                     event.dataTransfer.setData("text/plain", src.id);
+                };
                 
                 let statusHtml = `<span style="color:#4CAF50;">Online</span>`;
                 if(src.status === 'error') statusHtml = `<span class="src-status-error">${src.errorMsg}</span>`;
@@ -281,10 +281,6 @@ function renderSourceList() {
 }
 
 // === Drag and Drop Functions (FIXED) ===
-function drag(ev) {
-    ev.dataTransfer.setData("text/plain", ev.currentTarget.getAttribute("data-json"));
-}
-
 function allowDrop(ev) {
     ev.preventDefault(); // Essential for allowing drop
     ev.currentTarget.classList.add('drag-over');
@@ -295,28 +291,28 @@ function drop(ev) {
     const slot = ev.currentTarget;
     slot.classList.remove('drag-over');
     
-    try {
-        const jsonStr = ev.dataTransfer.getData("text/plain");
-        if(!jsonStr) return;
-        
-        const data = JSON.parse(jsonStr);
-        slot.dataset.sourceId = data.id; 
-        const windowNum = slot.id.split('-')[1];
-        
-        if (data.status === 'offline') {
-            slot.classList.add('offline-state');
-            slot.innerHTML = `<div class="slot-label">Window ${windowNum}</div><div class="offline-overlay"><div class="offline-icon">⚠️</div><div class="offline-text">Signal Lost</div></div>${renderSlotMenu(slot.id)}`;
-        } else {
-            slot.classList.remove('offline-state');
-            slot.innerHTML = `<div class="video-layer" style="background-image: url('${data.thumb || 'https://picsum.photos/id/237/400/300'}');"></div><div class="video-overlay-gradient"></div><div class="slot-label">Window ${windowNum}</div><div class="slot-content"><div class="slot-name">${data.name}</div><div class="slot-meta" style="color:#4CAF50;">● Live</div></div>${renderSlotMenu(slot.id)}`;
-        }
-        slot.classList.add('active-slot');
-        selectSlot(slot.id);
-        updateLiveHeader();
-        renderSourceList(); 
-    } catch (e) {
-        console.error("Drop failed:", e);
+    // Get Source ID
+    const sourceId = ev.dataTransfer.getData("text/plain");
+    if(!sourceId) return;
+
+    // Find Data
+    const data = sourcesData.find(s => s.id === sourceId);
+    if(!data) return;
+
+    slot.dataset.sourceId = data.id; 
+    const windowNum = slot.id.split('-')[1];
+    
+    if (data.status === 'offline') {
+        slot.classList.add('offline-state');
+        slot.innerHTML = `<div class="slot-label">Window ${windowNum}</div><div class="offline-overlay"><div class="offline-icon">⚠️</div><div class="offline-text">Signal Lost</div></div>${renderSlotMenu(slot.id)}`;
+    } else {
+        slot.classList.remove('offline-state');
+        slot.innerHTML = `<div class="video-layer" style="background-image: url('${data.thumb || 'https://picsum.photos/id/237/400/300'}');"></div><div class="video-overlay-gradient"></div><div class="slot-label">Window ${windowNum}</div><div class="slot-content"><div class="slot-name">${data.name}</div><div class="slot-meta" style="color:#4CAF50;">● Live</div></div>${renderSlotMenu(slot.id)}`;
     }
+    slot.classList.add('active-slot');
+    selectSlot(slot.id);
+    updateLiveHeader();
+    renderSourceList(); 
 }
 
 function switchSettingsTab(tabId) {
@@ -371,13 +367,8 @@ function switchSettingsTab(tabId) {
     bodyEl.innerHTML = htmlContent;
 }
 
-// ... (Rest of helper functions)
-function showModal(t){
-    if(t==='Add Manual Source'){
-        if (sourcesData.length >= 4) { document.getElementById('modal-alert').style.display = 'flex'; return; }
-        editingSourceId=null;renderSourceModal('Add Source','','','')
-    }
-}
+// ... (Rest of helper functions same as V36)
+function showModal(t){if(t==='Add Manual Source'){if (sourcesData.length >= 4) { document.getElementById('modal-alert').style.display = 'flex'; return; }editingSourceId=null;renderSourceModal('Add Source','','','')}}
 function openEditSourceModal(id){const s=sourcesData.find(i=>i.id===id);if(s){editingSourceId=id;renderSourceModal('Edit Source',s.name,s.ip,s.group)}}
 function renderSourceModal(t,n,i,g){document.getElementById('modalContentBox').innerHTML=`<div class="modal-header-row"><h3 style="margin:0;color:#fff;">${t}</h3><span class="modal-close-x" onclick="closeModal()">✕</span></div><div class="modal-body-add-source"><div class="form-group"><label class="form-label">Source Name</label><input type="text" id="inputSrcName" class="form-input" value="${n}" onkeyup="checkModalValidity()"></div><div class="form-group"><label class="form-label">Group</label><input type="text" id="inputSrcGroup" class="form-input" value="${g}" placeholder="Group"></div><div class="form-group"><label class="form-label">IP Address</label><div style="display:flex; gap:10px;"><input type="text" id="inputSrcIP" class="form-input" value="${i}" placeholder="192.168.x.x" onkeyup="checkModalValidity()"><button class="btn btn-outline" style="padding:0 12px;" onclick="openAutoSearch()">🔍</button></div></div></div><div class="modal-footer"><button class="modal-footer-btn" onclick="closeModal()">Cancel</button><button class="modal-footer-btn" id="btnSaveSource" onclick="saveSourceData()" disabled>Save</button></div>`;document.getElementById('modalOverlay').style.display='flex';checkModalValidity()}
 function checkModalValidity(){const n=document.getElementById('inputSrcName').value.trim();const i=document.getElementById('inputSrcIP').value.trim();document.getElementById('btnSaveSource').disabled=!(n&&i)}
