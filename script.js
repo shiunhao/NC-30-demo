@@ -1,4 +1,4 @@
-/* script.js - Final Demo Version (V40 Fixes) */
+/* script.js - Final Demo Version (V41 Fixed) */
 
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
@@ -78,6 +78,7 @@ function checkEmptyState() {
 function refreshSourceList() {
     const btn = document.getElementById('btn-refresh-list');
     if(btn) { btn.innerText = "..."; btn.disabled = true; }
+    
     const tbdDec = document.getElementById('source-list-body');
     const tbdSettings = document.getElementById('settings-source-list-body');
     const spinnerHtml = '<tr><td colspan="6" style="text-align:center; padding:40px;"><div class="loading-spinner-container"><div class="spinner-ring"></div><div style="margin-top:10px; color:#888; font-size:13px;">Updating sources...</div></div></td></tr>';
@@ -132,7 +133,7 @@ function selectSlot(slotId) {
     if(slotId === 'none') {
         updatePTZPanelInfo(null, null);
         setPTZPanelState(false);
-        updatePTZPresets(null); // Will render disabled buttons
+        updatePTZPresets(null); // Force render disabled buttons
         return;
     }
     document.querySelectorAll('.preview-slot').forEach(el => el.classList.remove('selected-slot')); 
@@ -169,24 +170,34 @@ function updatePTZPanelInfo(windowNum, sourceName) {
 
 function setPTZPanelState(enabled) {
     const panel = document.querySelector('.embedded-ptz-panel');
-    if(panel) { if(enabled) { panel.classList.remove('disabled-ui'); panel.style.opacity = '1'; } else { panel.classList.add('disabled-ui'); panel.style.opacity = '0.5'; } }
+    if(panel) { 
+        if(enabled) { 
+            panel.classList.remove('disabled-ui'); 
+            panel.style.opacity = '1'; 
+        } else { 
+            panel.classList.add('disabled-ui'); 
+            panel.style.opacity = '0.5'; 
+        } 
+    }
 }
 
-// FIX: Always render buttons, but disable them if no source
+// FIX: Always render 9 buttons. If sourceObj is null, they are all disabled.
 function updatePTZPresets(sourceObj) {
     const grid = document.getElementById('ptz-preset-grid');
     if(!grid) return;
     grid.innerHTML = '';
+    
     for(let i=1; i<=9; i++) {
         const btn = document.createElement('button');
         btn.innerText = i;
+        
         if (sourceObj && sourceObj.presets && sourceObj.presets[i]) {
             const imgUrl = sourceObj.presets[i];
             btn.onmouseenter = (e) => { presetHoverTimer = setTimeout(() => { showPresetTooltip(e.target, imgUrl, `Preset ${i}`); }, 2000); };
             btn.onmouseleave = () => { clearTimeout(presetHoverTimer); hidePresetTooltip(); };
             btn.onclick = () => { clearTimeout(presetHoverTimer); hidePresetTooltip(); showToast(`Recall Preset ${i}`, "success"); };
         } else {
-            btn.disabled = true; // Disabled state
+            btn.disabled = true; // Visibly disabled via CSS
         }
         grid.appendChild(btn);
     }
@@ -248,11 +259,10 @@ function renderSourceList() {
                 const isUnsupported = src.resHeight > maxDecResolution;
                 tr.className = `source-row ${src.status === 'offline' ? 'offline' : ''} ${isActive ? 'active-source-row' : ''}`;
                 
-                // Fix Drag & Drop: Use text/plain and source ID
+                // Fix Drag & Drop: Use standard attribute
                 tr.draggable = !isUnsupported;
-                tr.ondragstart = (event) => {
-                     event.dataTransfer.setData("text/plain", src.id);
-                };
+                tr.setAttribute('ondragstart', 'drag(event)');
+                tr.setAttribute('data-json', JSON.stringify(src));
                 
                 let statusHtml = `<span style="color:#4CAF50;">Online</span>`;
                 if(src.status === 'error') statusHtml = `<span class="src-status-error">${src.errorMsg}</span>`;
@@ -281,9 +291,13 @@ function renderSourceList() {
 }
 
 // === Drag and Drop Functions (FIXED) ===
+function drag(ev) {
+    // Pass the full JSON string to avoid id lookup issues
+    ev.dataTransfer.setData("text/plain", ev.currentTarget.getAttribute("data-json"));
+}
+
 function allowDrop(ev) {
-    ev.preventDefault(); // Essential for allowing drop
-    ev.currentTarget.classList.add('drag-over');
+    ev.preventDefault();
 }
 
 function drop(ev) {
@@ -291,28 +305,28 @@ function drop(ev) {
     const slot = ev.currentTarget;
     slot.classList.remove('drag-over');
     
-    // Get Source ID
-    const sourceId = ev.dataTransfer.getData("text/plain");
-    if(!sourceId) return;
-
-    // Find Data
-    const data = sourcesData.find(s => s.id === sourceId);
-    if(!data) return;
-
-    slot.dataset.sourceId = data.id; 
-    const windowNum = slot.id.split('-')[1];
-    
-    if (data.status === 'offline') {
-        slot.classList.add('offline-state');
-        slot.innerHTML = `<div class="slot-label">Window ${windowNum}</div><div class="offline-overlay"><div class="offline-icon">⚠️</div><div class="offline-text">Signal Lost</div></div>${renderSlotMenu(slot.id)}`;
-    } else {
-        slot.classList.remove('offline-state');
-        slot.innerHTML = `<div class="video-layer" style="background-image: url('${data.thumb || 'https://picsum.photos/id/237/400/300'}');"></div><div class="video-overlay-gradient"></div><div class="slot-label">Window ${windowNum}</div><div class="slot-content"><div class="slot-name">${data.name}</div><div class="slot-meta" style="color:#4CAF50;">● Live</div></div>${renderSlotMenu(slot.id)}`;
+    try {
+        const jsonStr = ev.dataTransfer.getData("text/plain");
+        if(!jsonStr) return;
+        
+        const data = JSON.parse(jsonStr);
+        slot.dataset.sourceId = data.id; 
+        const windowNum = slot.id.split('-')[1];
+        
+        if (data.status === 'offline') {
+            slot.classList.add('offline-state');
+            slot.innerHTML = `<div class="slot-label">Window ${windowNum}</div><div class="offline-overlay"><div class="offline-icon">⚠️</div><div class="offline-text">Signal Lost</div></div>${renderSlotMenu(slot.id)}`;
+        } else {
+            slot.classList.remove('offline-state');
+            slot.innerHTML = `<div class="video-layer" style="background-image: url('${data.thumb || 'https://picsum.photos/id/237/400/300'}');"></div><div class="video-overlay-gradient"></div><div class="slot-label">Window ${windowNum}</div><div class="slot-content"><div class="slot-name">${data.name}</div><div class="slot-meta" style="color:#4CAF50;">● Live</div></div>${renderSlotMenu(slot.id)}`;
+        }
+        slot.classList.add('active-slot');
+        selectSlot(slot.id);
+        updateLiveHeader();
+        renderSourceList(); 
+    } catch (e) {
+        console.error("Drop failed:", e);
     }
-    slot.classList.add('active-slot');
-    selectSlot(slot.id);
-    updateLiveHeader();
-    renderSourceList(); 
 }
 
 function switchSettingsTab(tabId) {
