@@ -1,11 +1,11 @@
-/* script.js - Final Demo Version (V45 Text Update) */
+/* script.js - Final Demo Version (V46 - Link & Translation) */
 
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
 let currentOutputMode = 'Single'; 
 let maxDecResolution = 2160; 
 
-// Initial Data: 4 items to start with
+// Initial Data
 let sourcesData = [
     { 
         id: 'src_01', name: 'Main Camera 01', ip: '192.168.1.101', group: 'Studio A', status: 'online', thumb: 'https://picsum.photos/id/64/100/56',
@@ -19,7 +19,7 @@ let sourcesData = [
     },
     { 
         id: 'src_03', name: 'OBS Output', ip: '192.168.1.120', group: 'OBS', status: 'error', 
-        errorMsg: 'INPUT解析度不支援', // Modified Text here
+        errorMsg: 'Input Resolution Not Supported', // [Translation Updated]
         thumb: 'https://picsum.photos/id/48/100/56', resHeight: 1080, resolution: '1920x1080', presets: {} 
     },
     { id: 'src_04', name: 'Outdoor Cam', ip: '192.168.1.104', group: 'Outdoor', status: 'offline', thumb: '', resHeight: 720, resolution: '1280x720', presets: {} }
@@ -275,7 +275,7 @@ function renderSourceList() {
                 const isUnsupported = src.resHeight > maxDecResolution;
                 tr.className = `source-row ${src.status === 'offline' ? 'offline' : ''} ${isActive ? 'active-source-row' : ''}`;
                 
-                // Fix Drag & Drop: Use standard attribute
+                // Fix Drag & Drop
                 tr.draggable = !isUnsupported;
                 tr.setAttribute('ondragstart', 'drag(event)');
                 tr.setAttribute('data-json', JSON.stringify(src));
@@ -283,8 +283,9 @@ function renderSourceList() {
                 let statusHtml = `<span style="color:#4CAF50;">Online</span>`;
                 if(src.status === 'error') statusHtml = `<span class="src-status-error">${src.errorMsg}</span>`;
                 if(src.status === 'offline') statusHtml = `<span style="color:#888;">Offline</span>`;
-                // Modified Text here
-                if(isUnsupported) statusHtml += `<span class="src-status-warning">INPUT解析度不支援</span>`;
+                
+                // [Translation Updated] Check resolution limit
+                if(isUnsupported) statusHtml += `<span class="src-status-warning">Input Resolution Not Supported</span>`;
                 else if(isActive) statusHtml += ` <span style="color:#007AFF; font-weight:bold; font-size:10px; margin-left:5px;">● PREVIEW</span>`;
 
                 let thumbClass = "thumb-box";
@@ -307,9 +308,8 @@ function renderSourceList() {
     }
 }
 
-// === Drag and Drop Functions (FIXED) ===
+// === Drag and Drop Functions ===
 function drag(ev) {
-    // Pass the full JSON string to avoid id lookup issues
     ev.dataTransfer.setData("application/json", ev.currentTarget.getAttribute("data-json"));
 }
 
@@ -370,6 +370,7 @@ function switchSettingsTab(tabId) {
         }
         htmlContent += `</div><div class="settings-subsection" style="margin-top:30px; border-top:1px solid #333; padding-top:20px;"><div class="settings-group-title"><div class="settings-group-icon">🔊</div> Audio Settings</div><div class="form-group"><label class="form-label">Source Select</label><select class="form-select"><option>Auto</option><option>HDMI</option><option>3.5mm</option></select></div><div class="form-group"><label class="form-label">Volume (Gain)</label><div style="display:flex; align-items:center; gap:10px;"><input type="range" class="ptz-range" min="0" max="100" value="80" style="flex:1;" oninput="document.getElementById('vol-value-disp').innerText = this.value"><span id="vol-value-disp" style="width:30px; text-align:right; font-size:12px; color:#ccc;">80</span></div></div></div>`;
     }
+    // === Logic for Source Tab (Link added) ===
     else if (tabId === 'source') {
         titleEl.innerText = "Source Management";
         
@@ -378,7 +379,15 @@ function switchSettingsTab(tabId) {
             if(sourcesData.length === 0) rows = '<tr><td colspan="4" class="empty-state">No sources found.</td></tr>';
             else sourcesData.forEach(src => { rows += `<tr class="source-row disabled-content"><td style="padding:10px;"><div class="thumb-box" style="width:80px; height:45px;"><img src="${src.thumb || ''}" style="width:100%; height:100%; object-fit:cover; display:${src.thumb?'block':'none'}"></div></td><td style="padding:10px;"><div style="font-weight:bold; color:#fff;">${src.name}</div><div style="font-size:12px; color:#888;">${src.ip}</div></td><td style="padding:10px; color:#888; font-size:12px;">${src.status.toUpperCase()}</td><td style="padding:10px; text-align:right;"><button class="btn btn-outline btn-sm" disabled>Edit</button> <button class="btn btn-danger btn-sm" disabled>Delete</button></td></tr>`; });
             
-            htmlContent = `<div style="background:#332b00; border:1px solid #d4b106; color:#ffeeba; padding:10px; border-radius:4px; margin-bottom:20px; font-size:13px;">⚠️ Source management is only available in Decoder Mode.</div><div style="display:flex; justify-content:flex-end; margin-bottom:20px;"><button class="btn btn-primary" disabled style="opacity:0.5; cursor:not-allowed;">+ Add Source</button></div><div class="source-list-panel" style="border:1px solid #333; border-radius:8px; overflow:hidden;"><table class="source-list-table"><thead class="source-list-header"><tr><th>Preview</th><th>Name & IP</th><th>Status</th><th style="text-align:right;">Actions</th></tr></thead><tbody id="settings-source-list-body">${rows}</tbody></table></div>`;
+            // [Feature] Added Hyperlink to Warning
+            htmlContent = `
+                <div style="background:#332b00; border:1px solid #d4b106; color:#ffeeba; padding:10px; border-radius:4px; margin-bottom:20px; font-size:13px;">
+                    ⚠️ Source management is only available in 
+                    <a href="#" onclick="switchSettingsTab('av-settings'); return false;" style="color:#FF9500; text-decoration:underline; font-weight:bold;">Decoder Mode</a>.
+                </div>
+                <div style="display:flex; justify-content:flex-end; margin-bottom:20px;"><button class="btn btn-primary" disabled style="opacity:0.5; cursor:not-allowed;">+ Add Source</button></div>
+                <div class="source-list-panel" style="border:1px solid #333; border-radius:8px; overflow:hidden;"><table class="source-list-table"><thead class="source-list-header"><tr><th>Preview</th><th>Name & IP</th><th>Status</th><th style="text-align:right;">Actions</th></tr></thead><tbody id="settings-source-list-body">${rows}</tbody></table></div>
+            `;
         } else {
             let rows = '';
             if(sourcesData.length === 0) {
@@ -398,7 +407,7 @@ function switchSettingsTab(tabId) {
     bodyEl.innerHTML = htmlContent;
 }
 
-// ... (Rest of helper functions same as V36)
+// ... (Rest of helper functions)
 function showModal(t){if(t==='Add Manual Source'){if (sourcesData.length >= 4) { document.getElementById('modal-alert').style.display = 'flex'; return; }editingSourceId=null;renderSourceModal('Add Source','','','')}}
 function openEditSourceModal(id){const s=sourcesData.find(i=>i.id===id);if(s){editingSourceId=id;renderSourceModal('Edit Source',s.name,s.ip,s.group)}}
 function renderSourceModal(t,n,i,g){document.getElementById('modalContentBox').innerHTML=`<div class="modal-header-row"><h3 style="margin:0;color:#fff;">${t}</h3><span class="modal-close-x" onclick="closeModal()">✕</span></div><div class="modal-body-add-source"><div class="form-group"><label class="form-label">Source Name</label><input type="text" id="inputSrcName" class="form-input" value="${n}" onkeyup="checkModalValidity()"></div><div class="form-group"><label class="form-label">Group</label><input type="text" id="inputSrcGroup" class="form-input" value="${g}" placeholder="Group"></div><div class="form-group"><label class="form-label">IP Address</label><div style="display:flex; gap:10px;"><input type="text" id="inputSrcIP" class="form-input" value="${i}" placeholder="192.168.x.x" onkeyup="checkModalValidity()"><button class="btn btn-outline" style="padding:0 12px;" onclick="openAutoSearch()">🔍</button></div></div></div><div class="modal-footer"><button class="modal-footer-btn" onclick="closeModal()">Cancel</button><button class="modal-footer-btn" id="btnSaveSource" onclick="saveSourceData()" disabled>Save</button></div>`;document.getElementById('modalOverlay').style.display='flex';checkModalValidity()}
