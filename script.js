@@ -1,14 +1,12 @@
-/* script.js - Final Demo Version (V37 Fixed Interactions) */
+/* script.js - Final Demo Version (V38 Fixes) */
 
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
 let currentOutputMode = 'Single'; 
 let maxDecResolution = 2160; 
 
-// Initial Data (Empty to show Empty State)
+// Initial Data: Empty to test empty state
 let sourcesData = []; 
-// Use this to test with data:
-// let sourcesData = [{ id: 'src_01', name: 'Camera 01', ip: '192.168.1.101', group: 'A', status: 'online', thumb: '', resHeight: 1080, resolution: '1080p', presets: {1:''} }];
 
 let editingSourceId = null;
 let selectedAutoSearchIp = null;
@@ -70,8 +68,9 @@ function checkEmptyState() {
                 <button class="empty-btn-primary" onclick="openFullSettings('source', true)">Go to Settings</button>
             </div>
         `;
-        selectSlot('none'); 
+        selectSlot('none'); // Disable PTZ
     } else {
+        // Restore grid if needed
         if(!document.getElementById('slot-1')) switchOutputMode(currentOutputMode === 'Single' ? 1 : 4);
     }
 }
@@ -80,7 +79,6 @@ function checkEmptyState() {
 function refreshSourceList() {
     const btn = document.getElementById('btn-refresh-list');
     if(btn) { btn.innerText = "..."; btn.disabled = true; }
-    
     const tbdDec = document.getElementById('source-list-body');
     const tbdSettings = document.getElementById('settings-source-list-body');
     const spinnerHtml = '<tr><td colspan="6" style="text-align:center; padding:40px;"><div class="loading-spinner-container"><div class="spinner-ring"></div><div style="margin-top:10px; color:#888; font-size:13px;">Updating sources...</div></div></td></tr>';
@@ -177,13 +175,14 @@ function setPTZPanelState(enabled) {
             panel.classList.remove('disabled-ui'); 
             panel.style.opacity = '1'; 
         } else { 
+            // Important: Apply visually disabled state
             panel.classList.add('disabled-ui'); 
             panel.style.opacity = '0.5'; 
         } 
     }
 }
 
-// Corrected: Always render buttons, just disable them if no source
+// FIX: Always render buttons, but disable them if no source
 function updatePTZPresets(sourceObj) {
     const grid = document.getElementById('ptz-preset-grid');
     if(!grid) return;
@@ -197,7 +196,7 @@ function updatePTZPresets(sourceObj) {
             btn.onmouseleave = () => { clearTimeout(presetHoverTimer); hidePresetTooltip(); };
             btn.onclick = () => { clearTimeout(presetHoverTimer); hidePresetTooltip(); showToast(`Recall Preset ${i}`, "success"); };
         } else {
-            btn.disabled = true;
+            btn.disabled = true; // Visibly disabled
         }
         grid.appendChild(btn);
     }
@@ -234,9 +233,10 @@ function renderSourceList() {
                 </div>
             `;
         }
-        checkEmptyState(); 
+        checkEmptyState(); // Triggers Disable PTZ and Left Empty State
     } else {
         if(refreshBtn) refreshBtn.style.display = 'flex';
+        // Check if we need to restore table structure
         if(listContainer && !listContainer.querySelector('table')) {
             listContainer.innerHTML = `<table class="source-list-table"><thead class="source-list-header"><tr><th style="width:40px;"></th><th>Source Name</th><th style="width:50px; text-align:right;">Act</th></tr></thead><tbody id="source-list-body"></tbody></table>`;
         }
@@ -247,6 +247,7 @@ function renderSourceList() {
             const activeSourceId = slot ? slot.dataset.sourceId : null;
             tbody.innerHTML = '';
             
+            // FIX: Restore Layout if we have data now
             if(document.querySelector('.empty-state-wrapper') && currentSystemMode === 'decoder') {
                  switchOutputMode(currentOutputMode === 'Single' ? 1 : 4);
             }
@@ -256,8 +257,10 @@ function renderSourceList() {
                 const isActive = src.id === activeSourceId;
                 const isUnsupported = src.resHeight > maxDecResolution;
                 tr.className = `source-row ${src.status === 'offline' ? 'offline' : ''} ${isActive ? 'active-source-row' : ''}`;
+                
+                // FIX: Drag Data Type
                 tr.draggable = !isUnsupported;
-                tr.setAttribute('ondragstart', 'drag(event)');
+                tr.ondragstart = (event) => drag(event);
                 tr.setAttribute('data-json', JSON.stringify(src));
                 
                 let statusHtml = `<span style="color:#4CAF50;">Online</span>`;
@@ -286,7 +289,46 @@ function renderSourceList() {
     }
 }
 
-// === Settings Logic ===
+// === Drag and Drop Functions (FIXED) ===
+function drag(ev) {
+    // Use text/plain for maximum compatibility
+    ev.dataTransfer.setData("text/plain", ev.currentTarget.getAttribute("data-json"));
+}
+
+function allowDrop(ev) {
+    ev.preventDefault();
+    ev.currentTarget.classList.add('drag-over');
+}
+
+function drop(ev) {
+    ev.preventDefault();
+    const slot = ev.currentTarget;
+    slot.classList.remove('drag-over');
+    
+    try {
+        const jsonStr = ev.dataTransfer.getData("text/plain");
+        if(!jsonStr) return;
+        
+        const data = JSON.parse(jsonStr);
+        slot.dataset.sourceId = data.id; 
+        const windowNum = slot.id.split('-')[1];
+        
+        if (data.status === 'offline') {
+            slot.classList.add('offline-state');
+            slot.innerHTML = `<div class="slot-label">Window ${windowNum}</div><div class="offline-overlay"><div class="offline-icon">⚠️</div><div class="offline-text">Signal Lost</div></div>${renderSlotMenu(slot.id)}`;
+        } else {
+            slot.classList.remove('offline-state');
+            slot.innerHTML = `<div class="video-layer" style="background-image: url('${data.thumb || 'https://picsum.photos/id/237/400/300'}');"></div><div class="video-overlay-gradient"></div><div class="slot-label">Window ${windowNum}</div><div class="slot-content"><div class="slot-name">${data.name}</div><div class="slot-meta" style="color:#4CAF50;">● Live</div></div>${renderSlotMenu(slot.id)}`;
+        }
+        slot.classList.add('active-slot');
+        selectSlot(slot.id);
+        updateLiveHeader();
+        renderSourceList(); 
+    } catch (e) {
+        console.error("Drop failed:", e);
+    }
+}
+
 function switchSettingsTab(tabId) {
     document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
     const activeTab = document.getElementById('tab-' + tabId);
@@ -313,10 +355,12 @@ function switchSettingsTab(tabId) {
     }
     else if (tabId === 'source') {
         titleEl.innerText = "Source Management";
+        
         if (currentSystemMode === 'encoder') {
              let rows = '';
             if(sourcesData.length === 0) rows = '<tr><td colspan="4" class="empty-state">No sources found.</td></tr>';
             else sourcesData.forEach(src => { rows += `<tr class="source-row disabled-content"><td style="padding:10px;"><div class="thumb-box" style="width:80px; height:45px;"><img src="${src.thumb || ''}" style="width:100%; height:100%; object-fit:cover; display:${src.thumb?'block':'none'}"></div></td><td style="padding:10px;"><div style="font-weight:bold; color:#fff;">${src.name}</div><div style="font-size:12px; color:#888;">${src.ip}</div></td><td style="padding:10px; color:#888; font-size:12px;">${src.status.toUpperCase()}</td><td style="padding:10px; text-align:right;"><button class="btn btn-outline btn-sm" disabled>Edit</button> <button class="btn btn-danger btn-sm" disabled>Delete</button></td></tr>`; });
+            
             htmlContent = `<div style="background:#332b00; border:1px solid #d4b106; color:#ffeeba; padding:10px; border-radius:4px; margin-bottom:20px; font-size:13px;">⚠️ Source management is only available in Decoder Mode.</div><div style="display:flex; justify-content:flex-end; margin-bottom:20px;"><button class="btn btn-primary" disabled style="opacity:0.5; cursor:not-allowed;">+ Add Source</button></div><div class="source-list-panel" style="border:1px solid #333; border-radius:8px; overflow:hidden;"><table class="source-list-table"><thead class="source-list-header"><tr><th>Preview</th><th>Name & IP</th><th>Status</th><th style="text-align:right;">Actions</th></tr></thead><tbody id="settings-source-list-body">${rows}</tbody></table></div>`;
         } else {
             let rows = '';
@@ -354,9 +398,6 @@ function askRemoveSource(id) { sourceToRemoveId = id; document.getElementById('m
 function confirmRemoveSource() { if(sourceToRemoveId) { removeSource(null, sourceToRemoveId); sourcesData = sourcesData.filter(s => s.id !== sourceToRemoveId); refreshSourceList(); showToast("Source Removed", "success"); document.getElementById('modal-remove-confirm').style.display = 'none'; sourceToRemoveId = null; } }
 function cancelRemoveSource() { document.getElementById('modal-remove-confirm').style.display = 'none'; sourceToRemoveId = null; }
 function updatePreviewLabels(id, newName) { document.querySelectorAll('.preview-slot').forEach(slot => { if(slot.dataset.sourceId === id) { const nameEl = slot.querySelector('.slot-name'); if(nameEl) nameEl.innerText = newName; } }); updateLiveHeader(); }
-function drag(ev) { ev.dataTransfer.setData("application/json", ev.currentTarget.getAttribute("data-json")); }
-function allowDrop(ev) { ev.preventDefault(); ev.currentTarget.classList.add('drag-over'); }
-function drop(ev) { ev.preventDefault(); const slot = ev.currentTarget; slot.classList.remove('drag-over'); const data = JSON.parse(ev.dataTransfer.getData("application/json")); slot.dataset.sourceId = data.id; const windowNum = slot.id.split('-')[1]; if (data.status === 'offline') { slot.classList.add('offline-state'); slot.innerHTML = `<div class="slot-label">Window ${windowNum}</div><div class="offline-overlay"><div class="offline-icon">⚠️</div><div class="offline-text">Signal Lost</div></div>${renderSlotMenu(slot.id)}`; } else { slot.classList.remove('offline-state'); slot.innerHTML = `<div class="video-layer" style="background-image: url('${data.thumb || 'https://picsum.photos/id/237/400/300'}');"></div><div class="video-overlay-gradient"></div><div class="slot-label">Window ${windowNum}</div><div class="slot-content"><div class="slot-name">${data.name}</div><div class="slot-meta" style="color:#4CAF50;">● Live</div></div>${renderSlotMenu(slot.id)}`; } slot.classList.add('active-slot'); selectSlot(slot.id); updateLiveHeader(); renderSourceList(); }
 function renderSlotMenu(slotId) { return `<button class="slot-menu-btn" onclick="toggleSlotMenu('${slotId}', event)">•••</button><div class="slot-dropdown" id="menu-${slotId}"><button class="slot-action danger" onclick="removeSource('${slotId}')">Clear</button></div>`; }
 function toggleSlotMenu(slotId, event) { event.stopPropagation(); document.querySelectorAll('.slot-dropdown').forEach(el => el.classList.remove('show')); const menu = document.getElementById(`menu-${slotId}`); if(menu) menu.classList.add('show'); }
 function removeSource(slotId, targetSourceId = null) { if (targetSourceId) { const slot = document.querySelector(`.preview-slot[data-source-id="${targetSourceId}"]`); if (slot) slotId = slot.id; else return; } const slot = document.getElementById(slotId); if(slot) { delete slot.dataset.sourceId; slot.classList.remove('active-slot', 'offline-state'); slot.innerHTML = `<div class="slot-label">Window ${slotId.split('-')[1]}</div><div class="slot-content" style="text-align:center;"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div>`; updateLiveHeader(); selectSlot(slotId); renderSourceList(); } }
@@ -371,4 +412,3 @@ function closeSpecificModal(id) { document.getElementById(id).style.display = 'n
 function showToast(msg, type) { const div = document.createElement('div'); div.className = 'toast'; div.innerHTML = `<span>${msg}</span>`; div.style.borderLeftColor = type === 'success' ? '#4CAF50' : '#007AFF'; let container = document.getElementById('toast-container'); if(!container) { container = document.createElement('div'); container.id='toast-container'; document.body.appendChild(container); } container.appendChild(div); setTimeout(() => div.remove(), 3000); }
 function openFullSettings(tab, autoAdd=false) { document.getElementById('modal-large-settings').style.display = 'flex'; switchSettingsTab(tab); if(autoAdd && tab === 'source') { setTimeout(() => showModal('Add Manual Source'), 300); } }
 function togglePTZ() { console.log("PTZ is embedded now"); }
-function switchEncTab(tabName) { document.querySelectorAll('.enc-tab').forEach(t => t.classList.remove('active')); document.getElementById('enc-tab-video').style.display = 'none'; document.getElementById('enc-tab-audio').style.display = 'none'; event.target.classList.add('active'); document.getElementById('enc-tab-' + tabName).style.display = 'block'; }
