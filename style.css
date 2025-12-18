@@ -1,4 +1,4 @@
-/* style.css - Final Demo Version (V43 - Layout & Drag Fix) */
+/* style.css - Final Stable Version (V44 - Restore & Fix) */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -249,7 +249,7 @@ input:checked + .slider:before { transform: translateX(14px); }
 }
 .mode-btn-icon { font-size: 18px; }
 
-/* Output Container: 填滿左側高度 */
+/* Output Container */
 .output-container { 
     background: #000; border: 1px solid #333; border-radius: 8px; 
     position: relative; overflow: hidden; display: flex; flex-direction: column; 
@@ -274,20 +274,19 @@ input:checked + .slider:before { transform: translateX(14px); }
 .output-layout-single { width: 100%; height: 100%; display: flex; }
 .output-layout-quad { width: 100%; height: 100%; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 2px; background: #333; }
 
-/* === FIX for Drag and Drop === */
-/* Ensure child elements don't block drop event on the parent slot */
+/* === VITAL FIX for Drag and Drop === */
+/* The slot itself handles events, but children must not block them */
 .preview-slot {
     background: #0a0a0a; position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
     border: 2px solid transparent; transition: all 0.2s; cursor: pointer; overflow: hidden;
 }
-/* IMPORTANT: Disable pointer events on children so dragover/drop works on parent */
+/* Disable pointer events on ALL children so dragover targets the parent slot */
 .preview-slot * {
     pointer-events: none; 
 }
-/* BUT: Re-enable pointer events for specific interactive elements */
-.preview-slot .slot-menu-btn, 
-.preview-slot .empty-state-wrapper *,
-.preview-slot .offline-overlay * {
+/* Re-enable pointer events ONLY for interactive elements */
+.preview-slot .slot-menu-btn,
+.preview-slot .empty-state-wrapper * {
     pointer-events: auto;
 }
 
@@ -322,14 +321,14 @@ input:checked + .slider:before { transform: translateX(14px); }
     background: #252526; border: 1px solid #444; border-radius: 4px;
     width: 100px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
     display: none; flex-direction: column; z-index: 30; overflow: hidden;
-    pointer-events: auto; /* Ensure dropdown works */
+    pointer-events: auto;
 }
 .slot-dropdown.show { display: flex; }
 .slot-action { background: transparent; border: none; color: #ccc; text-align: left; padding: 8px 12px; font-size: 12px; cursor: pointer; width: 100%; }
 .slot-action:hover { background: #333; color: #fff; }
 .slot-action.danger:hover { background: #D32F2F; }
 
-/* Source List: 40% Split */
+/* Source List */
 .source-list-panel { 
     background: #1E1E1E; border: 1px solid #333; border-radius: 8px; 
     display: flex; flex-direction: column; overflow: hidden; 
@@ -346,7 +345,7 @@ input:checked + .slider:before { transform: translateX(14px); }
 .source-row:hover { background-color: #252525; }
 .source-row.active-source-row { background-color: #1a2a3a; border-left: 3px solid var(--theme-color); }
 
-/* Empty State Style */
+/* Empty State */
 .empty-state-wrapper {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     height: 100%; width: 100%; color: #666; text-align: center; padding: 20px; flex: 1; 
@@ -362,7 +361,7 @@ input:checked + .slider:before { transform: translateX(14px); }
     background-color: var(--highlight-orange); color: white; border: none;
     padding: 10px 20px; border-radius: 4px; font-weight: bold;
     cursor: pointer; transition: all 0.2s;
-    pointer-events: auto; /* Allow clicking the button */
+    pointer-events: auto;
 }
 .empty-btn-primary:hover { background-color: var(--highlight-orange-hover); }
 
@@ -378,8 +377,6 @@ input:checked + .slider:before { transform: translateX(14px); }
 .thumb-box { width: 100px; height: 56px; background: #000; border-radius: 2px; border: 1px solid #333; display: flex; align-items: center; justify-content: center; overflow: hidden; }
 .thumb-box img { width: 100%; height: 100%; object-fit: cover; }
 .thumb-box.offline { background: #000; color: #aaa; display: flex; flex-direction: column; font-size: 9px; }
-
-/* Unsupported Overlay */
 .thumb-box.unsupported { position: relative; }
 .thumb-box.unsupported::after {
     content: "UNSUPPORTED"; position: absolute; top:0; left:0; right:0; bottom:0;
@@ -428,12 +425,20 @@ input[type=range].ptz-range::-webkit-slider-thumb { height: 14px; width: 14px; b
 .preset-controls { display: flex; align-items: center; gap: 6px; }
 .ptz-arrow-btn { background: transparent; border: none; color: #888; font-size: 16px; cursor: pointer; padding: 0 4px; }
 .ptz-arrow-btn:hover { color: #fff; }
-.preset-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; flex: 1; min-height: 100px; /* FIX: Added min-height to prevent collapse */ }
+
+/* FIX: Preset Grid Min-Height */
+.preset-grid { 
+    display: grid; 
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 4px; 
+    flex: 1; 
+    min-height: 100px; /* Crucial to prevent collapse */
+}
 .preset-grid button { background: #424242; border: none; color: #bbb; font-size: 12px; padding: 10px 0; cursor: pointer; border-radius: 2px; }
 .preset-grid button:hover { background: #555; color: #fff; }
 .preset-grid button:active { background: var(--ptz-thumb); color: #000; }
 
-/* FIX: Stronger Disabled UI for Preset Buttons */
+/* FIX: Visibly disabled state for buttons */
 .preset-grid button:disabled { 
     opacity: 1 !important; /* Keep visible */
     cursor: not-allowed; 
@@ -450,12 +455,11 @@ input[type=range].ptz-range::-webkit-slider-thumb { height: 14px; width: 14px; b
 .preset-preview-tooltip img { width: 100%; height: 100%; object-fit: cover; }
 .preset-preview-tooltip .tooltip-label { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.7); color: #fff; font-size: 10px; padding: 2px 5px; text-align: center; }
 
-/* Modals */
-/* FIX: Increased z-index to cover Settings (3000 vs 2000) */
+/* Modals - Z-Index Fix */
 .modal-overlay { 
     position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
     background: rgba(0,0,0,0.8); 
-    z-index: 3000; 
+    z-index: 3000; /* Ensure this is higher than Settings */
     display: none; align-items: center; justify-content: center; backdrop-filter: blur(3px); 
 }
 .modal-box { background: var(--panel-color); width: 500px; border-radius: 8px; border: 1px solid #444; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex; flex-direction: column; }
@@ -466,7 +470,6 @@ input[type=range].ptz-range::-webkit-slider-thumb { height: 14px; width: 14px; b
 .search-list-item:hover { background: #333; color: #fff; }
 .search-list-item.selected { background: var(--theme-color); color: #fff; }
 
-/* Large Settings Modal (Z-Index 2000) */
 #modal-large-settings { z-index: 2000 !important; }
 #modal-large-settings .modal-box { width: 100% !important; height: 100% !important; max-width: none; max-height: none; border-radius: 0; border: none; padding: 0; overflow: hidden; display: flex; flex-direction: row; }
 .settings-sidebar { width: 250px; flex-shrink: 0; background: #1a1a1a; border-right: 1px solid #333; display: flex; flex-direction: column; padding: 30px 0; }
@@ -481,7 +484,6 @@ input[type=range].ptz-range::-webkit-slider-thumb { height: 14px; width: 14px; b
 .settings-close-btn:hover { color: #fff; }
 .settings-body { flex: 1; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; max-width: 1000px; margin: 0 auto; width: 100%; }
 
-/* Toasts & Reboot */
 #toast-container { position: fixed; top: 80px; right: 20px; z-index: 4000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
 .toast { min-width: 250px; background: #252526; color: #fff; padding: 12px 16px; border-left: 4px solid var(--theme-color); border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); font-size: 13px; animation: slideIn 0.3s ease-out forwards; display: flex; align-items: center; pointer-events: auto; }
 @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
