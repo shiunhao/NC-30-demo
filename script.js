@@ -1,12 +1,25 @@
-/* script.js - Final Demo Version (V42 Fixed Drag & Visibility) */
+/* script.js - Final Demo Version (V43 - Layout & Drag Fix) */
 
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
 let currentOutputMode = 'Single'; 
 let maxDecResolution = 2160; 
 
-// Initial Data: Empty to test empty state flow
-let sourcesData = []; 
+// Initial Data: 4 Items to start
+let sourcesData = [
+    { 
+        id: 'src_01', name: 'Main Camera 01', ip: '192.168.1.101', group: 'Studio A', status: 'online', thumb: 'https://picsum.photos/id/64/100/56',
+        resHeight: 2160, resolution: '3840x2160',
+        presets: { 1: 'https://picsum.photos/id/65/160/90', 2: 'https://picsum.photos/id/66/160/90' }
+    },
+    { 
+        id: 'src_02', name: 'PTZ Camera 02', ip: '192.168.1.102', group: 'Studio B', status: 'online', thumb: 'https://picsum.photos/id/1/100/56',
+        resHeight: 1080, resolution: '1920x1080',
+        presets: { 1: 'https://picsum.photos/id/2/160/90' }
+    },
+    { id: 'src_03', name: 'OBS Output', ip: '192.168.1.120', group: 'OBS', status: 'error', errorMsg: 'No support 4k▲', thumb: 'https://picsum.photos/id/48/100/56', resHeight: 1080, resolution: '1920x1080', presets: {} },
+    { id: 'src_04', name: 'Outdoor Cam', ip: '192.168.1.104', group: 'Outdoor', status: 'offline', thumb: '', resHeight: 720, resolution: '1280x720', presets: {} }
+];
 
 let editingSourceId = null;
 let selectedAutoSearchIp = null;
@@ -78,6 +91,7 @@ function checkEmptyState() {
 function refreshSourceList() {
     const btn = document.getElementById('btn-refresh-list');
     if(btn) { btn.innerText = "..."; btn.disabled = true; }
+    
     const tbdDec = document.getElementById('source-list-body');
     const tbdSettings = document.getElementById('settings-source-list-body');
     const spinnerHtml = '<tr><td colspan="6" style="text-align:center; padding:40px;"><div class="loading-spinner-container"><div class="spinner-ring"></div><div style="margin-top:10px; color:#888; font-size:13px;">Updating sources...</div></div></td></tr>';
@@ -132,7 +146,7 @@ function selectSlot(slotId) {
     if(slotId === 'none') {
         updatePTZPanelInfo(null, null);
         setPTZPanelState(false);
-        updatePTZPresets(null); // FORCE RENDER
+        updatePTZPresets(null); // Force render disabled buttons
         return;
     }
     document.querySelectorAll('.preview-slot').forEach(el => el.classList.remove('selected-slot')); 
@@ -169,7 +183,15 @@ function updatePTZPanelInfo(windowNum, sourceName) {
 
 function setPTZPanelState(enabled) {
     const panel = document.querySelector('.embedded-ptz-panel');
-    if(panel) { if(enabled) { panel.classList.remove('disabled-ui'); panel.style.opacity = '1'; } else { panel.classList.add('disabled-ui'); panel.style.opacity = '0.5'; } }
+    if(panel) { 
+        if(enabled) { 
+            panel.classList.remove('disabled-ui'); 
+            panel.style.opacity = '1'; 
+        } else { 
+            panel.classList.add('disabled-ui'); 
+            panel.style.opacity = '0.5'; 
+        } 
+    }
 }
 
 // FIX: Always render 9 buttons.
@@ -250,12 +272,10 @@ function renderSourceList() {
                 const isUnsupported = src.resHeight > maxDecResolution;
                 tr.className = `source-row ${src.status === 'offline' ? 'offline' : ''} ${isActive ? 'active-source-row' : ''}`;
                 
-                // Fix Drag & Drop: Use standard attribute
+                // Fix Drag & Drop: Use standard JSON string (V36 style)
                 tr.draggable = !isUnsupported;
-                // FIX: Pass just the ID
-                tr.ondragstart = (event) => {
-                     event.dataTransfer.setData("text/plain", src.id);
-                };
+                tr.ondragstart = (event) => drag(event); 
+                tr.setAttribute('data-json', JSON.stringify(src));
                 
                 let statusHtml = `<span style="color:#4CAF50;">Online</span>`;
                 if(src.status === 'error') statusHtml = `<span class="src-status-error">${src.errorMsg}</span>`;
@@ -283,10 +303,14 @@ function renderSourceList() {
     }
 }
 
-// === Drag and Drop Functions (FIXED) ===
+// === Drag and Drop Functions (FIXED to V36 Logic) ===
+function drag(ev) {
+    // Pass the full JSON string to avoid id lookup issues
+    ev.dataTransfer.setData("application/json", ev.currentTarget.getAttribute("data-json"));
+}
+
 function allowDrop(ev) {
-    ev.preventDefault(); // Essential for allowing drop
-    ev.currentTarget.classList.add('drag-over');
+    ev.preventDefault();
 }
 
 function drop(ev) {
@@ -295,14 +319,10 @@ function drop(ev) {
     slot.classList.remove('drag-over');
     
     try {
-        // FIX: Retrieve ID
-        const sourceId = ev.dataTransfer.getData("text/plain");
-        if(!sourceId) return;
-
-        // FIX: Find data manually
-        const data = sourcesData.find(s => s.id === sourceId);
-        if(!data) return; // Drop invalid data?
-
+        const jsonStr = ev.dataTransfer.getData("application/json");
+        if(!jsonStr) return;
+        
+        const data = JSON.parse(jsonStr);
         slot.dataset.sourceId = data.id; 
         const windowNum = slot.id.split('-')[1];
         
