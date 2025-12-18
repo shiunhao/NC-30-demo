@@ -1,11 +1,11 @@
-/* script.js - Final Demo Version (V43 - Layout & Drag Fix) */
+/* script.js - Final Demo Version (V45 Text Update) */
 
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
 let currentOutputMode = 'Single'; 
 let maxDecResolution = 2160; 
 
-// Initial Data: 4 Items to start
+// Initial Data: 4 items to start with
 let sourcesData = [
     { 
         id: 'src_01', name: 'Main Camera 01', ip: '192.168.1.101', group: 'Studio A', status: 'online', thumb: 'https://picsum.photos/id/64/100/56',
@@ -17,7 +17,11 @@ let sourcesData = [
         resHeight: 1080, resolution: '1920x1080',
         presets: { 1: 'https://picsum.photos/id/2/160/90' }
     },
-    { id: 'src_03', name: 'OBS Output', ip: '192.168.1.120', group: 'OBS', status: 'error', errorMsg: 'No support 4k▲', thumb: 'https://picsum.photos/id/48/100/56', resHeight: 1080, resolution: '1920x1080', presets: {} },
+    { 
+        id: 'src_03', name: 'OBS Output', ip: '192.168.1.120', group: 'OBS', status: 'error', 
+        errorMsg: 'INPUT解析度不支援', // Modified Text here
+        thumb: 'https://picsum.photos/id/48/100/56', resHeight: 1080, resolution: '1920x1080', presets: {} 
+    },
     { id: 'src_04', name: 'Outdoor Cam', ip: '192.168.1.104', group: 'Outdoor', status: 'offline', thumb: '', resHeight: 720, resolution: '1280x720', presets: {} }
 ];
 
@@ -91,7 +95,6 @@ function checkEmptyState() {
 function refreshSourceList() {
     const btn = document.getElementById('btn-refresh-list');
     if(btn) { btn.innerText = "..."; btn.disabled = true; }
-    
     const tbdDec = document.getElementById('source-list-body');
     const tbdSettings = document.getElementById('settings-source-list-body');
     const spinnerHtml = '<tr><td colspan="6" style="text-align:center; padding:40px;"><div class="loading-spinner-container"><div class="spinner-ring"></div><div style="margin-top:10px; color:#888; font-size:13px;">Updating sources...</div></div></td></tr>';
@@ -272,15 +275,16 @@ function renderSourceList() {
                 const isUnsupported = src.resHeight > maxDecResolution;
                 tr.className = `source-row ${src.status === 'offline' ? 'offline' : ''} ${isActive ? 'active-source-row' : ''}`;
                 
-                // Fix Drag & Drop: Use standard JSON string (V36 style)
+                // Fix Drag & Drop: Use standard attribute
                 tr.draggable = !isUnsupported;
-                tr.ondragstart = (event) => drag(event); 
+                tr.setAttribute('ondragstart', 'drag(event)');
                 tr.setAttribute('data-json', JSON.stringify(src));
                 
                 let statusHtml = `<span style="color:#4CAF50;">Online</span>`;
                 if(src.status === 'error') statusHtml = `<span class="src-status-error">${src.errorMsg}</span>`;
                 if(src.status === 'offline') statusHtml = `<span style="color:#888;">Offline</span>`;
-                if(isUnsupported) statusHtml += `<span class="src-status-warning">Resolution Exceeded</span>`;
+                // Modified Text here
+                if(isUnsupported) statusHtml += `<span class="src-status-warning">INPUT解析度不支援</span>`;
                 else if(isActive) statusHtml += ` <span style="color:#007AFF; font-weight:bold; font-size:10px; margin-left:5px;">● PREVIEW</span>`;
 
                 let thumbClass = "thumb-box";
@@ -303,7 +307,7 @@ function renderSourceList() {
     }
 }
 
-// === Drag and Drop Functions (FIXED to V36 Logic) ===
+// === Drag and Drop Functions (FIXED) ===
 function drag(ev) {
     // Pass the full JSON string to avoid id lookup issues
     ev.dataTransfer.setData("application/json", ev.currentTarget.getAttribute("data-json"));
