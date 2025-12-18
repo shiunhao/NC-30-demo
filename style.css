@@ -1,4 +1,4 @@
-/* style.css - Final Demo Version (V41 - Drag & PTZ Fixed) */
+/* style.css - Final Demo Version (V42 Fixed Drag & Visibility) */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -433,7 +433,7 @@ input[type=range].ptz-range::-webkit-slider-thumb { height: 14px; width: 14px; b
 .preset-grid button:hover { background: #555; color: #fff; }
 .preset-grid button:active { background: var(--ptz-thumb); color: #000; }
 /* Modified: Visibly disabled state for buttons */
-.preset-grid button:disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
+.preset-grid button:disabled { opacity: 0.8; cursor: not-allowed; pointer-events: none; color: #666; background: #2a2a2a; }
 
 /* Preset Preview Tooltip */
 .preset-preview-tooltip {
