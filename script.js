@@ -133,7 +133,7 @@ function selectSlot(slotId) {
     if(slotId === 'none') {
         updatePTZPanelInfo(null, null);
         setPTZPanelState(false);
-        updatePTZPresets(null); // Force render disabled buttons
+        updatePTZPresets(null); // Will render disabled buttons
         return;
     }
     document.querySelectorAll('.preview-slot').forEach(el => el.classList.remove('selected-slot')); 
@@ -181,23 +181,21 @@ function setPTZPanelState(enabled) {
     }
 }
 
-// FIX: Always render 9 buttons. If sourceObj is null, they are all disabled.
+// FIX: Always render buttons, but disable them if no source
 function updatePTZPresets(sourceObj) {
     const grid = document.getElementById('ptz-preset-grid');
     if(!grid) return;
     grid.innerHTML = '';
-    
     for(let i=1; i<=9; i++) {
         const btn = document.createElement('button');
         btn.innerText = i;
-        
         if (sourceObj && sourceObj.presets && sourceObj.presets[i]) {
             const imgUrl = sourceObj.presets[i];
             btn.onmouseenter = (e) => { presetHoverTimer = setTimeout(() => { showPresetTooltip(e.target, imgUrl, `Preset ${i}`); }, 2000); };
             btn.onmouseleave = () => { clearTimeout(presetHoverTimer); hidePresetTooltip(); };
             btn.onclick = () => { clearTimeout(presetHoverTimer); hidePresetTooltip(); showToast(`Recall Preset ${i}`, "success"); };
         } else {
-            btn.disabled = true; // Visibly disabled via CSS
+            btn.disabled = true; // Disabled state
         }
         grid.appendChild(btn);
     }
