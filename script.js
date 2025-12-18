@@ -1,11 +1,11 @@
-/* script.js - Final Demo Version (V38 Fixes) */
+/* script.js - Final Demo Version (V39 Fixes) */
 
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
 let currentOutputMode = 'Single'; 
 let maxDecResolution = 2160; 
 
-// Initial Data: Empty to test empty state
+// Initial Data: Empty to test empty state flow
 let sourcesData = []; 
 
 let editingSourceId = null;
@@ -68,9 +68,8 @@ function checkEmptyState() {
                 <button class="empty-btn-primary" onclick="openFullSettings('source', true)">Go to Settings</button>
             </div>
         `;
-        selectSlot('none'); // Disable PTZ
+        selectSlot('none'); 
     } else {
-        // Restore grid if needed
         if(!document.getElementById('slot-1')) switchOutputMode(currentOutputMode === 'Single' ? 1 : 4);
     }
 }
@@ -79,6 +78,7 @@ function checkEmptyState() {
 function refreshSourceList() {
     const btn = document.getElementById('btn-refresh-list');
     if(btn) { btn.innerText = "..."; btn.disabled = true; }
+    
     const tbdDec = document.getElementById('source-list-body');
     const tbdSettings = document.getElementById('settings-source-list-body');
     const spinnerHtml = '<tr><td colspan="6" style="text-align:center; padding:40px;"><div class="loading-spinner-container"><div class="spinner-ring"></div><div style="margin-top:10px; color:#888; font-size:13px;">Updating sources...</div></div></td></tr>';
@@ -133,7 +133,7 @@ function selectSlot(slotId) {
     if(slotId === 'none') {
         updatePTZPanelInfo(null, null);
         setPTZPanelState(false);
-        updatePTZPresets(null);
+        updatePTZPresets(null); // Will render disabled buttons
         return;
     }
     document.querySelectorAll('.preview-slot').forEach(el => el.classList.remove('selected-slot')); 
@@ -170,16 +170,7 @@ function updatePTZPanelInfo(windowNum, sourceName) {
 
 function setPTZPanelState(enabled) {
     const panel = document.querySelector('.embedded-ptz-panel');
-    if(panel) { 
-        if(enabled) { 
-            panel.classList.remove('disabled-ui'); 
-            panel.style.opacity = '1'; 
-        } else { 
-            // Important: Apply visually disabled state
-            panel.classList.add('disabled-ui'); 
-            panel.style.opacity = '0.5'; 
-        } 
-    }
+    if(panel) { if(enabled) { panel.classList.remove('disabled-ui'); panel.style.opacity = '1'; } else { panel.classList.add('disabled-ui'); panel.style.opacity = '0.5'; } }
 }
 
 // FIX: Always render buttons, but disable them if no source
@@ -196,7 +187,7 @@ function updatePTZPresets(sourceObj) {
             btn.onmouseleave = () => { clearTimeout(presetHoverTimer); hidePresetTooltip(); };
             btn.onclick = () => { clearTimeout(presetHoverTimer); hidePresetTooltip(); showToast(`Recall Preset ${i}`, "success"); };
         } else {
-            btn.disabled = true; // Visibly disabled
+            btn.disabled = true; // Disabled state
         }
         grid.appendChild(btn);
     }
@@ -233,10 +224,10 @@ function renderSourceList() {
                 </div>
             `;
         }
-        checkEmptyState(); // Triggers Disable PTZ and Left Empty State
+        checkEmptyState(); 
     } else {
         if(refreshBtn) refreshBtn.style.display = 'flex';
-        // Check if we need to restore table structure
+        // Restore table structure
         if(listContainer && !listContainer.querySelector('table')) {
             listContainer.innerHTML = `<table class="source-list-table"><thead class="source-list-header"><tr><th style="width:40px;"></th><th>Source Name</th><th style="width:50px; text-align:right;">Act</th></tr></thead><tbody id="source-list-body"></tbody></table>`;
         }
@@ -247,7 +238,7 @@ function renderSourceList() {
             const activeSourceId = slot ? slot.dataset.sourceId : null;
             tbody.innerHTML = '';
             
-            // FIX: Restore Layout if we have data now
+            // Fix layout if coming from empty state
             if(document.querySelector('.empty-state-wrapper') && currentSystemMode === 'decoder') {
                  switchOutputMode(currentOutputMode === 'Single' ? 1 : 4);
             }
@@ -258,9 +249,9 @@ function renderSourceList() {
                 const isUnsupported = src.resHeight > maxDecResolution;
                 tr.className = `source-row ${src.status === 'offline' ? 'offline' : ''} ${isActive ? 'active-source-row' : ''}`;
                 
-                // FIX: Drag Data Type
+                // Fix Drag & Drop
                 tr.draggable = !isUnsupported;
-                tr.ondragstart = (event) => drag(event);
+                tr.ondragstart = (event) => drag(event); // Explicitly call drag
                 tr.setAttribute('data-json', JSON.stringify(src));
                 
                 let statusHtml = `<span style="color:#4CAF50;">Online</span>`;
@@ -291,12 +282,11 @@ function renderSourceList() {
 
 // === Drag and Drop Functions (FIXED) ===
 function drag(ev) {
-    // Use text/plain for maximum compatibility
     ev.dataTransfer.setData("text/plain", ev.currentTarget.getAttribute("data-json"));
 }
 
 function allowDrop(ev) {
-    ev.preventDefault();
+    ev.preventDefault(); // Essential for allowing drop
     ev.currentTarget.classList.add('drag-over');
 }
 
@@ -381,6 +371,7 @@ function switchSettingsTab(tabId) {
     bodyEl.innerHTML = htmlContent;
 }
 
+// ... (Rest of helper functions)
 function showModal(t){
     if(t==='Add Manual Source'){
         if (sourcesData.length >= 4) { document.getElementById('modal-alert').style.display = 'flex'; return; }
@@ -412,3 +403,4 @@ function closeSpecificModal(id) { document.getElementById(id).style.display = 'n
 function showToast(msg, type) { const div = document.createElement('div'); div.className = 'toast'; div.innerHTML = `<span>${msg}</span>`; div.style.borderLeftColor = type === 'success' ? '#4CAF50' : '#007AFF'; let container = document.getElementById('toast-container'); if(!container) { container = document.createElement('div'); container.id='toast-container'; document.body.appendChild(container); } container.appendChild(div); setTimeout(() => div.remove(), 3000); }
 function openFullSettings(tab, autoAdd=false) { document.getElementById('modal-large-settings').style.display = 'flex'; switchSettingsTab(tab); if(autoAdd && tab === 'source') { setTimeout(() => showModal('Add Manual Source'), 300); } }
 function togglePTZ() { console.log("PTZ is embedded now"); }
+function switchEncTab(tabName) { document.querySelectorAll('.enc-tab').forEach(t => t.classList.remove('active')); document.getElementById('enc-tab-video').style.display = 'none'; document.getElementById('enc-tab-audio').style.display = 'none'; event.target.classList.add('active'); document.getElementById('enc-tab-' + tabName).style.display = 'block'; }
