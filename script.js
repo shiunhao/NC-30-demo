@@ -1,4 +1,4 @@
-/* script.js - Final Demo Version (V55 - Completed) */
+/* script.js - Final Demo Version (V57 - Smart Settings Open) */
 
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
@@ -30,6 +30,7 @@ let selectedAutoSearchIp = null;
 let sourceToRemoveId = null;
 let pendingRebootMode = null; 
 let presetHoverTimer = null; 
+
 let onboardingSelectedMode = null;
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -45,7 +46,8 @@ function doLogin() {
     btn.innerHTML = "Logging in...";
     setTimeout(() => { 
         document.getElementById('page-login').style.display = 'none'; 
-        const hasOnboarded = localStorage.getItem('nc30_onboarding_v55');
+        // Unique key for V57 to ensure onboarding runs once
+        const hasOnboarded = localStorage.getItem('nc30_onboarding_v57');
         if (!hasOnboarded) {
             startOnboarding();
         } else {
@@ -62,7 +64,7 @@ function startOnboarding() {
 }
 
 function closeOnboarding() {
-    localStorage.setItem('nc30_onboarding_v55', 'true');
+    localStorage.setItem('nc30_onboarding_v57', 'true');
     document.getElementById('onboarding-overlay').style.display = 'none';
     if (!currentSystemMode) performSwitch('encoder');
 }
@@ -91,7 +93,6 @@ function toggleAccountMenu() {
 
 function actionAdminMode() {
     if (currentUserRole === 'admin') return;
-    // Show Auth Modal
     document.getElementById('accountMenu').classList.remove('show');
     document.getElementById('modal-admin-auth').style.display = 'flex';
 }
@@ -195,8 +196,11 @@ function refreshSourceList() {
     if(btn) { btn.innerText = "..."; btn.disabled = true; }
     
     const listContainer = document.getElementById('right-panel-list-container');
+    const settingsTbody = document.getElementById('settings-source-list-body');
     const spinnerHtml = '<div style="height:100%; display:flex; align-items:center; justify-content:center; padding:40px;"><div class="loading-spinner-container"><div class="spinner-ring"></div><div style="margin-top:10px; color:#888; font-size:13px;">Updating sources...</div></div></div>';
+    
     if(listContainer) listContainer.innerHTML = spinnerHtml;
+    if(settingsTbody) settingsTbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:40px;"><div class="loading-spinner-container"><div class="spinner-ring"></div><div style="margin-top:10px; color:#888; font-size:13px;">Updating sources...</div></div></td></tr>';
 
     setTimeout(() => {
         if(listContainer) listContainer.innerHTML = `<table class="source-list-table" id="right-panel-table"><thead class="source-list-header"><tr><th style="width:40px;"></th><th>Source Name</th><th style="width:50px; text-align:right;">Act</th></tr></thead><tbody id="source-list-body"></tbody></table>`;
@@ -213,6 +217,24 @@ function updateLiveHeader() {
     modeBlock.className = 'header-info-block';
     modeBlock.innerHTML = `<div class="info-label">Current Mode</div><div class="info-value">Decoder</div>`;
     container.appendChild(modeBlock);
+    const count = currentOutputMode === 'Single' ? 1 : 4;
+    for(let i=1; i<=count; i++) {
+        const slot = document.getElementById(`slot-${i}`);
+        let name = '-';
+        let res = '';
+        if(slot) {
+            const nameEl = slot.querySelector('.slot-name');
+            const text = nameEl ? nameEl.innerText : '';
+            if(text && !text.includes('Drag')) {
+                name = text;
+                res = '<span style="color:#FF9500">1920x1080</span>';
+            }
+        }
+        const block = document.createElement('div');
+        block.className = 'header-info-block';
+        block.innerHTML = `<div class="info-label">Source${i}</div><div class="info-value-row"><span style="color:#bbb">${name}</span>${res}</div>`;
+        container.appendChild(block);
+    }
 }
 
 function setMaxVideoInput(val) {
@@ -285,7 +307,7 @@ function updatePTZPresets(sourceObj) {
         if (sourceObj && sourceObj.presets && sourceObj.presets[i]) {
             const imgUrl = sourceObj.presets[i];
             btn.onmouseenter = (e) => { 
-                presetHoverTimer = setTimeout(() => { showPresetTooltip(e.target, imgUrl, `Preset ${i}`); }, 200); // 200ms quick check
+                presetHoverTimer = setTimeout(() => { showPresetTooltip(e.target, imgUrl, `Preset ${i}`); }, 2000); 
             };
             btn.onmouseleave = () => { clearTimeout(presetHoverTimer); hidePresetTooltip(); };
             btn.onclick = () => { clearTimeout(presetHoverTimer); hidePresetTooltip(); showToast(`Recall Preset ${i}`, "success"); };
@@ -324,7 +346,6 @@ function renderSourceList() {
         const isUnsupported = src.resHeight > maxDecResolution;
         tr.className = `source-row ${src.status === 'offline' ? 'offline' : ''}`;
         
-        // FIX: Drag & Drop
         tr.draggable = !isUnsupported;
         tr.ondragstart = (event) => {
              event.dataTransfer.setData("text/plain", src.id);
@@ -366,17 +387,32 @@ function drop(ev) {
     }
 }
 
+// === FIX: Open Full Settings Smartly ===
+function openFullSettings(tab, autoAdd=false) { 
+    // If in Encoder mode and trying to open 'source' (default gear click),
+    // redirect to 'av-settings' instead, to avoid the "Feature Disabled" warning page.
+    if (tab === 'source' && currentSystemMode === 'encoder') {
+        tab = 'av-settings';
+    }
+
+    document.getElementById('modal-large-settings').style.display = 'flex'; 
+    switchSettingsTab(tab); 
+    
+    if(autoAdd && tab === 'source') { 
+        setTimeout(() => showModal('Add Manual Source'), 300); 
+    } 
+}
+
 function switchSettingsTab(tabId) {
-    // Basic settings switching logic (simplified for brevity as logic is same)
     document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
     document.getElementById('tab-' + tabId).classList.add('active');
     
     const bodyEl = document.getElementById('settings-body-content');
     const titleEl = document.getElementById('settings-title');
+    let htmlContent = '';
     
     if(tabId === 'source') {
         titleEl.innerText = "Source Management";
-        // Show correct content based on mode
         if (currentSystemMode === 'encoder') {
             bodyEl.innerHTML = `<div style="background:#332b00; border:1px solid #d4b106; color:#ffeeba; padding:10px; border-radius:4px;">⚠️ Source management is only available in <a href="#" onclick="switchSettingsTab('av-settings')" style="color:#FF9500; font-weight:bold;">Decoder Mode</a>.</div>`;
         } else {
@@ -384,7 +420,27 @@ function switchSettingsTab(tabId) {
         }
     } else if(tabId === 'av-settings') {
         titleEl.innerText = "Video & Audio";
-        bodyEl.innerHTML = `<div class="mode-switch-container"><div class="mode-switch-btn ${currentSystemMode==='encoder'?'active':''}" onclick="showRebootWarning('encoder')">Encoder</div><div class="mode-switch-btn ${currentSystemMode==='decoder'?'active':''}" onclick="showRebootWarning('decoder')">Decoder</div></div>`;
+        // Encoder Specific
+        if (currentSystemMode === 'encoder') {
+            htmlContent = `
+                <div class="settings-subsection"><div class="settings-group-title">Operation Mode</div>
+                    <div class="mode-switch-container"><div class="mode-switch-btn active">Encoder</div><div class="mode-switch-btn" onclick="showRebootWarning('decoder')">Decoder</div></div>
+                </div>
+                <div class="settings-subsection"><div class="settings-group-title">Video Settings (ENCODER)</div>
+                    <div class="form-group"><label class="form-label">Video Source</label><input type="text" class="form-input darker-input" value="HDMI (Auto)" readonly></div>
+                    <div class="form-group"><label class="form-label">Resolution</label><select class="form-select"><option>3840x2160</option><option>1920x1080</option></select></div>
+                </div>`;
+        } else {
+            htmlContent = `
+                <div class="settings-subsection"><div class="settings-group-title">Operation Mode</div>
+                    <div class="mode-switch-container"><div class="mode-switch-btn" onclick="showRebootWarning('encoder')">Encoder</div><div class="mode-switch-btn active">Decoder</div></div>
+                </div>
+                <div class="settings-subsection"><div class="settings-group-title">Video Settings (DECODER)</div>
+                    <div class="form-group"><label class="form-label">Max Input</label><select class="form-select"><option>2160p60</option><option>1080p60</option></select></div>
+                    <div class="form-group"><label class="form-label">Output Res</label><select class="form-select"><option>3840x2160</option><option>1920x1080</option></select></div>
+                </div>`;
+        }
+        bodyEl.innerHTML = htmlContent;
     } else {
         titleEl.innerText = "Settings";
         bodyEl.innerHTML = "Content...";
@@ -395,7 +451,9 @@ function switchSettingsTab(tabId) {
 function closeModal(e) { if(!e || e.target.id === 'modalOverlay' || e.target.classList.contains('modal-close-x')) document.getElementById('modalOverlay').style.display = 'none'; }
 function closeSpecificModal(id) { document.getElementById(id).style.display = 'none'; }
 function showToast(msg, type) { const div = document.createElement('div'); div.className = 'toast'; div.innerHTML = `<span>${msg}</span>`; let container = document.getElementById('toast-container'); if(!container) { container = document.createElement('div'); container.id='toast-container'; document.body.appendChild(container); } container.appendChild(div); setTimeout(() => div.remove(), 3000); }
-function openFullSettings(tab) { document.getElementById('modal-large-settings').style.display = 'flex'; switchSettingsTab(tab); }
+function showModal(t){if(t==='Add Manual Source'){renderSourceModal('Add Source','','','')}}
+function renderSourceModal(t,n,i,g){document.getElementById('modalContentBox').innerHTML=`<div class="modal-header-row"><h3 style="margin:0;color:#fff;">${t}</h3><span class="modal-close-x" onclick="closeModal()">✕</span></div><div class="modal-body-add-source"><div class="form-group"><label class="form-label">Source Name</label><input type="text" id="inputSrcName" class="form-input" value="${n}"></div><div class="form-group"><label class="form-label">IP Address</label><input type="text" id="inputSrcIP" class="form-input" value="${i}"></div></div><div class="modal-footer"><button class="modal-footer-btn" onclick="closeModal()">Cancel</button><button class="modal-footer-btn" onclick="saveSourceData()">Save</button></div>`;document.getElementById('modalOverlay').style.display='flex';}
+function saveSourceData() { showToast("Source Added", "success"); closeModal(); refreshSourceList(); }
 function showRebootWarning(targetMode) { pendingRebootMode = targetMode; document.getElementById('modal-reboot-warning').style.display = 'flex'; }
 function executeReboot() { document.getElementById('modal-reboot-warning').style.display = 'none'; document.getElementById('modal-large-settings').style.display = 'none'; document.getElementById('reboot-overlay').style.display = 'flex'; setTimeout(() => { document.getElementById('reboot-overlay').style.display = 'none'; performSwitch(pendingRebootMode); pendingRebootMode = null; }, 2000); }
 function performSwitch(mode) { currentSystemMode = mode; enterView(mode); }
