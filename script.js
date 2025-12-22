@@ -1,4 +1,4 @@
-/* script.js - Final Demo Version (V48 - Onboarding & Drag Fix) */
+/* script.js - Final Demo Version (V49 - Feature Tour) */
 
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
@@ -48,7 +48,7 @@ function doLogin() {
     setTimeout(() => { 
         document.getElementById('page-login').style.display = 'none'; 
         // Force new key to show onboarding for this demo
-        const hasOnboarded = localStorage.getItem('nc30_onboarding_v48');
+        const hasOnboarded = localStorage.getItem('nc30_onboarding_v49');
         if (!hasOnboarded) {
             startOnboarding();
         } else {
@@ -67,22 +67,12 @@ function nextOnboardingStep(step) {
     document.querySelectorAll('.step-dot').forEach(el => el.classList.remove('active'));
     document.getElementById('step-' + step).classList.add('active');
     for(let i=1; i<=step; i++) { document.getElementById('dot-' + i).classList.add('active'); }
-    if (step === 4) {
-        const modeText = onboardingSelectedMode ? onboardingSelectedMode.charAt(0).toUpperCase() + onboardingSelectedMode.slice(1) : 'Encoder';
-        document.getElementById('ob-summary').innerHTML = `Current Mode: <span style="color:#007AFF; font-weight:bold;">${modeText}</span>`;
-    }
 }
-function selectOnboardingMode(mode) {
-    onboardingSelectedMode = mode;
-    document.querySelectorAll('.mode-card').forEach(el => el.classList.remove('selected'));
-    document.getElementById('ob-mode-' + mode).classList.add('selected');
-    document.getElementById('btn-step-2-next').disabled = false;
-}
+
 function finishOnboarding() {
-    localStorage.setItem('nc30_onboarding_v48', 'true');
+    localStorage.setItem('nc30_onboarding_v49', 'true');
     document.getElementById('onboarding-overlay').style.display = 'none';
-    const modeToSwitch = onboardingSelectedMode || 'encoder';
-    performSwitch(modeToSwitch);
+    performSwitch('encoder');
     showToast("Setup Completed!", "success");
 }
 
@@ -190,7 +180,7 @@ function selectSlot(slotId) {
     if(slotId === 'none') {
         updatePTZPanelInfo(null, null);
         setPTZPanelState(false);
-        updatePTZPresets(null); 
+        updatePTZPresets(null); // Force render disabled buttons
         return;
     }
     document.querySelectorAll('.preview-slot').forEach(el => el.classList.remove('selected-slot')); 
@@ -238,6 +228,7 @@ function setPTZPanelState(enabled) {
     }
 }
 
+// FIX: Always render 9 buttons.
 function updatePTZPresets(sourceObj) {
     const grid = document.getElementById('ptz-preset-grid');
     if(!grid) return;
@@ -253,7 +244,7 @@ function updatePTZPresets(sourceObj) {
             btn.onmouseleave = () => { clearTimeout(presetHoverTimer); hidePresetTooltip(); };
             btn.onclick = () => { clearTimeout(presetHoverTimer); hidePresetTooltip(); showToast(`Recall Preset ${i}`, "success"); };
         } else {
-            btn.disabled = true; 
+            btn.disabled = true; // Visibly disabled via CSS
         }
         grid.appendChild(btn);
     }
@@ -293,6 +284,7 @@ function renderSourceList() {
         checkEmptyState(); 
     } else {
         if(refreshBtn) refreshBtn.style.display = 'flex';
+        // Restore table structure
         if(listContainer && !listContainer.querySelector('table')) {
             listContainer.innerHTML = `<table class="source-list-table"><thead class="source-list-header"><tr><th style="width:40px;"></th><th>Source Name</th><th style="width:50px; text-align:right;">Act</th></tr></thead><tbody id="source-list-body"></tbody></table>`;
         }
@@ -303,6 +295,7 @@ function renderSourceList() {
             const activeSourceId = slot ? slot.dataset.sourceId : null;
             tbody.innerHTML = '';
             
+            // Fix layout if coming from empty state
             if(document.querySelector('.empty-state-wrapper') && currentSystemMode === 'decoder') {
                  switchOutputMode(currentOutputMode === 'Single' ? 1 : 4);
             }
@@ -313,6 +306,7 @@ function renderSourceList() {
                 const isUnsupported = src.resHeight > maxDecResolution;
                 tr.className = `source-row ${src.status === 'offline' ? 'offline' : ''} ${isActive ? 'active-source-row' : ''}`;
                 
+                // Fix Drag & Drop: Use standard attribute
                 tr.draggable = !isUnsupported;
                 tr.setAttribute('ondragstart', 'drag(event)');
                 tr.setAttribute('data-json', JSON.stringify(src));
@@ -321,6 +315,7 @@ function renderSourceList() {
                 if(src.status === 'error') statusHtml = `<span class="src-status-error">${src.errorMsg}</span>`;
                 if(src.status === 'offline') statusHtml = `<span style="color:#888;">Offline</span>`;
                 
+                // [Translation Updated] Check resolution limit
                 if(isUnsupported) statusHtml += `<span class="src-status-warning">Input Resolution Not Supported</span>`;
                 else if(isActive) statusHtml += ` <span style="color:#007AFF; font-weight:bold; font-size:10px; margin-left:5px;">● PREVIEW</span>`;
 
@@ -344,8 +339,9 @@ function renderSourceList() {
     }
 }
 
-// === Drag and Drop Functions ===
+// === Drag and Drop Functions (FIXED) ===
 function drag(ev) {
+    // Pass the full JSON string to avoid id lookup issues
     ev.dataTransfer.setData("application/json", ev.currentTarget.getAttribute("data-json"));
 }
 
