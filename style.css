@@ -1,4 +1,4 @@
-/* style.css - Final Demo Version (V48 - Onboarding Added) */
+/* style.css - Final Demo Version (V49 - Feature Tour) */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -463,40 +463,3 @@ input[type=range].ptz-range::-webkit-slider-thumb { height: 14px; width: 14px; b
 .card-title { color: #fff; font-weight: bold; margin-bottom: 5px; }
 .card-desc { color: #666; font-size: 11px; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-/* Z-Index Fix */
-.modal-overlay { 
-    position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
-    background: rgba(0,0,0,0.8); 
-    z-index: 3000; 
-    display: none; align-items: center; justify-content: center; backdrop-filter: blur(3px); 
-}
-.modal-box { background: var(--panel-color); width: 500px; border-radius: 8px; border: 1px solid #444; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex; flex-direction: column; }
-.modal-header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 20px; }
-.modal-close-x { cursor: pointer; color: #888; font-size: 20px; line-height: 1; }
-.modal-close-x:hover { color: #fff; }
-.search-list-item { padding: 10px; border-bottom: 1px solid #333; cursor: pointer; color: #ccc; font-size: 14px; }
-.search-list-item:hover { background: #333; color: #fff; }
-.search-list-item.selected { background: var(--theme-color); color: #fff; }
-
-#modal-large-settings { z-index: 2000 !important; }
-#modal-large-settings .modal-box { width: 100% !important; height: 100% !important; max-width: none; max-height: none; border-radius: 0; border: none; padding: 0; overflow: hidden; display: flex; flex-direction: row; }
-.settings-sidebar { width: 250px; flex-shrink: 0; background: #1a1a1a; border-right: 1px solid #333; display: flex; flex-direction: column; padding: 30px 0; }
-.sidebar-category { padding: 10px 30px 5px 30px; color: #666; font-size: 11px; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; }
-.sidebar-item { padding: 12px 30px; color: #ccc; font-size: 14px; cursor: pointer; transition: 0.2s; border-left: 3px solid transparent; }
-.sidebar-item:hover { background: #252526; color: #fff; }
-.sidebar-item.active { background: #252526; color: #fff; border-left-color: var(--theme-color); font-weight: bold; }
-.settings-content-area { flex: 1; min-width: 0; display: flex; flex-direction: column; background: var(--panel-color); }
-.settings-header { height: 70px; border-bottom: 1px solid #333; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; }
-.settings-title { font-size: 20px; font-weight: bold; color: #fff; }
-.settings-close-btn { cursor: pointer; font-size: 24px; color: #888; }
-.settings-close-btn:hover { color: #fff; }
-.settings-body { flex: 1; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; max-width: 1000px; margin: 0 auto; width: 100%; }
-
-#toast-container { position: fixed; top: 80px; right: 20px; z-index: 4000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
-.toast { min-width: 250px; background: #252526; color: #fff; padding: 12px 16px; border-left: 4px solid var(--theme-color); border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); font-size: 13px; animation: slideIn 0.3s ease-out forwards; display: flex; align-items: center; pointer-events: auto; }
-@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-#reboot-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #000; z-index: 5000; display: none; flex-direction: column; align-items: center; justify-content: center; }
-.loading-spinner-container { display: flex; flex-direction: column; align-items: center; justify-content: center; }
-.spinner-ring { width: 30px; height: 30px; border: 3px solid #444; border-top: 3px solid var(--theme-color); border-radius: 50%; animation: spin 1s linear infinite; }
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
