@@ -1,29 +1,12 @@
-/* script.js - Final Demo Version (V49 - Feature Tour) */
+/* script.js - Final Demo Version (V50 - Onboarding Layout Fix) */
 
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
 let currentOutputMode = 'Single'; 
 let maxDecResolution = 2160; 
 
-// Initial Data
-let sourcesData = [
-    { 
-        id: 'src_01', name: 'Main Camera 01', ip: '192.168.1.101', group: 'Studio A', status: 'online', thumb: 'https://picsum.photos/id/64/100/56',
-        resHeight: 2160, resolution: '3840x2160',
-        presets: { 1: 'https://picsum.photos/id/65/160/90', 2: 'https://picsum.photos/id/66/160/90' }
-    },
-    { 
-        id: 'src_02', name: 'PTZ Camera 02', ip: '192.168.1.102', group: 'Studio B', status: 'online', thumb: 'https://picsum.photos/id/1/100/56',
-        resHeight: 1080, resolution: '1920x1080',
-        presets: { 1: 'https://picsum.photos/id/2/160/90' }
-    },
-    { 
-        id: 'src_03', name: 'OBS Output', ip: '192.168.1.120', group: 'OBS', status: 'error', 
-        errorMsg: 'Input Resolution Not Supported',
-        thumb: 'https://picsum.photos/id/48/100/56', resHeight: 1080, resolution: '1920x1080', presets: {} 
-    },
-    { id: 'src_04', name: 'Outdoor Cam', ip: '192.168.1.104', group: 'Outdoor', status: 'offline', thumb: '', resHeight: 720, resolution: '1280x720', presets: {} }
-];
+// Initial Data: Empty to test empty state & onboarding
+let sourcesData = []; 
 
 let editingSourceId = null;
 let selectedAutoSearchIp = null;
@@ -31,11 +14,8 @@ let sourceToRemoveId = null;
 let pendingRebootMode = null; 
 let presetHoverTimer = null; 
 
-// Onboarding State
-let onboardingSelectedMode = null;
-
 document.addEventListener('DOMContentLoaded', () => {
-    if(document.getElementById('view-decoder').style.display !== 'none' || document.getElementById('view-encoder').style.display !== 'none') {
+    if(document.getElementById('view-decoder').style.display !== 'none') {
         renderSourceList();
         updateLiveHeader();
     }
@@ -48,7 +28,7 @@ function doLogin() {
     setTimeout(() => { 
         document.getElementById('page-login').style.display = 'none'; 
         // Force new key to show onboarding for this demo
-        const hasOnboarded = localStorage.getItem('nc30_onboarding_v49');
+        const hasOnboarded = localStorage.getItem('nc30_onboarding_v50');
         if (!hasOnboarded) {
             startOnboarding();
         } else {
@@ -59,18 +39,29 @@ function doLogin() {
 
 // === Onboarding Functions ===
 function startOnboarding() {
-    document.getElementById('onboarding-overlay').style.display = 'flex';
+    const overlay = document.getElementById('onboarding-overlay');
+    overlay.style.display = 'flex'; // FORCE FLEX for centering
     nextOnboardingStep(1);
 }
+
 function nextOnboardingStep(step) {
+    // Hide all steps
     document.querySelectorAll('.onboarding-step').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.step-dot').forEach(el => el.classList.remove('active'));
-    document.getElementById('step-' + step).classList.add('active');
-    for(let i=1; i<=step; i++) { document.getElementById('dot-' + i).classList.add('active'); }
+    
+    // Show target
+    const stepEl = document.getElementById('step-' + step);
+    if(stepEl) stepEl.classList.add('active');
+    
+    // Update dots
+    for(let i=1; i<=step; i++) { 
+        const dot = document.getElementById('dot-' + i);
+        if(dot) dot.classList.add('active'); 
+    }
 }
 
 function finishOnboarding() {
-    localStorage.setItem('nc30_onboarding_v49', 'true');
+    localStorage.setItem('nc30_onboarding_v50', 'true');
     document.getElementById('onboarding-overlay').style.display = 'none';
     performSwitch('encoder');
     showToast("Setup Completed!", "success");
@@ -180,7 +171,7 @@ function selectSlot(slotId) {
     if(slotId === 'none') {
         updatePTZPanelInfo(null, null);
         setPTZPanelState(false);
-        updatePTZPresets(null); // Force render disabled buttons
+        updatePTZPresets(null); 
         return;
     }
     document.querySelectorAll('.preview-slot').forEach(el => el.classList.remove('selected-slot')); 
@@ -306,7 +297,7 @@ function renderSourceList() {
                 const isUnsupported = src.resHeight > maxDecResolution;
                 tr.className = `source-row ${src.status === 'offline' ? 'offline' : ''} ${isActive ? 'active-source-row' : ''}`;
                 
-                // Fix Drag & Drop: Use standard attribute
+                // Fix Drag & Drop
                 tr.draggable = !isUnsupported;
                 tr.setAttribute('ondragstart', 'drag(event)');
                 tr.setAttribute('data-json', JSON.stringify(src));
@@ -439,7 +430,7 @@ function switchSettingsTab(tabId) {
     bodyEl.innerHTML = htmlContent;
 }
 
-// ... (Rest of helper functions same as V36)
+// ... (Rest of helper functions)
 function showModal(t){if(t==='Add Manual Source'){if (sourcesData.length >= 4) { document.getElementById('modal-alert').style.display = 'flex'; return; }editingSourceId=null;renderSourceModal('Add Source','','','')}}
 function openEditSourceModal(id){const s=sourcesData.find(i=>i.id===id);if(s){editingSourceId=id;renderSourceModal('Edit Source',s.name,s.ip,s.group)}}
 function renderSourceModal(t,n,i,g){document.getElementById('modalContentBox').innerHTML=`<div class="modal-header-row"><h3 style="margin:0;color:#fff;">${t}</h3><span class="modal-close-x" onclick="closeModal()">✕</span></div><div class="modal-body-add-source"><div class="form-group"><label class="form-label">Source Name</label><input type="text" id="inputSrcName" class="form-input" value="${n}" onkeyup="checkModalValidity()"></div><div class="form-group"><label class="form-label">Group</label><input type="text" id="inputSrcGroup" class="form-input" value="${g}" placeholder="Group"></div><div class="form-group"><label class="form-label">IP Address</label><div style="display:flex; gap:10px;"><input type="text" id="inputSrcIP" class="form-input" value="${i}" placeholder="192.168.x.x" onkeyup="checkModalValidity()"><button class="btn btn-outline" style="padding:0 12px;" onclick="openAutoSearch()">🔍</button></div></div></div><div class="modal-footer"><button class="modal-footer-btn" onclick="closeModal()">Cancel</button><button class="modal-footer-btn" id="btnSaveSource" onclick="saveSourceData()" disabled>Save</button></div>`;document.getElementById('modalOverlay').style.display='flex';checkModalValidity()}
