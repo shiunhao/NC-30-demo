@@ -1,4 +1,4 @@
-/* style.css - Final Demo Version (V46 Complete) */
+/* style.css - Final Demo Version (V48 - Onboarding Added) */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -275,16 +275,13 @@ input:checked + .slider:before { transform: translateX(14px); }
 .output-layout-quad { width: 100%; height: 100%; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 2px; background: #333; }
 
 /* === VITAL FIX for Drag and Drop === */
-/* The slot itself handles events, but children must not block them */
 .preview-slot {
     background: #0a0a0a; position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
     border: 2px solid transparent; transition: all 0.2s; cursor: pointer; overflow: hidden;
 }
-/* IMPORTANT: Disable pointer events on children so dragover/drop works on parent */
 .preview-slot * {
     pointer-events: none; 
 }
-/* BUT: Re-enable pointer events for specific interactive elements */
 .preview-slot .slot-menu-btn, 
 .preview-slot .empty-state-wrapper *,
 .preview-slot .offline-overlay * {
@@ -322,14 +319,14 @@ input:checked + .slider:before { transform: translateX(14px); }
     background: #252526; border: 1px solid #444; border-radius: 4px;
     width: 100px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
     display: none; flex-direction: column; z-index: 30; overflow: hidden;
-    pointer-events: auto; /* Ensure dropdown works */
+    pointer-events: auto;
 }
 .slot-dropdown.show { display: flex; }
 .slot-action { background: transparent; border: none; color: #ccc; text-align: left; padding: 8px 12px; font-size: 12px; cursor: pointer; width: 100%; }
 .slot-action:hover { background: #333; color: #fff; }
 .slot-action.danger:hover { background: #D32F2F; }
 
-/* Source List: 40% Split */
+/* Source List */
 .source-list-panel { 
     background: #1E1E1E; border: 1px solid #333; border-radius: 8px; 
     display: flex; flex-direction: column; overflow: hidden; 
@@ -348,7 +345,10 @@ input:checked + .slider:before { transform: translateX(14px); }
 
 /* Empty State Style */
 .empty-state-wrapper {
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     height: 100%; width: 100%; color: #666; text-align: center; padding: 20px; flex: 1; 
 }
 .empty-icon-placeholder {
@@ -362,7 +362,7 @@ input:checked + .slider:before { transform: translateX(14px); }
     background-color: var(--highlight-orange); color: white; border: none;
     padding: 10px 20px; border-radius: 4px; font-weight: bold;
     cursor: pointer; transition: all 0.2s;
-    pointer-events: auto; /* Allow clicking the button */
+    pointer-events: auto;
 }
 .empty-btn-primary:hover { background-color: var(--highlight-orange-hover); }
 
@@ -428,20 +428,11 @@ input[type=range].ptz-range::-webkit-slider-thumb { height: 14px; width: 14px; b
 .preset-controls { display: flex; align-items: center; gap: 6px; }
 .ptz-arrow-btn { background: transparent; border: none; color: #888; font-size: 16px; cursor: pointer; padding: 0 4px; }
 .ptz-arrow-btn:hover { color: #fff; }
-.preset-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; flex: 1; min-height: 100px; /* FIX: Added min-height to prevent collapse */ }
+.preset-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; flex: 1; min-height: 100px; }
 .preset-grid button { background: #424242; border: none; color: #bbb; font-size: 12px; padding: 10px 0; cursor: pointer; border-radius: 2px; }
 .preset-grid button:hover { background: #555; color: #fff; }
 .preset-grid button:active { background: var(--ptz-thumb); color: #000; }
-
-/* FIX: Stronger Disabled UI for Preset Buttons */
-.preset-grid button:disabled { 
-    opacity: 1 !important; /* Keep visible */
-    cursor: not-allowed; 
-    pointer-events: none; 
-    color: #555; 
-    background: #252526; 
-    border: 1px solid #333;
-}
+.preset-grid button:disabled { opacity: 1 !important; cursor: not-allowed; pointer-events: none; color: #555; background: #252526; border: 1px solid #333; }
 
 /* Preset Preview Tooltip */
 .preset-preview-tooltip {
@@ -450,8 +441,30 @@ input[type=range].ptz-range::-webkit-slider-thumb { height: 14px; width: 14px; b
 .preset-preview-tooltip img { width: 100%; height: 100%; object-fit: cover; }
 .preset-preview-tooltip .tooltip-label { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.7); color: #fff; font-size: 10px; padding: 2px 5px; text-align: center; }
 
-/* Modals */
-/* FIX: Increased z-index to cover Settings (3000 vs 2000) */
+/* Onboarding */
+.onboarding-box {
+    background: #1E1E1E; width: 480px; border-radius: 12px; border: 1px solid #444; padding: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.7); display: flex; flex-direction: column; text-align: center; position: relative; overflow: hidden;
+}
+.step-indicators { display: flex; justify-content: center; gap: 8px; margin-bottom: 30px; }
+.step-dot { width: 8px; height: 8px; background: #333; border-radius: 50%; transition: all 0.3s; }
+.step-dot.active { background: var(--theme-color); width: 24px; border-radius: 4px; }
+.onboarding-step { display: none; animation: fadeIn 0.4s ease; }
+.onboarding-step.active { display: block; }
+.onboarding-icon { font-size: 48px; margin-bottom: 20px; }
+.onboarding-box h2 { color: #fff; margin: 0 0 10px 0; font-size: 24px; }
+.onboarding-box p { color: #888; margin: 0 0 30px 0; font-size: 14px; line-height: 1.5; }
+.onboarding-actions { display: flex; justify-content: center; gap: 15px; margin-top: 30px; }
+.onboarding-actions .btn { min-width: 100px; padding: 10px 20px; }
+.mode-selection-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+.mode-card { background: #252526; border: 2px solid #333; border-radius: 8px; padding: 20px; cursor: pointer; transition: all 0.2s; }
+.mode-card:hover { border-color: #666; background: #2a2a2a; }
+.mode-card.selected { border-color: var(--theme-color); background: rgba(0, 122, 255, 0.1); }
+.card-icon { font-size: 32px; margin-bottom: 10px; }
+.card-title { color: #fff; font-weight: bold; margin-bottom: 5px; }
+.card-desc { color: #666; font-size: 11px; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Z-Index Fix */
 .modal-overlay { 
     position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
     background: rgba(0,0,0,0.8); 
@@ -466,7 +479,6 @@ input[type=range].ptz-range::-webkit-slider-thumb { height: 14px; width: 14px; b
 .search-list-item:hover { background: #333; color: #fff; }
 .search-list-item.selected { background: var(--theme-color); color: #fff; }
 
-/* Large Settings Modal (Z-Index 2000) */
 #modal-large-settings { z-index: 2000 !important; }
 #modal-large-settings .modal-box { width: 100% !important; height: 100% !important; max-width: none; max-height: none; border-radius: 0; border: none; padding: 0; overflow: hidden; display: flex; flex-direction: row; }
 .settings-sidebar { width: 250px; flex-shrink: 0; background: #1a1a1a; border-right: 1px solid #333; display: flex; flex-direction: column; padding: 30px 0; }
@@ -481,7 +493,6 @@ input[type=range].ptz-range::-webkit-slider-thumb { height: 14px; width: 14px; b
 .settings-close-btn:hover { color: #fff; }
 .settings-body { flex: 1; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; max-width: 1000px; margin: 0 auto; width: 100%; }
 
-/* Toasts & Reboot */
 #toast-container { position: fixed; top: 80px; right: 20px; z-index: 4000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
 .toast { min-width: 250px; background: #252526; color: #fff; padding: 12px 16px; border-left: 4px solid var(--theme-color); border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); font-size: 13px; animation: slideIn 0.3s ease-out forwards; display: flex; align-items: center; pointer-events: auto; }
 @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
