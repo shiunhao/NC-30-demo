@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NC30 Pro AV Interface (Final V54)</title>
+    <title>NC30 Pro AV Interface (V55 Final)</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="mobile.css">
 </head>
@@ -196,6 +196,7 @@
 
     <div id="onboarding-overlay" class="modal-overlay" style="display:none; z-index: 5000;">
         <div class="onboarding-box">
+            <span class="onboarding-close-x" onclick="closeOnboarding()">✕</span>
             <div class="step-indicators">
                 <div class="step-dot active" id="dot-1"></div>
                 <div class="step-dot" id="dot-2"></div>
@@ -223,9 +224,9 @@
             </div>
 
             <div class="onboarding-step" id="step-2">
-                <div class="onboarding-icon">🖥️</div>
-                <h2>Live Monitoring</h2>
-                <p>The main dashboard shows your real-time input status, resolution details, and audio levels at a glance.</p>
+                <div class="onboarding-icon">📡</div>
+                <h2>Encoder Mode</h2>
+                <p>Convert your HDMI video source into a high-quality NDI stream for broadcasting over the network.</p>
                 <div class="onboarding-actions">
                     <button class="btn btn-outline" onclick="nextOnboardingStep(1)">Back</button>
                     <button class="btn btn-primary" onclick="nextOnboardingStep(3)">Next</button>
@@ -233,9 +234,9 @@
             </div>
 
             <div class="onboarding-step" id="step-3">
-                <div class="onboarding-icon">🎮</div>
-                <h2>Easy Control</h2>
-                <p>In Decoder mode, manage your NDI sources and control PTZ cameras directly from the side panel.</p>
+                <div class="onboarding-icon">🖥️</div>
+                <h2>Decoder Mode</h2>
+                <p>Receive NDI streams from the network and output them via HDMI to a display or projector. Supports PTZ control.</p>
                 <div class="onboarding-actions">
                     <button class="btn btn-outline" onclick="nextOnboardingStep(2)">Back</button>
                     <button class="btn btn-primary" onclick="nextOnboardingStep(4)">Next</button>
@@ -243,9 +244,9 @@
             </div>
 
             <div class="onboarding-step" id="step-4">
-                <div class="onboarding-icon">⚙️</div>
-                <h2>Global Settings</h2>
-                <p>Need to switch modes or change IP? Access the full configuration menu anytime via the gear icon in the top right.</p>
+                <div class="onboarding-icon">🚀</div>
+                <h2>You're All Set!</h2>
+                <p>Explore Global Settings ⚙️ to switch modes or configure advanced parameters.</p>
                 <div class="onboarding-actions">
                     <button class="btn btn-primary" style="width:100%;" onclick="finishOnboarding()">Get Started</button>
                 </div>
@@ -333,8 +334,26 @@
 
     <div id="modal-logout-confirm" style="display:none;" class="modal-overlay" style="z-index: 2200;">
         <div class="modal-box" style="width:350px; text-align:center;">
-            <h3 style="color:#fff; margin-bottom:10px;">Logout?</h3>
-            <div style="display:flex; justify-content:center; gap:10px;"><button class="btn btn-outline" onclick="closeSpecificModal('modal-logout-confirm')">Cancel</button><button class="btn btn-danger" onclick="confirmLogout()">Logout</button></div>
+            <div style="font-size:40px; margin-bottom:10px;">⚠️</div>
+            <h3 style="color:#fff; margin-bottom:10px;">Confirm Logout?</h3>
+            <div style="display:flex; justify-content:center; gap:10px;">
+                <button class="btn btn-outline" onclick="closeSpecificModal('modal-logout-confirm')">Cancel</button>
+                <button class="btn btn-danger" onclick="confirmLogout()">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-admin-auth" style="display:none;" class="modal-overlay" style="z-index: 2400;">
+        <div class="modal-box" style="width:350px; text-align:center;">
+            <h3 style="color:#fff; margin-bottom:20px;">Admin Authentication</h3>
+            <div class="form-group" style="text-align: left;">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-input" placeholder="••••••••" value="admin">
+            </div>
+            <div style="display:flex; justify-content:center; gap:10px; margin-top:20px;">
+                <button class="btn btn-outline" onclick="closeSpecificModal('modal-admin-auth')">Cancel</button>
+                <button class="btn btn-primary" onclick="confirmAdminLogin()">Confirm</button>
+            </div>
         </div>
     </div>
 
