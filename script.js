@@ -275,7 +275,7 @@ function renderSourceList() {
                 const isUnsupported = src.resHeight > maxDecResolution;
                 tr.className = `source-row ${src.status === 'offline' ? 'offline' : ''} ${isActive ? 'active-source-row' : ''}`;
                 
-                // Fix Drag & Drop
+                // Fix Drag & Drop: Use standard attribute
                 tr.draggable = !isUnsupported;
                 tr.setAttribute('ondragstart', 'drag(event)');
                 tr.setAttribute('data-json', JSON.stringify(src));
@@ -308,8 +308,9 @@ function renderSourceList() {
     }
 }
 
-// === Drag and Drop Functions ===
+// === Drag and Drop Functions (FIXED) ===
 function drag(ev) {
+    // Pass the full JSON string to avoid id lookup issues
     ev.dataTransfer.setData("application/json", ev.currentTarget.getAttribute("data-json"));
 }
 
@@ -379,7 +380,7 @@ function switchSettingsTab(tabId) {
             if(sourcesData.length === 0) rows = '<tr><td colspan="4" class="empty-state">No sources found.</td></tr>';
             else sourcesData.forEach(src => { rows += `<tr class="source-row disabled-content"><td style="padding:10px;"><div class="thumb-box" style="width:80px; height:45px;"><img src="${src.thumb || ''}" style="width:100%; height:100%; object-fit:cover; display:${src.thumb?'block':'none'}"></div></td><td style="padding:10px;"><div style="font-weight:bold; color:#fff;">${src.name}</div><div style="font-size:12px; color:#888;">${src.ip}</div></td><td style="padding:10px; color:#888; font-size:12px;">${src.status.toUpperCase()}</td><td style="padding:10px; text-align:right;"><button class="btn btn-outline btn-sm" disabled>Edit</button> <button class="btn btn-danger btn-sm" disabled>Delete</button></td></tr>`; });
             
-            // [Feature] Added Hyperlink to Warning
+            // Hyperlink included
             htmlContent = `
                 <div style="background:#332b00; border:1px solid #d4b106; color:#ffeeba; padding:10px; border-radius:4px; margin-bottom:20px; font-size:13px;">
                     ⚠️ Source management is only available in 
@@ -407,7 +408,7 @@ function switchSettingsTab(tabId) {
     bodyEl.innerHTML = htmlContent;
 }
 
-// ... (Rest of helper functions)
+// ... (Rest of helper functions same as V36)
 function showModal(t){if(t==='Add Manual Source'){if (sourcesData.length >= 4) { document.getElementById('modal-alert').style.display = 'flex'; return; }editingSourceId=null;renderSourceModal('Add Source','','','')}}
 function openEditSourceModal(id){const s=sourcesData.find(i=>i.id===id);if(s){editingSourceId=id;renderSourceModal('Edit Source',s.name,s.ip,s.group)}}
 function renderSourceModal(t,n,i,g){document.getElementById('modalContentBox').innerHTML=`<div class="modal-header-row"><h3 style="margin:0;color:#fff;">${t}</h3><span class="modal-close-x" onclick="closeModal()">✕</span></div><div class="modal-body-add-source"><div class="form-group"><label class="form-label">Source Name</label><input type="text" id="inputSrcName" class="form-input" value="${n}" onkeyup="checkModalValidity()"></div><div class="form-group"><label class="form-label">Group</label><input type="text" id="inputSrcGroup" class="form-input" value="${g}" placeholder="Group"></div><div class="form-group"><label class="form-label">IP Address</label><div style="display:flex; gap:10px;"><input type="text" id="inputSrcIP" class="form-input" value="${i}" placeholder="192.168.x.x" onkeyup="checkModalValidity()"><button class="btn btn-outline" style="padding:0 12px;" onclick="openAutoSearch()">🔍</button></div></div></div><div class="modal-footer"><button class="modal-footer-btn" onclick="closeModal()">Cancel</button><button class="modal-footer-btn" id="btnSaveSource" onclick="saveSourceData()" disabled>Save</button></div>`;document.getElementById('modalOverlay').style.display='flex';checkModalValidity()}
