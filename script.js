@@ -1,460 +1,495 @@
-/* script.js - Final Demo Version (V59 - Hover 2s & Auth) */
+/* style.css - Final Demo Version (V59 - Tooltip Fix) */
 
-let currentSystemMode = null; 
-let currentUserRole = 'admin'; 
-let currentOutputMode = 'Single'; 
-let maxDecResolution = 2160; 
+/* === 1. Global Variables & Base === */
+* { box-sizing: border-box; }
 
-// Initial Data
-let sourcesData = [
-    { 
-        id: 'src_01', name: 'Main Camera 01', ip: '192.168.1.101', group: 'Studio A', status: 'online', thumb: 'https://picsum.photos/id/64/100/56',
-        resHeight: 2160, resolution: '3840x2160',
-        presets: { 1: 'https://picsum.photos/id/65/160/90', 2: 'https://picsum.photos/id/66/160/90' }
-    },
-    { 
-        id: 'src_02', name: 'PTZ Camera 02', ip: '192.168.1.102', group: 'Studio B', status: 'online', thumb: 'https://picsum.photos/id/1/100/56',
-        resHeight: 1080, resolution: '1920x1080',
-        presets: { 1: 'https://picsum.photos/id/2/160/90' }
-    },
-    { 
-        id: 'src_03', name: 'OBS Output', ip: '192.168.1.120', group: 'OBS', status: 'error', 
-        errorMsg: 'Input Resolution Not Supported',
-        thumb: 'https://picsum.photos/id/48/100/56', resHeight: 1080, resolution: '1920x1080', presets: {} 
-    },
-    { id: 'src_04', name: 'Outdoor Cam', ip: '192.168.1.104', group: 'Outdoor', status: 'offline', thumb: '', resHeight: 720, resolution: '1280x720', presets: {} }
-];
-
-let editingSourceId = null;
-let selectedAutoSearchIp = null;
-let sourceToRemoveId = null;
-let pendingRebootMode = null; 
-let presetHoverTimer = null; 
-
-let onboardingSelectedMode = null;
-
-document.addEventListener('DOMContentLoaded', () => {
-    if(document.getElementById('view-decoder').style.display !== 'none' || document.getElementById('view-encoder').style.display !== 'none') {
-        renderSourceList();
-        updateLiveHeader();
-    }
-});
-
-// === Login Logic ===
-function doLogin() {
-    const btn = document.querySelector('#page-login .btn-primary');
-    btn.innerHTML = "Logging in...";
-    setTimeout(() => { 
-        document.getElementById('page-login').style.display = 'none'; 
-        const hasOnboarded = localStorage.getItem('nc30_onboarding_v59');
-        if (!hasOnboarded) {
-            startOnboarding();
-        } else {
-            performSwitch('encoder');
-        }
-    }, 800);
+:root {
+    --bg-color: #121212;
+    --panel-color: #1E1E1E;
+    --border-color: #333;
+    --text-main: #EEE;
+    --text-sub: #AAA;
+    --theme-color: #007AFF; 
+    --theme-hover: #005bb5;
+    --highlight-orange: #FF9500;
+    --highlight-orange-hover: #e08300;
+    --danger-color: #D32F2F;
+    --success-color: #4CAF50;
+    --ptz-bg: #222222;
+    --ptz-thumb: #C69C6D;
 }
 
-// === Onboarding Functions ===
-function startOnboarding() {
-    const overlay = document.getElementById('onboarding-overlay');
-    overlay.style.display = 'flex'; 
-    nextOnboardingStep(1);
+body {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    margin: 0; padding: 0; height: 100vh; width: 100vw; overflow: hidden;
 }
 
-function closeOnboarding() {
-    localStorage.setItem('nc30_onboarding_v59', 'true');
-    document.getElementById('onboarding-overlay').style.display = 'none';
-    if (!currentSystemMode) performSwitch('encoder');
+/* === 2. UI Components === */
+.btn {
+    padding: 6px 12px; border-radius: 4px; cursor: pointer;
+    border: 1px solid transparent; font-weight: 600; font-size: 13px;
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    transition: all 0.2s; white-space: nowrap; user-select: none;
+}
+.btn-primary { background-color: var(--theme-color); color: #fff; border: none; }
+.btn-primary:hover { background-color: var(--theme-hover); }
+.btn-outline { border-color: #555; background: transparent; color: #ccc; }
+.btn-outline:hover { border-color: #fff; color: #fff; }
+.btn-danger { border-color: var(--danger-color); color: var(--danger-color); background: transparent; }
+.btn-danger:hover { background-color: var(--danger-color); color: #fff; }
+.btn-sm { font-size: 11px; padding: 4px 8px; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-icon-action {
+    background: transparent; border: 1px solid transparent; color: #888;
+    width: 28px; height: 28px; border-radius: 4px; cursor: pointer;
+    font-size: 16px; display: inline-flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+}
+.btn-icon-action:hover { background: #333; color: #fff; border-color: #555; }
+.btn-icon-action.danger:hover { color: var(--danger-color); border-color: var(--danger-color); }
+
+.form-group { margin-bottom: 15px; }
+.form-label { display: block; color: var(--text-sub); font-size: 12px; margin-bottom: 5px; }
+.form-select, .form-input {
+    width: 100%; background-color: #252526; border: 1px solid #444;
+    color: #fff; padding: 8px; border-radius: 4px; font-size: 13px;
+}
+.form-select:focus, .form-input:focus { border-color: var(--theme-color); outline: none; }
+.form-input[readonly] { background-color: #1a1a1a; color: #777; border-color: #333; cursor: not-allowed; }
+.darker-input { background-color: #111; border-color: #333; }
+
+.switch { position: relative; display: inline-block; width: 34px; height: 20px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+    position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #444; transition: .4s; border-radius: 20px;
+}
+.slider:before {
+    position: absolute; content: ""; height: 14px; width: 14px;
+    left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%;
+}
+input:checked + .slider { background-color: var(--theme-color); }
+input:checked + .slider:before { transform: translateX(14px); }
+.radio-custom { display: flex; align-items: center; gap: 6px; cursor: pointer; color: #ccc; font-size: 13px; }
+.radio-custom input { accent-color: var(--theme-color); }
+
+/* === 3. Login Page === */
+#page-login {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    height: 100%; width: 100%; 
+    background: radial-gradient(circle at center, #1a1a1a 0%, #000000 100%);
+    position: absolute; top: 0; left: 0; z-index: 100;
+}
+.login-box {
+    width: 400px; background: #1E1E1E; padding: 40px; border-radius: 12px;
+    border: 1px solid #333; box-shadow: 0 20px 50px rgba(0,0,0,0.5); text-align: center;
+}
+.login-logo { font-size: 32px; font-weight: 900; margin-bottom: 10px; color: #fff; letter-spacing: 2px; }
+.login-logo span { color: var(--theme-color); }
+.login-subtitle { color: #666; font-size: 12px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 40px; }
+.login-note { color: #666; font-size: 13px; margin-top: 20px; font-style: italic; }
+
+/* === 4. App Shell & Layout === */
+.app-layout {
+    display: none; width: 100vw; height: 100vh;
+    grid-template-rows: 60px 1fr; grid-template-columns: 1fr;
+}
+.top-bar {
+    grid-row: 1 / 2; grid-column: 1 / -1; 
+    background-color: #252526; border-bottom: 1px solid #000;
+    display: flex; align-items: center; justify-content: space-between; 
+    padding: 0 24px; z-index: 50;
 }
 
-function nextOnboardingStep(step) {
-    document.querySelectorAll('.onboarding-step').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.step-dot').forEach(el => el.classList.remove('active'));
-    
-    const stepEl = document.getElementById('step-' + step);
-    if(stepEl) stepEl.classList.add('active');
-    
-    for(let i=1; i<=step; i++) { 
-        const dot = document.getElementById('dot-' + i);
-        if(dot) dot.classList.add('active'); 
-    }
+/* Header Groups */
+.header-left-group { display: flex; align-items: center; gap: 15px; }
+.header-right-group { display: flex; align-items: center; gap: 15px; }
+
+.mode-badge {
+    padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: bold;
+    background: rgba(0,0,0,0.3); border: 1px solid var(--theme-color); color: var(--theme-color); text-transform: uppercase;
 }
 
-function finishOnboarding() {
-    closeOnboarding();
+.tally-indicator { background-color: #D32F2F; color: white; padding: 4px 12px; border-radius: 4px; font-weight: bold; font-size: 12px; box-shadow: 0 0 8px rgba(211, 47, 47, 0.5); }
+.status-group { display: flex; gap: 8px; align-items: center; }
+
+.status-text-badge {
+    font-size: 12px; font-weight: bold; color: #ccc; background: #1a1a1a;
+    border: 1px solid #444; padding: 6px 12px; border-radius: 4px; cursor: default;
+    display: flex; gap: 8px; align-items: center;
 }
 
-// === Account & Logout Functions ===
-function toggleAccountMenu() { 
-    document.getElementById('accountMenu').classList.toggle('show'); 
+.vertical-divider { width: 1px; height: 24px; background: #444; margin: 0 5px; }
+
+/* Settings & Account */
+.settings-container { position: relative; }
+.settings-btn { font-size: 18px; cursor: pointer; opacity: 0.8; padding: 8px; transition: 0.2s; color: #fff; background: transparent; border: none; }
+.account-pill {
+    display: flex; align-items: center; gap: 8px; background: #333; padding: 4px 12px; border-radius: 20px; border: 1px solid #444; cursor: pointer; transition: background 0.2s; font-size: 13px; color: #eee;
+}
+.settings-dropdown {
+    position: absolute; top: 120%; right: 0; margin-top: 5px;
+    background: #252526; border: 1px solid #444; border-radius: 6px;
+    width: 200px; box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    display: none; flex-direction: column; overflow: hidden; z-index: 100;
+}
+.settings-dropdown.show { display: flex; }
+.dropdown-item { padding: 12px 20px; color: #eee; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.dropdown-item:hover { background: #333; }
+.dropdown-item.active { background: var(--theme-color); color: white; }
+.dropdown-divider { height: 1px; background: #333; margin: 4px 0; }
+.main-content { grid-row: 2 / 3; grid-column: 1 / -1; background-color: #121212; padding: 20px 40px; overflow-y: auto; }
+
+/* === 5. Views === */
+/* Encoder Layout: Full Width */
+.encoder-grid { 
+    display: grid; 
+    grid-template-columns: 1fr; 
+    gap: 30px; 
+    height: calc(100vh - 100px); 
+    max-width: 1800px; margin: 0 auto; 
 }
 
-function actionAdminMode() {
-    if (currentUserRole === 'admin') return;
-    // Show Auth Modal
-    document.getElementById('accountMenu').classList.remove('show');
-    document.getElementById('modal-admin-auth').style.display = 'flex';
+/* Decoder Layout: Split Left/Right (4:1) */
+.decoder-layout { 
+    display: grid; 
+    grid-template-columns: 4fr 1fr; 
+    gap: 30px; 
+    height: calc(100vh - 100px); 
+    max-width: 1800px; margin: 0 auto; 
 }
 
-function confirmAdminLogin() {
-    document.getElementById('modal-admin-auth').style.display = 'none';
-    currentUserRole = 'admin';
-    document.getElementById('current-user-label').innerText = 'Admin';
-    document.getElementById('role-admin').classList.add('active');
-    document.getElementById('role-user').classList.remove('active');
-    showToast("Switched to Admin", "success");
+.dec-left-col { display: flex; flex-direction: column; gap: 15px; height: 100%; overflow: hidden; }
+.dec-right-col { display: flex; flex-direction: column; gap: 20px; height: 100%; overflow: hidden; }
+
+/* Monitor Section */
+.monitor-section { display: flex; flex-direction: column; gap: 15px; height: 100%; }
+.preview-window {
+    background: #000; width: 100%; flex: 1; border-radius: 8px; border: 1px solid #333;
+    position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; min-height: 250px;
+}
+.signal-lost-overlay {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: #000; z-index: 50; display: none;
+    flex-direction: column; align-items: center; justify-content: center;
+}
+.signal-lost-icon { font-size: 40px; margin-bottom: 10px; opacity: 0.5; }
+.preview-label { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7); padding: 4px 8px; border-radius: 4px; font-size: 11px; color: #aaa; z-index: 10; }
+.enc-status-bar {
+    display: flex; background: #252526; border: 1px solid #333; border-radius: 8px; overflow: hidden; height: 80px; flex-shrink: 0;
+}
+.mode-indicator {
+    width: 130px; background: #1e1e1e; display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: 1px solid #333; color: #999; font-size: 11px; flex-shrink: 0;
+}
+.mode-indicator .mode-val { color: var(--theme-color); font-size: 16px; font-weight: bold; margin-top: 4px; }
+.mode-icon-square {
+    width: 20px; height: 20px; background: #444; border-radius: 3px; display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 12px; margin-bottom: 4px;
+}
+.status-grid { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: 1fr 1fr; }
+.status-cell {
+    display: flex; align-items: center; padding: 0 15px; border-right: 1px solid #333; border-bottom: 1px solid #333; font-size: 12px; color: #ccc;
+}
+.icon-circle { width: 24px; height: 24px; background: #444; border-radius: 4px; margin-right: 8px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; font-size: 8px; color: #ccc; }
+
+/* Control Panels & Settings Common */
+.control-panel, .decoder-settings-card, .embedded-ptz-panel {
+    background: #1E1E1E; border: 1px solid #333; border-radius: 8px;
+    display: flex; flex-direction: column; overflow: hidden; height: auto; padding: 0;
 }
 
-function actionUserMode() {
-    currentUserRole = 'user';
-    document.getElementById('current-user-label').innerText = 'User';
-    document.getElementById('role-user').classList.add('active');
-    document.getElementById('role-admin').classList.remove('active');
-    toggleAccountMenu();
-    showToast("Switched to User", "success");
+/* PTZ Panel: 60% Split */
+.embedded-ptz-panel { 
+    flex: 3; 
+    min-height: 0;
+    padding-bottom: 20px;
 }
 
-function actionLogout() {
-    document.getElementById('accountMenu').classList.remove('show');
-    document.getElementById('modal-logout-confirm').style.display = 'flex';
+.panel-header { padding: 20px 20px 10px 20px; flex-shrink: 0; }
+.panel-title {
+    font-size: 13px; font-weight: bold; color: #888; text-transform: uppercase;
+    letter-spacing: 1px; display: block; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 0; 
+}
+.panel-content, .settings-scroll-area { padding: 15px 20px; overflow-y: auto; flex: 1; }
+.enc-settings-group { padding: 10px 0; margin-bottom: 10px; }
+.enc-settings-group.no-border { border: none; }
+.enc-settings-group.with-border-top { border-top: 1px solid #333; padding-top: 20px; margin-top: 10px; }
+.enc-group-header, .settings-group-title {
+    font-size: 14px; font-weight: bold; color: #ddd; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+}
+.enc-icon-square, .settings-group-icon {
+    width: 24px; height: 24px; background: #333; border-radius: 2px;
+    display: inline-flex; align-items: center; justify-content: center; font-size: 9px; color: #777;
 }
 
-function confirmLogout() {
-    document.getElementById('modal-logout-confirm').style.display = 'none';
-    document.getElementById('app-shell').style.display = 'none';
-    document.getElementById('view-encoder').style.display = 'none';
-    document.getElementById('view-decoder').style.display = 'none';
-    document.getElementById('page-login').style.display = 'flex';
-    document.querySelector('#page-login .btn-primary').innerHTML = "LOGIN";
-    currentSystemMode = null;
+/* Tabs */
+.enc-tabs-container { display: flex; align-items: center; position: relative; margin-bottom: 10px; }
+.enc-tab {
+    padding: 10px 20px; color: #888; font-size: 14px; font-weight: bold; cursor: pointer; position: relative; z-index: 2;
+}
+.enc-tab.active { color: #fff; }
+.enc-tab.active::after {
+    content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 2px; background: #007AFF;
+}
+.enc-tab-line { position: absolute; bottom: 0; left: 0; width: 100%; height: 1px; background: #333; z-index: 1; }
+
+/* Mode Switch UI */
+.mode-switch-container { display: flex; gap: 10px; width: 100%; }
+.mode-switch-btn {
+    flex: 1; background: #252526; border: 1px solid #444; border-radius: 4px; padding: 12px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+    cursor: pointer; color: #888; transition: all 0.2s;
+}
+.mode-switch-btn:hover { background: #333; color: #ccc; }
+.mode-switch-btn.active {
+    background: rgba(0, 122, 255, 0.1); border-color: var(--theme-color); color: #fff;
+}
+.mode-btn-icon { font-size: 18px; }
+
+/* Output Container */
+.output-container { 
+    background: #000; border: 1px solid #333; border-radius: 8px; 
+    position: relative; overflow: hidden; display: flex; flex-direction: column; 
+    flex: 1; 
+    min-height: 0; 
 }
 
-// === Auto Load Source ===
-function loadDefaultSource() {
-    const slot = document.getElementById('slot-1');
-    if(!slot) return;
-    if(sourcesData.length === 0) {
-        checkEmptyState();
-        return;
-    }
-    const firstOnline = sourcesData.find(s => s.status === 'online' && s.resHeight <= maxDecResolution);
-    if (firstOnline) {
-        applySourceToSlot(slot, firstOnline);
-    } else {
-        clearSlot(slot);
-    }
+.output-header-bar {
+    background: #1a1a1a; padding: 10px 15px; border-bottom: 1px solid #333;
+    display: flex; justify-content: space-between; align-items: center;
+}
+.header-left { display: flex; align-items: center; }
+.header-title { color: #ccc; font-weight: bold; font-size: 14px; margin-right: 20px; }
+.header-info-container { display: flex; gap: 10px; }
+.header-info-block {
+    background: #000; padding: 4px 10px; border-radius: 4px;
+    display: flex; flex-direction: column; min-width: 100px;
+}
+.info-label { font-size: 10px; color: #777; margin-bottom: 2px; }
+.info-value-row { font-size: 12px; color: #fff; font-weight: bold; display: flex; gap: 6px; }
+.info-value { color: #FF9500; font-size: 12px; font-weight: bold; }
+.output-layout-single { width: 100%; height: 100%; display: flex; }
+.output-layout-quad { width: 100%; height: 100%; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 2px; background: #333; }
+
+/* Drag and Drop Fix */
+.preview-slot {
+    background: #0a0a0a; position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+    border: 2px solid transparent; transition: all 0.2s; cursor: pointer; overflow: hidden;
+}
+.preview-slot * {
+    pointer-events: none; 
+}
+.preview-slot .slot-menu-btn, 
+.preview-slot .empty-state-wrapper *,
+.preview-slot .offline-overlay * {
+    pointer-events: auto;
 }
 
-function applySourceToSlot(slot, data) {
-    slot.dataset.sourceId = data.id;
-    const windowNum = slot.id.split('-')[1];
-    
-    if (data.status === 'offline') {
-        slot.classList.add('offline-state');
-        slot.innerHTML = `<div class="slot-label">Window ${windowNum}</div><div class="offline-overlay"><div class="offline-icon">⚠️</div><div class="offline-text">Signal Lost</div></div>${renderSlotMenu(slot.id)}`;
-        updatePTZPanelInfo(windowNum, null);
-        setPTZPanelState(false);
-        updatePTZPresets(null);
-    } else {
-        slot.classList.remove('offline-state');
-        slot.innerHTML = `<div class="video-layer" style="background-image: url('${data.thumb || 'https://picsum.photos/id/237/400/300'}');"></div><div class="video-overlay-gradient"></div><div class="slot-label">Window ${windowNum}</div><div class="slot-content"><div class="slot-name">${data.name}</div><div class="slot-meta" style="color:#4CAF50;">● Live</div></div>${renderSlotMenu(slot.id)}`;
-    }
-    slot.classList.add('active-slot');
-    selectSlot(slot.id);
+.preview-slot.drag-over { border-color: var(--theme-color); background: #1a1a1a; border-style: dashed; }
+.preview-slot.active-slot { border: 1px solid #444; }
+.preview-slot.selected-slot { border: 2px solid var(--theme-color); z-index: 10; }
+.video-layer {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background-size: contain; background-repeat: no-repeat; background-position: center;
+    background-color: black; z-index: 1;
+}
+.video-overlay-gradient { position: absolute; bottom: 0; left: 0; right: 0; height: 50%; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); z-index: 2; pointer-events: none; }
+.slot-label { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.6); padding: 2px 8px; border-radius: 4px; font-size: 11px; color: #fff; pointer-events: none; z-index: 10; }
+.slot-content { position: absolute; bottom: 10px; left: 10px; right: 10px; text-align: left; pointer-events: none; z-index: 10; }
+.slot-name { font-size: 16px; font-weight: bold; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+.slot-meta { font-size: 12px; color: #ccc; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
+.preview-slot.offline-state { border: 2px solid var(--danger-color); background: #222; }
+.offline-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
+.offline-icon { font-size: 24px; margin-bottom: 5px; }
+.offline-text { color: #fff; font-weight: 900; font-size: 14px; background: #D32F2F; padding: 2px 8px; border-radius: 2px; }
+.slot-menu-btn {
+    position: absolute; top: 10px; right: 10px;
+    background: rgba(0,0,0,0.5); border: none; color: #fff;
+    width: 24px; height: 24px; border-radius: 4px; cursor: pointer;
+    z-index: 20; display: flex; align-items: center; justify-content: center;
+    font-size: 10px; opacity: 0; transition: opacity 0.2s;
+}
+.preview-slot:hover .slot-menu-btn { opacity: 1; }
+.slot-menu-btn:hover { background: #007AFF; }
+.slot-dropdown {
+    position: absolute; top: 40px; right: 10px;
+    background: #252526; border: 1px solid #444; border-radius: 4px;
+    width: 100px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    display: none; flex-direction: column; z-index: 30; overflow: hidden;
+    pointer-events: auto;
+}
+.slot-dropdown.show { display: flex; }
+.slot-action { background: transparent; border: none; color: #ccc; text-align: left; padding: 8px 12px; font-size: 12px; cursor: pointer; width: 100%; }
+.slot-action:hover { background: #333; color: #fff; }
+.slot-action.danger:hover { background: #D32F2F; }
+
+/* Source List */
+.source-list-panel { 
+    background: #1E1E1E; border: 1px solid #333; border-radius: 8px; 
+    display: flex; flex-direction: column; overflow: hidden; 
+    flex: 2; 
+    min-height: 0; 
 }
 
-function clearSlot(slot) {
-    delete slot.dataset.sourceId;
-    slot.classList.remove('active-slot', 'offline-state');
-    const windowNum = slot.id.split('-')[1];
-    slot.innerHTML = `<div class="slot-label">Window ${windowNum}</div><div class="slot-content" style="text-align:center;"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div>`;
-    selectSlot(slot.id);
+.list-toolbar { padding: 10px 20px; border-bottom: 1px solid #333; background: #252526; display: flex; justify-content: space-between; align-items: center; }
+.source-list-scroll { overflow-y: auto; flex: 1; }
+.source-list-table { width: 100%; border-collapse: collapse; }
+.source-list-header th { background-color: #2a2a2a; color: #aaa; font-size: 11px; text-transform: uppercase; text-align: left; padding: 10px; border-bottom: 1px solid #333; position: sticky; top: 0; z-index: 2; }
+.source-row { border-bottom: 1px solid #2a2a2a; transition: background 0.1s; cursor: grab; }
+.source-row:active { cursor: grabbing; background: #2a2a2a; }
+.source-row:hover { background-color: #252525; }
+.source-row.active-source-row { background-color: #1a2a3a; border-left: 3px solid var(--theme-color); }
+
+/* Empty State Style */
+.empty-state-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%; width: 100%; color: #666; text-align: center; padding: 20px; flex: 1; 
+}
+.empty-icon-placeholder {
+    width: 80px; height: 80px; background-color: #2a2a2a; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 20px; font-size: 40px; color: #444; border: 2px dashed #444;
+}
+.empty-text-title { font-size: 14px; color: #eee; margin-bottom: 10px; }
+.empty-text-desc { font-size: 12px; color: #888; margin-bottom: 20px; }
+.empty-btn-primary {
+    background-color: var(--highlight-orange); color: white; border: none;
+    padding: 10px 20px; border-radius: 4px; font-weight: bold;
+    cursor: pointer; transition: all 0.2s;
+    pointer-events: auto;
+}
+.empty-btn-primary:hover { background-color: var(--highlight-orange-hover); }
+
+/* For Right Source List */
+.simple-empty-icon { font-size: 40px; color: #333; margin-bottom: 10px; }
+.empty-list-container {
+    height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #555; font-size: 12px;
 }
 
-// === Check Empty State ===
-function checkEmptyState() {
-    const layout = document.getElementById('outputLayout');
-    if(sourcesData.length === 0 && currentSystemMode === 'decoder') {
-        layout.innerHTML = `
-            <div class="empty-state-wrapper">
-                <div class="empty-icon-placeholder">📷</div>
-                <div class="empty-text-title">You have not set up any source.</div>
-                <div class="empty-text-desc">Please go to Add.</div>
-                <button class="empty-btn-primary" onclick="openFullSettings('source', true)">Go to Settings</button>
-            </div>
-        `;
-        selectSlot('none'); 
-    } else {
-        if(!document.getElementById('slot-1')) switchOutputMode(currentOutputMode === 'Single' ? 1 : 4);
-    }
+.drag-col { width: 40px; text-align: center; }
+.drag-handle-icon { color: #666; font-size: 18px; cursor: move; }
+.thumb-col { width: 120px; }
+.thumb-box { width: 100px; height: 56px; background: #000; border-radius: 2px; border: 1px solid #333; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.thumb-box img { width: 100%; height: 100%; object-fit: cover; }
+.thumb-box.offline { background: #000; color: #aaa; display: flex; flex-direction: column; font-size: 9px; }
+.thumb-box.unsupported { position: relative; }
+.thumb-box.unsupported::after {
+    content: "UNSUPPORTED"; position: absolute; top:0; left:0; right:0; bottom:0;
+    background: rgba(0,0,0,0.85); color: #FF3B30; display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: bold; letter-spacing: 1px;
 }
 
-// === Refresh with Loading ===
-function refreshSourceList() {
-    const btn = document.getElementById('btn-refresh-list');
-    if(btn) { btn.innerText = "..."; btn.disabled = true; }
-    
-    const listContainer = document.getElementById('right-panel-list-container');
-    const settingsTbody = document.getElementById('settings-source-list-body');
-    const spinnerHtml = '<div style="height:100%; display:flex; align-items:center; justify-content:center; padding:40px;"><div class="loading-spinner-container"><div class="spinner-ring"></div><div style="margin-top:10px; color:#888; font-size:13px;">Updating sources...</div></div></div>';
-    
-    if(listContainer) listContainer.innerHTML = spinnerHtml;
-    if(settingsTbody) settingsTbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:40px;"><div class="loading-spinner-container"><div class="spinner-ring"></div><div style="margin-top:10px; color:#888; font-size:13px;">Updating sources...</div></div></td></tr>';
+.src-name { font-weight: bold; font-size: 13px; display: block; color: #fff; margin-bottom: 4px; }
+.src-meta { font-size: 11px; color: #888; font-family: monospace; }
+.src-status-error { color: #888; font-weight: bold; margin-left: 5px; }
+.src-status-warning { color: #FF3B30; font-weight: bold; font-size: 10px; display: block; margin-top:2px; }
 
-    setTimeout(() => {
-        if(listContainer) listContainer.innerHTML = `<table class="source-list-table" id="right-panel-table"><thead class="source-list-header"><tr><th style="width:40px;"></th><th>Source Name</th><th style="width:50px; text-align:right;">Act</th></tr></thead><tbody id="source-list-body"></tbody></table>`;
-        renderSourceList(); 
-        if(document.getElementById('modal-large-settings').style.display !== 'none' && document.getElementById('tab-source').classList.contains('active')) {
-            switchSettingsTab('source');
-        }
-        if(btn) { btn.innerText = "↻"; btn.disabled = false; }
-        showToast("Source list refreshed", "success");
-    }, 1000);
+.preset-col { width: 100px; text-align: center; }
+.preset-badge { display: inline-block; background: #6D4C41; color: #fff; font-size: 11px; width: 20px; height: 20px; line-height: 20px; text-align: center; border-radius: 2px; }
+.action-col { width: 120px; text-align: right; padding-right: 30px !important; }
+
+/* Embedded PTZ Fixed */
+.ptz-header { background: transparent; padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; cursor: default; }
+.ptz-drag-handle { width: 20px; }
+.ptz-title { font-size: 13px; color: #ddd; font-weight: 500; }
+.ptz-body { padding: 10px 15px; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; flex:1; }
+.ptz-target-info { font-size: 12px; color: #007AFF; text-align: center; margin-bottom: 5px; margin-top: -5px; font-weight: bold; }
+.ptz-preset-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+.btn-xs-save { background: #333; border: 1px solid #555; color: #ccc; font-size: 10px; padding: 2px 8px; border-radius: 2px; cursor: pointer; }
+.btn-xs-save:hover { background: #444; color: #fff; }
+.disabled-ui { opacity: 0.4 !important; pointer-events: none !important; user-select: none; }
+.disabled-content { opacity: 0.5; pointer-events: none; filter: grayscale(1); }
+
+/* PTZ Pad */
+.ptz-pad-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; background: transparent; max-width: 180px; margin: 0 auto; }
+.ptz-btn { aspect-ratio: 1; background: #424242; border: none; border-radius: 2px; color: #ccc; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.1s; }
+.ptz-btn:hover { background: #555; color: #fff; }
+.ptz-btn:active { background: #666; }
+.ptz-home { font-size: 18px; color: #fff; font-weight: bold; }
+.ptz-sliders { display: flex; flex-direction: column; gap: 15px; }
+.ptz-slider-group label { display: block; color: #bbb; font-size: 12px; margin-bottom: 6px; }
+.slider-wrapper { display: flex; align-items: center; gap: 8px; }
+.slider-icon { color: #888; font-weight: bold; font-size: 14px; cursor: pointer; }
+.slider-icon:hover { color: #fff; }
+input[type=range].ptz-range { -webkit-appearance: none; width: 100%; background: transparent; margin: 0; }
+input[type=range].ptz-range:focus { outline: none; }
+input[type=range].ptz-range::-webkit-slider-runnable-track { width: 100%; height: 2px; cursor: pointer; background: #666; border-radius: 0; }
+input[type=range].ptz-range::-webkit-slider-thumb { height: 14px; width: 14px; border-radius: 50%; background: var(--ptz-thumb); cursor: pointer; -webkit-appearance: none; margin-top: -6px; border: 2px solid #444; box-shadow: 0 0 0 1px var(--ptz-thumb); }
+.ptz-preset-section { display: flex; flex-direction: column; gap: 5px; }
+.ptz-preset-section label { display: block; color: #bbb; font-size: 12px; }
+.preset-controls { display: flex; align-items: center; gap: 6px; }
+.ptz-arrow-btn { background: transparent; border: none; color: #888; font-size: 16px; cursor: pointer; padding: 0 4px; }
+.ptz-arrow-btn:hover { color: #fff; }
+.preset-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; flex: 1; min-height: 100px; }
+.preset-grid button { background: #424242; border: none; color: #bbb; font-size: 12px; padding: 10px 0; cursor: pointer; border-radius: 2px; }
+.preset-grid button:hover { background: #555; color: #fff; }
+.preset-grid button:active { background: var(--ptz-thumb); color: #000; }
+.preset-grid button:disabled { opacity: 1 !important; cursor: not-allowed; pointer-events: none; color: #555; background: #252526; border: 1px solid #333; }
+
+/* Preset Preview Tooltip (FIXED) */
+.preset-preview-tooltip {
+    position: fixed; /* Key Fix */
+    width: 160px; height: 90px; background: #000; border: 2px solid var(--theme-color); border-radius: 4px; 
+    z-index: 9999; /* Key Fix */
+    pointer-events: none; box-shadow: 0 4px 15px rgba(0,0,0,0.8); display: none; overflow: hidden;
 }
+.preset-preview-tooltip img { width: 100%; height: 100%; object-fit: cover; }
+.preset-preview-tooltip .tooltip-label { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.7); color: #fff; font-size: 10px; padding: 2px 5px; text-align: center; }
 
-function updateLiveHeader() {
-    const container = document.getElementById('live-header-info');
-    container.innerHTML = '';
-    const modeBlock = document.createElement('div');
-    modeBlock.className = 'header-info-block';
-    modeBlock.innerHTML = `<div class="info-label">Current Mode</div><div class="info-value">Decoder</div>`;
-    container.appendChild(modeBlock);
-    const count = currentOutputMode === 'Single' ? 1 : 4;
-    for(let i=1; i<=count; i++) {
-        const slot = document.getElementById(`slot-${i}`);
-        let name = '-';
-        let res = '';
-        if(slot) {
-            const nameEl = slot.querySelector('.slot-name');
-            const text = nameEl ? nameEl.innerText : '';
-            if(text && !text.includes('Drag')) {
-                name = text;
-                res = '<span style="color:#FF9500">1920x1080</span>';
-            }
-        }
-        const block = document.createElement('div');
-        block.className = 'header-info-block';
-        block.innerHTML = `<div class="info-label">Source${i}</div><div class="info-value-row"><span style="color:#bbb">${name}</span>${res}</div>`;
-        container.appendChild(block);
-    }
+/* Onboarding */
+.onboarding-box {
+    background: #1E1E1E; width: 480px; border-radius: 12px; border: 1px solid #444; padding: 40px 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.7); display: flex; flex-direction: column; text-align: center; position: relative; overflow: hidden;
 }
-
-function setMaxVideoInput(val) {
-    maxDecResolution = parseInt(val);
-    renderSourceList(); 
+.onboarding-close-x {
+    position: absolute; top: 15px; right: 15px; color: #666; font-size: 20px; cursor: pointer; line-height: 1; z-index: 10;
 }
+.onboarding-close-x:hover { color: #fff; }
+.step-indicators { display: flex; justify-content: center; gap: 8px; margin-bottom: 30px; }
+.step-dot { width: 8px; height: 8px; background: #333; border-radius: 50%; transition: all 0.3s; }
+.step-dot.active { background: var(--theme-color); width: 24px; border-radius: 4px; }
+.onboarding-step { display: none; width: 100%; animation: fadeIn 0.4s ease; }
+.onboarding-step.active { display: block; }
+.onboarding-icon { font-size: 48px; margin-bottom: 20px; }
+.onboarding-box h2 { color: #fff; margin: 0 0 10px 0; font-size: 24px; }
+.onboarding-box p { color: #888; margin: 0 0 30px 0; font-size: 14px; line-height: 1.5; }
+.onboarding-actions { display: flex; justify-content: center; gap: 15px; margin-top: 30px; }
+.onboarding-actions .btn { min-width: 100px; padding: 10px 20px; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-// === PTZ LOGIC ===
-function selectSlot(slotId) { 
-    if(slotId === 'none') {
-        updatePTZPanelInfo(null, null);
-        setPTZPanelState(false);
-        updatePTZPresets(null); 
-        return;
-    }
-    document.querySelectorAll('.preview-slot').forEach(el => el.classList.remove('selected-slot')); 
-    const el = document.getElementById(slotId); 
-    if(el) { 
-        el.classList.add('selected-slot'); 
-        const sourceId = el.dataset.sourceId;
-        const windowNum = slotId.split('-')[1];
-        if (!sourceId) {
-            updatePTZPanelInfo(windowNum, null);
-            setPTZPanelState(false);
-            updatePTZPresets(null); 
-        } else {
-            const sourceObj = sourcesData.find(s => s.id === sourceId);
-            if (sourceObj && (sourceObj.status === 'offline' || sourceObj.resHeight > maxDecResolution)) {
-                updatePTZPanelInfo(windowNum, null);
-                setPTZPanelState(false);
-                updatePTZPresets(null);
-            } else {
-                updatePTZPanelInfo(windowNum, sourceObj ? sourceObj.name : "Unknown");
-                setPTZPanelState(true);
-                updatePTZPresets(sourceObj); 
-            }
-        }
-    } 
-}
+/* Modals */
+.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 3000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(3px); }
+.modal-box { background: var(--panel-color); width: 500px; border-radius: 8px; border: 1px solid #444; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex; flex-direction: column; }
+.modal-header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 20px; }
+.modal-close-x { cursor: pointer; color: #888; font-size: 20px; line-height: 1; }
+.modal-close-x:hover { color: #fff; }
+.search-list-item { padding: 10px; border-bottom: 1px solid #333; cursor: pointer; color: #ccc; font-size: 14px; }
+.search-list-item:hover { background: #333; color: #fff; }
+.search-list-item.selected { background: var(--theme-color); color: #fff; }
 
-function updatePTZPanelInfo(windowNum, sourceName) {
-    const info = document.getElementById('ptz-target-info');
-    let text = ""; let color = "";
-    if(sourceName) { text = `Target: ${sourceName}`; color = "#007AFF"; } else { text = `Target: Unavailable`; color = "#D32F2F"; }
-    if(info) { info.innerText = text; info.style.color = color; }
-}
+#modal-large-settings { z-index: 2000 !important; }
+#modal-large-settings .modal-box { width: 100% !important; height: 100% !important; max-width: none; max-height: none; border-radius: 0; border: none; padding: 0; overflow: hidden; display: flex; flex-direction: row; }
+.settings-sidebar { width: 250px; flex-shrink: 0; background: #1a1a1a; border-right: 1px solid #333; display: flex; flex-direction: column; padding: 30px 0; }
+.sidebar-category { padding: 10px 30px 5px 30px; color: #666; font-size: 11px; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; }
+.sidebar-item { padding: 12px 30px; color: #ccc; font-size: 14px; cursor: pointer; transition: 0.2s; border-left: 3px solid transparent; }
+.sidebar-item:hover { background: #252526; color: #fff; }
+.sidebar-item.active { background: #252526; color: #fff; border-left-color: var(--theme-color); font-weight: bold; }
+.settings-content-area { flex: 1; min-width: 0; display: flex; flex-direction: column; background: var(--panel-color); }
+.settings-header { height: 70px; border-bottom: 1px solid #333; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; }
+.settings-title { font-size: 20px; font-weight: bold; color: #fff; }
+.settings-close-btn { cursor: pointer; font-size: 24px; color: #888; }
+.settings-close-btn:hover { color: #fff; }
+.settings-body { flex: 1; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; max-width: 1000px; margin: 0 auto; width: 100%; }
 
-function setPTZPanelState(enabled) {
-    const panel = document.querySelector('.embedded-ptz-panel');
-    if(panel) { 
-        if(enabled) { 
-            panel.classList.remove('disabled-ui'); 
-            panel.style.opacity = '1'; 
-        } else { 
-            panel.classList.add('disabled-ui'); 
-            panel.style.opacity = '0.5'; 
-        } 
-    }
-}
-
-// FIX: Always render 9 buttons.
-function updatePTZPresets(sourceObj) {
-    const grid = document.getElementById('ptz-preset-grid');
-    if(!grid) return;
-    grid.innerHTML = '';
-    
-    for(let i=1; i<=9; i++) {
-        const btn = document.createElement('button');
-        btn.innerText = i;
-        
-        if (sourceObj && sourceObj.presets && sourceObj.presets[i]) {
-            const imgUrl = sourceObj.presets[i];
-            btn.onmouseenter = (e) => { 
-                presetHoverTimer = setTimeout(() => { showPresetTooltip(e.target, imgUrl, `Preset ${i}`); }, 2000); 
-            };
-            btn.onmouseleave = () => { clearTimeout(presetHoverTimer); hidePresetTooltip(); };
-            btn.onclick = () => { clearTimeout(presetHoverTimer); hidePresetTooltip(); showToast(`Recall Preset ${i}`, "success"); };
-        } else {
-            btn.disabled = true; // Visibly disabled via CSS
-        }
-        grid.appendChild(btn);
-    }
-}
-
-function showPresetTooltip(targetBtn, imgUrl, label) {
-    const tooltip = document.getElementById('presetTooltip');
-    const tooltipImg = document.getElementById('presetTooltipImg');
-    const tooltipLabel = document.getElementById('presetTooltipLabel');
-    if(tooltip && tooltipImg) {
-        tooltipImg.src = imgUrl; tooltipLabel.innerText = label;
-        const rect = targetBtn.getBoundingClientRect();
-        tooltip.style.left = (rect.left + rect.width/2 - 80) + 'px'; 
-        tooltip.style.top = (rect.top - 100) + 'px'; 
-        tooltip.style.display = 'block';
-    }
-}
-
-function hidePresetTooltip() { const tooltip = document.getElementById('presetTooltip'); if(tooltip) tooltip.style.display = 'none'; }
-function savePreset() { showToast("Preset Saved", "success"); }
-
-// === Render Source List ===
-function renderSourceList() {
-    const tbody = document.getElementById('source-list-body');
-    if(!tbody) return;
-    
-    tbody.innerHTML = '';
-    
-    sourcesData.forEach(src => {
-        const tr = document.createElement('tr');
-        const isUnsupported = src.resHeight > maxDecResolution;
-        tr.className = `source-row ${src.status === 'offline' ? 'offline' : ''}`;
-        
-        // FIX: Drag & Drop
-        tr.draggable = !isUnsupported;
-        tr.ondragstart = (event) => {
-             event.dataTransfer.setData("text/plain", src.id);
-        };
-        
-        let statusHtml = `<span style="color:#4CAF50;">Online</span>`;
-        if(src.status === 'error') statusHtml = `<span class="src-status-error">${src.errorMsg}</span>`;
-        if(src.status === 'offline') statusHtml = `<span style="color:#888;">Offline</span>`;
-        if(isUnsupported) statusHtml += `<span class="src-status-warning">Input Resolution Not Supported</span>`;
-
-        tr.innerHTML = `
-            <td class="drag-col"><span class="drag-handle-icon" style="opacity:${isUnsupported?0.3:1}">⋮⋮</span></td>
-            <td class="info-col">
-                <div class="src-name" style="${src.status==='offline'?'color:#888':''}">${src.name}</div>
-                <div class="src-meta" style="font-size:10px;">${src.resolution}</div>
-                <div style="font-size:10px; margin-top:2px;">${statusHtml}</div>
-            </td>
-            <td class="action-col"></td>
-        `;
-        tbody.appendChild(tr);
-    });
-}
-
-// === Drag and Drop Functions ===
-function allowDrop(ev) {
-    ev.preventDefault();
-}
-
-function drop(ev) {
-    ev.preventDefault();
-    const slot = ev.currentTarget;
-    slot.classList.remove('drag-over');
-    
-    const sourceId = ev.dataTransfer.getData("text/plain");
-    const data = sourcesData.find(s => s.id === sourceId);
-    
-    if(data) {
-        applySourceToSlot(slot, data);
-    }
-}
-
-function openFullSettings(tab, autoAdd=false) { 
-    if (tab === 'source' && currentSystemMode === 'encoder') {
-        tab = 'av-settings';
-    }
-    document.getElementById('modal-large-settings').style.display = 'flex'; 
-    switchSettingsTab(tab); 
-    if(autoAdd && tab === 'source') { 
-        setTimeout(() => showModal('Add Manual Source'), 300); 
-    } 
-}
-
-function switchSettingsTab(tabId) {
-    document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
-    document.getElementById('tab-' + tabId).classList.add('active');
-    
-    const bodyEl = document.getElementById('settings-body-content');
-    const titleEl = document.getElementById('settings-title');
-    let htmlContent = '';
-    
-    if(tabId === 'source') {
-        titleEl.innerText = "Source Management";
-        if (currentSystemMode === 'encoder') {
-            bodyEl.innerHTML = `<div style="background:#332b00; border:1px solid #d4b106; color:#ffeeba; padding:10px; border-radius:4px;">⚠️ Source management is only available in <a href="#" onclick="switchSettingsTab('av-settings')" style="color:#FF9500; font-weight:bold;">Decoder Mode</a>.</div>`;
-        } else {
-             bodyEl.innerHTML = `<button class="btn btn-primary" onclick="showModal('Add Manual Source')">+ Add Source</button>`;
-        }
-    } else if(tabId === 'av-settings') {
-        titleEl.innerText = "Video & Audio";
-        // Encoder Specific
-        if (currentSystemMode === 'encoder') {
-            htmlContent = `
-                <div class="settings-subsection"><div class="settings-group-title">Operation Mode</div>
-                    <div class="mode-switch-container"><div class="mode-switch-btn active">Encoder</div><div class="mode-switch-btn" onclick="showRebootWarning('decoder')">Decoder</div></div>
-                </div>
-                <div class="settings-subsection"><div class="settings-group-title">Video Settings (ENCODER)</div>
-                    <div class="form-group"><label class="form-label">Video Source</label><input type="text" class="form-input darker-input" value="HDMI (Auto)" readonly></div>
-                    <div class="form-group"><label class="form-label">Resolution</label><select class="form-select"><option>3840x2160</option><option>1920x1080</option></select></div>
-                </div>`;
-        } else {
-            htmlContent = `
-                <div class="settings-subsection"><div class="settings-group-title">Operation Mode</div>
-                    <div class="mode-switch-container"><div class="mode-switch-btn" onclick="showRebootWarning('encoder')">Encoder</div><div class="mode-switch-btn active">Decoder</div></div>
-                </div>
-                <div class="settings-subsection"><div class="settings-group-title">Video Settings (DECODER)</div>
-                    <div class="form-group"><label class="form-label">Max Input</label><select class="form-select"><option>2160p60</option><option>1080p60</option></select></div>
-                    <div class="form-group"><label class="form-label">Output Res</label><select class="form-select"><option>3840x2160</option><option>1920x1080</option></select></div>
-                </div>`;
-        }
-        bodyEl.innerHTML = htmlContent;
-    } else {
-        titleEl.innerText = "Settings";
-        bodyEl.innerHTML = "Content...";
-    }
-}
-
-// ... (Standard Modals)
-function closeModal(e) { if(!e || e.target.id === 'modalOverlay' || e.target.classList.contains('modal-close-x')) document.getElementById('modalOverlay').style.display = 'none'; }
-function closeSpecificModal(id) { document.getElementById(id).style.display = 'none'; }
-function showToast(msg, type) { const div = document.createElement('div'); div.className = 'toast'; div.innerHTML = `<span>${msg}</span>`; let container = document.getElementById('toast-container'); if(!container) { container = document.createElement('div'); container.id='toast-container'; document.body.appendChild(container); } container.appendChild(div); setTimeout(() => div.remove(), 3000); }
-function showModal(t){if(t==='Add Manual Source'){renderSourceModal('Add Source','','','')}}
-function renderSourceModal(t,n,i,g){document.getElementById('modalContentBox').innerHTML=`<div class="modal-header-row"><h3 style="margin:0;color:#fff;">${t}</h3><span class="modal-close-x" onclick="closeModal()">✕</span></div><div class="modal-body-add-source"><div class="form-group"><label class="form-label">Source Name</label><input type="text" id="inputSrcName" class="form-input" value="${n}"></div><div class="form-group"><label class="form-label">IP Address</label><input type="text" id="inputSrcIP" class="form-input" value="${i}"></div></div><div class="modal-footer"><button class="modal-footer-btn" onclick="closeModal()">Cancel</button><button class="modal-footer-btn" onclick="saveSourceData()">Save</button></div>`;document.getElementById('modalOverlay').style.display='flex';}
-function saveSourceData() { showToast("Source Added", "success"); closeModal(); refreshSourceList(); }
-function showRebootWarning(targetMode) { pendingRebootMode = targetMode; document.getElementById('modal-reboot-warning').style.display = 'flex'; }
-function executeReboot() { document.getElementById('modal-reboot-warning').style.display = 'none'; document.getElementById('modal-large-settings').style.display = 'none'; document.getElementById('reboot-overlay').style.display = 'flex'; setTimeout(() => { document.getElementById('reboot-overlay').style.display = 'none'; performSwitch(pendingRebootMode); pendingRebootMode = null; }, 2000); }
-function performSwitch(mode) { currentSystemMode = mode; enterView(mode); }
-function enterView(mode) { document.getElementById('app-shell').style.display = 'grid'; document.getElementById('view-encoder').style.display = (mode === 'encoder') ? 'block' : 'none'; document.getElementById('view-decoder').style.display = (mode === 'decoder') ? 'block' : 'none'; document.getElementById('current-mode-badge').innerText = mode.toUpperCase() + ' MODE'; document.documentElement.style.setProperty('--theme-color', mode === 'encoder' ? '#007AFF' : '#FF9500'); if(mode === 'decoder') { renderSourceList(); loadDefaultSource(); selectSlot('slot-1'); } }
+#toast-container { position: fixed; top: 80px; right: 20px; z-index: 4000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+.toast { min-width: 250px; background: #252526; color: #fff; padding: 12px 16px; border-left: 4px solid var(--theme-color); border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); font-size: 13px; animation: slideIn 0.3s ease-out forwards; display: flex; align-items: center; pointer-events: auto; }
+@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+#reboot-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #000; z-index: 5000; display: none; flex-direction: column; align-items: center; justify-content: center; }
+.loading-spinner-container { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.spinner-ring { width: 30px; height: 30px; border: 3px solid #444; border-top: 3px solid var(--theme-color); border-radius: 50%; animation: spin 1s linear infinite; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
