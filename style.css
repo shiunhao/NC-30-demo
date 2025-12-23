@@ -1,4 +1,4 @@
-/* style.css - V61 (Final Fix: Drag, Tooltip, Layout) */
+/* style.css - V62 (Final Fix: Visible Buttons & JSON Drag) */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -403,8 +403,6 @@ input:checked + .slider:before { transform: translateX(14px); }
 .ptz-preset-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
 .btn-xs-save { background: #333; border: 1px solid #555; color: #ccc; font-size: 10px; padding: 2px 8px; border-radius: 2px; cursor: pointer; }
 .btn-xs-save:hover { background: #444; color: #fff; }
-
-/* FIX: Stronger Disabled UI for PTZ */
 .disabled-ui { opacity: 0.4 !important; pointer-events: none !important; user-select: none; }
 .disabled-content { opacity: 0.5; pointer-events: none; filter: grayscale(1); }
 
@@ -428,12 +426,20 @@ input[type=range].ptz-range::-webkit-slider-thumb { height: 14px; width: 14px; b
 .preset-controls { display: flex; align-items: center; gap: 6px; }
 .ptz-arrow-btn { background: transparent; border: none; color: #888; font-size: 16px; cursor: pointer; padding: 0 4px; }
 .ptz-arrow-btn:hover { color: #fff; }
-/* FIX: Min height for preset grid to avoid collapse */
 .preset-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; flex: 1; min-height: 100px; }
 .preset-grid button { background: #424242; border: none; color: #bbb; font-size: 12px; padding: 10px 0; cursor: pointer; border-radius: 2px; }
 .preset-grid button:hover { background: #555; color: #fff; }
 .preset-grid button:active { background: var(--ptz-thumb); color: #000; }
-.preset-grid button:disabled { opacity: 1 !important; cursor: not-allowed; pointer-events: none; color: #555; background: #252526; border: 1px solid #333; }
+
+/* FIX: Clearer Disabled Button Style */
+.preset-grid button:disabled { 
+    opacity: 1 !important; 
+    cursor: not-allowed; 
+    pointer-events: none; 
+    color: #666; 
+    background: #333; 
+    border: 1px solid #444;
+}
 
 /* Preset Preview Tooltip (FIXED) */
 .preset-preview-tooltip {
