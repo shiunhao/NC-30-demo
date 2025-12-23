@@ -199,6 +199,9 @@ function refreshSourceList() {
     setTimeout(() => {
         if(listContainer) listContainer.innerHTML = `<table class="source-list-table" id="right-panel-table"><thead class="source-list-header"><tr><th style="width:40px;"></th><th>Source Name</th><th style="width:50px; text-align:right;">Act</th></tr></thead><tbody id="source-list-body"></tbody></table>`;
         renderSourceList(); 
+        if(document.getElementById('modal-large-settings').style.display !== 'none' && document.getElementById('tab-source').classList.contains('active')) {
+            switchSettingsTab('source');
+        }
         if(btn) { btn.innerText = "↻"; btn.disabled = false; }
         showToast("Source list refreshed", "success");
     }, 1000);
@@ -211,6 +214,24 @@ function updateLiveHeader() {
     modeBlock.className = 'header-info-block';
     modeBlock.innerHTML = `<div class="info-label">Current Mode</div><div class="info-value">Decoder</div>`;
     container.appendChild(modeBlock);
+    const count = currentOutputMode === 'Single' ? 1 : 4;
+    for(let i=1; i<=count; i++) {
+        const slot = document.getElementById(`slot-${i}`);
+        let name = '-';
+        let res = '';
+        if(slot) {
+            const nameEl = slot.querySelector('.slot-name');
+            const text = nameEl ? nameEl.innerText : '';
+            if(text && !text.includes('Drag')) {
+                name = text;
+                res = '<span style="color:#FF9500">1920x1080</span>';
+            }
+        }
+        const block = document.createElement('div');
+        block.className = 'header-info-block';
+        block.innerHTML = `<div class="info-label">Source${i}</div><div class="info-value-row"><span style="color:#bbb">${name}</span>${res}</div>`;
+        container.appendChild(block);
+    }
 }
 
 function setMaxVideoInput(val) {
