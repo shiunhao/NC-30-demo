@@ -1,4 +1,4 @@
-/* script.js - Final Demo Version (V61 - Golden Fix) */
+/* script.js - Final Demo Version (V62 - Golden Fix) */
 
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
@@ -45,7 +45,7 @@ function doLogin() {
     btn.innerHTML = "Logging in...";
     setTimeout(() => { 
         document.getElementById('page-login').style.display = 'none'; 
-        const hasOnboarded = localStorage.getItem('nc30_onboarding_v61');
+        const hasOnboarded = localStorage.getItem('nc30_onboarding_v62');
         if (!hasOnboarded) {
             startOnboarding();
         } else {
@@ -62,7 +62,7 @@ function startOnboarding() {
 }
 
 function closeOnboarding() {
-    localStorage.setItem('nc30_onboarding_v61', 'true');
+    localStorage.setItem('nc30_onboarding_v62', 'true');
     document.getElementById('onboarding-overlay').style.display = 'none';
     if (!currentSystemMode) performSwitch('encoder');
 }
