@@ -271,6 +271,7 @@ function setPTZPanelState(enabled) {
     }
 }
 
+// FIX: Always render 9 buttons.
 function updatePTZPresets(sourceObj) {
     const grid = document.getElementById('ptz-preset-grid');
     if(!grid) return;
@@ -288,7 +289,7 @@ function updatePTZPresets(sourceObj) {
             btn.onmouseleave = () => { clearTimeout(presetHoverTimer); hidePresetTooltip(); };
             btn.onclick = () => { clearTimeout(presetHoverTimer); hidePresetTooltip(); showToast(`Recall Preset ${i}`, "success"); };
         } else {
-            btn.disabled = true; 
+            btn.disabled = true; // Visibly disabled via CSS
         }
         grid.appendChild(btn);
     }
@@ -319,6 +320,8 @@ function renderSourceList() {
         const tr = document.createElement('tr');
         const isUnsupported = src.resHeight > maxDecResolution;
         tr.className = `source-row ${src.status === 'offline' ? 'offline' : ''}`;
+        
+        // FIX: Drag & Drop (USE JSON)
         tr.draggable = !isUnsupported;
         tr.ondragstart = (event) => {
              event.dataTransfer.setData("application/json", JSON.stringify(src));
@@ -340,6 +343,11 @@ function renderSourceList() {
     });
 }
 
+// === Drag and Drop Functions ===
+function allowDrop(ev) {
+    ev.preventDefault();
+}
+
 function drop(ev) {
     ev.preventDefault();
     const slot = ev.currentTarget;
@@ -351,8 +359,6 @@ function drop(ev) {
         applySourceToSlot(slot, data);
     } catch (e) { console.error("Drop failed:", e); }
 }
-
-function allowDrop(ev) { ev.preventDefault(); }
 
 function openFullSettings(tab, autoAdd=false) { 
     if (tab === 'source' && currentSystemMode === 'encoder') {
