@@ -1,4 +1,4 @@
-/* style.css - Final Demo Version (V63 - Group Mgmt & PTZ Safe) */
+/* style.css - V65 (Add Source UI Reorder & Remark) */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -60,6 +60,7 @@ body {
 .form-select:focus, .form-input:focus { border-color: var(--theme-color); outline: none; }
 .form-input[readonly] { background-color: #1a1a1a; color: #777; border-color: #333; cursor: not-allowed; }
 .darker-input { background-color: #111; border-color: #333; }
+.remark-input { height: 60px; resize: none; font-family: inherit; } /* New for Remark */
 
 .switch { position: relative; display: inline-block; width: 34px; height: 20px; }
 .switch input { opacity: 0; width: 0; height: 0; }
@@ -428,13 +429,12 @@ input[type=range].ptz-range::-webkit-slider-thumb { height: 14px; width: 14px; b
 .preset-controls { display: flex; align-items: center; gap: 6px; }
 .ptz-arrow-btn { background: transparent; border: none; color: #888; font-size: 16px; cursor: pointer; padding: 0 4px; }
 .ptz-arrow-btn:hover { color: #fff; }
-/* FIX: Min height for preset grid to avoid collapse */
 .preset-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; flex: 1; min-height: 100px; }
 .preset-grid button { background: #424242; border: none; color: #bbb; font-size: 12px; padding: 10px 0; cursor: pointer; border-radius: 2px; }
 .preset-grid button:hover { background: #555; color: #fff; }
 .preset-grid button:active { background: var(--ptz-thumb); color: #000; }
 
-/* FIX: Visible Disabled Buttons (Ensure they are visible) */
+/* FIX: Visible Disabled Buttons */
 .preset-grid button:disabled { 
     opacity: 1 !important; 
     cursor: not-allowed; 
@@ -481,16 +481,12 @@ input[type=range].ptz-range::-webkit-slider-thumb { height: 14px; width: 14px; b
 .card-desc { color: #666; font-size: 11px; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-/* Group Chips */
-.group-chips-container { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
-.group-chip { background: #333; border: 1px solid #555; padding: 4px 10px; border-radius: 12px; font-size: 12px; color: #ccc; display: flex; align-items: center; gap: 6px; }
-.group-chip.active { border-color: var(--theme-color); color: #fff; background: rgba(0, 122, 255, 0.2); }
-.group-chip-remove { cursor: pointer; color: #888; font-weight: bold; }
-.group-chip-remove:hover { color: #fff; }
-.group-input-row { display: flex; gap: 8px; margin-bottom: 15px; }
-
 /* Modals */
 .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 3000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(3px); }
+/* Z-Index Fix for Auto Search Modal to be above Add Source */
+#modal-auto-search { z-index: 3100 !important; }
+#modal-alert { z-index: 3200 !important; }
+
 .modal-box { background: var(--panel-color); width: 500px; border-radius: 8px; border: 1px solid #444; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex; flex-direction: column; }
 .modal-header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 20px; }
 .modal-close-x { cursor: pointer; color: #888; font-size: 20px; line-height: 1; }
