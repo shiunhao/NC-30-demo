@@ -1,4 +1,4 @@
-/* script.js - Final Demo Version (V68 - Create Group Modal) */
+/* script.js - Final Demo Version (V69 - Default Decoder Mode) */
 
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
@@ -52,17 +52,17 @@ window.onclick = function(event) {
     }
 }
 
-// === Login Logic ===
+// === Login Logic (Updated Default Mode) ===
 function doLogin() {
     const btn = document.querySelector('#page-login .btn-primary');
     btn.innerHTML = "Logging in...";
     setTimeout(() => { 
         document.getElementById('page-login').style.display = 'none'; 
-        const hasOnboarded = localStorage.getItem('nc30_onboarding_v68');
+        const hasOnboarded = localStorage.getItem('nc30_onboarding_v69');
         if (!hasOnboarded) {
             startOnboarding();
         } else {
-            performSwitch('encoder');
+            performSwitch('decoder'); // Changed to Decoder
         }
     }, 800);
 }
@@ -75,9 +75,9 @@ function startOnboarding() {
 }
 
 function closeOnboarding() {
-    localStorage.setItem('nc30_onboarding_v68', 'true');
+    localStorage.setItem('nc30_onboarding_v69', 'true');
     document.getElementById('onboarding-overlay').style.display = 'none';
-    if (!currentSystemMode) performSwitch('encoder');
+    if (!currentSystemMode) performSwitch('decoder'); // Changed to Decoder
 }
 
 function nextOnboardingStep(step) {
@@ -245,7 +245,7 @@ function setPTZPanelState(enabled) {
     }
 }
 
-// === CRITICAL FIX: Always render buttons ===
+// === PTZ Button Rendering ===
 function updatePTZPresets(sourceObj) {
     const grid = document.getElementById('ptz-preset-grid');
     if(!grid) return;
@@ -291,7 +291,7 @@ function renderSourceList() {
         const isUnsupported = src.resHeight > maxDecResolution;
         tr.className = `source-row ${src.status === 'offline' ? 'offline' : ''}`;
         
-        // FIX: Drag JSON
+        // Drag JSON
         tr.draggable = !isUnsupported;
         tr.ondragstart = (event) => { event.dataTransfer.setData("application/json", JSON.stringify(src)); };
         
@@ -374,6 +374,7 @@ function closeSpecificModal(id) { document.getElementById(id).style.display = 'n
 function showToast(msg, type) { const div = document.createElement('div'); div.className = 'toast'; div.innerHTML = `<span>${msg}</span>`; let container = document.getElementById('toast-container'); if(!container) { container = document.createElement('div'); container.id='toast-container'; document.body.appendChild(container); } container.appendChild(div); setTimeout(() => div.remove(), 3000); }
 function showModal(t){if(t==='Add Manual Source'){renderSourceModal('Add Source','','','')}}
 
+// === RENDER SOURCE MODAL with COMBOBOX & REMARK ===
 function renderSourceModal(t,n,i,g){
     const container = document.getElementById('modalContentBox');
     const groupValue = g || (ndiSearchGroups.length > 0 ? ndiSearchGroups[0] : '');
@@ -439,9 +440,8 @@ function confirmAddGroup() {
         if(!ndiSearchGroups.includes(newName)) {
             ndiSearchGroups.push(newName);
         }
-        // Update input and re-render dropdown items (simplified by re-render or manual insert)
         document.getElementById('inputSrcGroup').value = newName;
-        // Re-generate dropdown content
+        // Re-render
         const dropdown = document.getElementById('group-dropdown');
         dropdown.innerHTML = ndiSearchGroups.map(grp => `<div class="combobox-item" onclick="selectComboboxItem('${grp}')">${grp}</div>`).join('') + 
                              `<div class="combobox-footer" onclick="openAddGroupModal()">+ Create new</div>`;
