@@ -1,4 +1,4 @@
-/* script.js - Final Demo Version (V66 - Custom Combobox) */
+/* script.js - Final Demo Version (V68 - Create Group Modal) */
 
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
@@ -58,7 +58,7 @@ function doLogin() {
     btn.innerHTML = "Logging in...";
     setTimeout(() => { 
         document.getElementById('page-login').style.display = 'none'; 
-        const hasOnboarded = localStorage.getItem('nc30_onboarding_v66');
+        const hasOnboarded = localStorage.getItem('nc30_onboarding_v68');
         if (!hasOnboarded) {
             startOnboarding();
         } else {
@@ -75,7 +75,7 @@ function startOnboarding() {
 }
 
 function closeOnboarding() {
-    localStorage.setItem('nc30_onboarding_v66', 'true');
+    localStorage.setItem('nc30_onboarding_v68', 'true');
     document.getElementById('onboarding-overlay').style.display = 'none';
     if (!currentSystemMode) performSwitch('encoder');
 }
@@ -291,6 +291,7 @@ function renderSourceList() {
         const isUnsupported = src.resHeight > maxDecResolution;
         tr.className = `source-row ${src.status === 'offline' ? 'offline' : ''}`;
         
+        // FIX: Drag JSON
         tr.draggable = !isUnsupported;
         tr.ondragstart = (event) => { event.dataTransfer.setData("application/json", JSON.stringify(src)); };
         
@@ -372,18 +373,41 @@ function closeModal(e) { if(!e || e.target.id === 'modalOverlay' || e.target.cla
 function closeSpecificModal(id) { document.getElementById(id).style.display = 'none'; }
 function showToast(msg, type) { const div = document.createElement('div'); div.className = 'toast'; div.innerHTML = `<span>${msg}</span>`; let container = document.getElementById('toast-container'); if(!container) { container = document.createElement('div'); container.id='toast-container'; document.body.appendChild(container); } container.appendChild(div); setTimeout(() => div.remove(), 3000); }
 function showModal(t){if(t==='Add Manual Source'){renderSourceModal('Add Source','','','')}}
+
 function renderSourceModal(t,n,i,g){
     const container = document.getElementById('modalContentBox');
     const groupValue = g || (ndiSearchGroups.length > 0 ? ndiSearchGroups[0] : '');
+    
     container.innerHTML=`<div class="modal-header-row"><h3 style="margin:0;color:#fff;">${t}</h3><span class="modal-close-x" onclick="closeModal()">✕</span></div><div class="modal-body-add-source">
     
-    <div class="form-group"><label class="form-label">Search Scope (NDI Group)</label><div class="combobox-container"><input type="text" id="inputSrcGroup" class="form-input" value="${groupValue}" placeholder="Select or type group..."><div class="btn-combo-toggle" onclick="toggleCombobox(event)">▼</div><div class="combobox-dropdown" id="group-dropdown">${ndiSearchGroups.map(grp => `<div class="combobox-item" onclick="selectComboboxItem('${grp}')">${grp}</div>`).join('')}</div></div></div>
+    <div class="form-group"><label class="form-label">Search Scope (NDI Group)</label>
+        <div class="combobox-container">
+            <input type="text" id="inputSrcGroup" class="form-input" value="${groupValue}" readonly placeholder="Select or create group..." onclick="toggleCombobox(event)">
+            <div class="btn-combo-toggle" onclick="toggleCombobox(event)">▼</div>
+            <div class="combobox-dropdown" id="group-dropdown">
+                ${ndiSearchGroups.map(grp => `<div class="combobox-item" onclick="selectComboboxItem('${grp}')">${grp}</div>`).join('')}
+                <div class="combobox-footer" onclick="openAddGroupModal()">+ Create new</div>
+            </div>
+        </div>
+    </div>
     
     <div class="form-group"><label class="form-label">Source Name</label><input type="text" id="inputSrcName" class="form-input" value="${n}"></div>
     <div class="form-group"><label class="form-label">IP Address</label><div style="display:flex; gap:10px;"><input type="text" id="inputSrcIP" class="form-input" value="${i}"><button class="btn btn-outline" style="padding:0 12px;" onclick="openAutoSearch()">🔍</button></div></div>
     <div class="form-group"><label class="form-label">Remark</label><textarea id="inputSrcRemark" class="form-input remark-input" placeholder="Optional notes..."></textarea></div>
     
-    </div><div class="modal-footer"><button class="modal-footer-btn" onclick="closeModal()">Cancel</button><button class="modal-footer-btn" onclick="saveSourceData()">Save</button></div>`;
+    </div><div class="modal-footer"><button class="modal-footer-btn" onclick="closeModal()">Cancel</button><button class="modal-footer-btn" onclick="saveSourceData()">Save</button></div>
+    
+    <div id="modal-add-group" class="modal-overlay" style="display:none; z-index:3200;" onclick="if(event.target===this) closeAddGroupModal()">
+        <div class="modal-box" style="width:300px;">
+            <h3 style="color:#fff; margin-bottom:15px;">Create New Group</h3>
+            <input type="text" id="new-group-name" class="form-input" placeholder="Enter group name...">
+            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+                <button class="btn btn-outline" onclick="closeAddGroupModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="confirmAddGroup()">Create</button>
+            </div>
+        </div>
+    </div>
+    `;
     document.getElementById('modalOverlay').style.display='flex';
 }
 
@@ -395,6 +419,34 @@ function toggleCombobox(e) {
 function selectComboboxItem(val) {
     document.getElementById('inputSrcGroup').value = val;
     document.getElementById('group-dropdown').classList.remove('show');
+}
+
+// Group Modal Functions
+function openAddGroupModal() {
+    document.getElementById('group-dropdown').classList.remove('show');
+    document.getElementById('modal-add-group').style.display = 'flex';
+    document.getElementById('new-group-name').value = '';
+    document.getElementById('new-group-name').focus();
+}
+
+function closeAddGroupModal() {
+    document.getElementById('modal-add-group').style.display = 'none';
+}
+
+function confirmAddGroup() {
+    const newName = document.getElementById('new-group-name').value.trim();
+    if(newName) {
+        if(!ndiSearchGroups.includes(newName)) {
+            ndiSearchGroups.push(newName);
+        }
+        // Update input and re-render dropdown items (simplified by re-render or manual insert)
+        document.getElementById('inputSrcGroup').value = newName;
+        // Re-generate dropdown content
+        const dropdown = document.getElementById('group-dropdown');
+        dropdown.innerHTML = ndiSearchGroups.map(grp => `<div class="combobox-item" onclick="selectComboboxItem('${grp}')">${grp}</div>`).join('') + 
+                             `<div class="combobox-footer" onclick="openAddGroupModal()">+ Create new</div>`;
+    }
+    closeAddGroupModal();
 }
 
 function saveSourceData() { 
