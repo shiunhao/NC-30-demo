@@ -1,10 +1,10 @@
-/* script.js - Final Demo Version (V65 - UI Refined & Group Logic) */
+/* script.js - Final Demo Version (V66 - Custom Combobox) */
 
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
 let currentOutputMode = 'Single'; 
 let maxDecResolution = 2160; 
-let ndiSearchGroups = ['Public', 'Studio A']; // Default NDI Groups
+let ndiSearchGroups = ['Public', 'Studio A', 'Conference Room']; // Default NDI Groups
 
 // Initial Data
 let sourcesData = [
@@ -40,12 +40,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+// Close Combobox when clicking outside
+window.onclick = function(event) {
+    if (!event.target.matches('.btn-combo-toggle') && !event.target.matches('.form-input')) {
+        const dropdowns = document.getElementsByClassName("combobox-dropdown");
+        for (let i = 0; i < dropdowns.length; i++) {
+            if (dropdowns[i].classList.contains('show')) {
+                dropdowns[i].classList.remove('show');
+            }
+        }
+    }
+}
+
+// === Login Logic ===
 function doLogin() {
     const btn = document.querySelector('#page-login .btn-primary');
     btn.innerHTML = "Logging in...";
     setTimeout(() => { 
         document.getElementById('page-login').style.display = 'none'; 
-        const hasOnboarded = localStorage.getItem('nc30_onboarding_v65');
+        const hasOnboarded = localStorage.getItem('nc30_onboarding_v66');
         if (!hasOnboarded) {
             startOnboarding();
         } else {
@@ -54,6 +67,7 @@ function doLogin() {
     }, 800);
 }
 
+// === Onboarding Functions ===
 function startOnboarding() {
     const overlay = document.getElementById('onboarding-overlay');
     overlay.style.display = 'flex'; 
@@ -61,7 +75,7 @@ function startOnboarding() {
 }
 
 function closeOnboarding() {
-    localStorage.setItem('nc30_onboarding_v65', 'true');
+    localStorage.setItem('nc30_onboarding_v66', 'true');
     document.getElementById('onboarding-overlay').style.display = 'none';
     if (!currentSystemMode) performSwitch('encoder');
 }
@@ -76,6 +90,7 @@ function nextOnboardingStep(step) {
 
 function finishOnboarding() { closeOnboarding(); }
 
+// === Account Functions ===
 function toggleAccountMenu() { document.getElementById('accountMenu').classList.toggle('show'); }
 function actionAdminMode() {
     if (currentUserRole === 'admin') return;
@@ -112,6 +127,7 @@ function confirmLogout() {
     currentSystemMode = null;
 }
 
+// === Auto Load Source ===
 function loadDefaultSource() {
     const slot = document.getElementById('slot-1');
     if(!slot) return;
@@ -275,7 +291,6 @@ function renderSourceList() {
         const isUnsupported = src.resHeight > maxDecResolution;
         tr.className = `source-row ${src.status === 'offline' ? 'offline' : ''}`;
         
-        // FIX: Drag JSON
         tr.draggable = !isUnsupported;
         tr.ondragstart = (event) => { event.dataTransfer.setData("application/json", JSON.stringify(src)); };
         
@@ -352,16 +367,35 @@ function switchSettingsTab(tabId) {
     }
 }
 
+// ... (Standard Modals)
 function closeModal(e) { if(!e || e.target.id === 'modalOverlay' || e.target.classList.contains('modal-close-x')) document.getElementById('modalOverlay').style.display = 'none'; }
 function closeSpecificModal(id) { document.getElementById(id).style.display = 'none'; }
 function showToast(msg, type) { const div = document.createElement('div'); div.className = 'toast'; div.innerHTML = `<span>${msg}</span>`; let container = document.getElementById('toast-container'); if(!container) { container = document.createElement('div'); container.id='toast-container'; document.body.appendChild(container); } container.appendChild(div); setTimeout(() => div.remove(), 3000); }
 function showModal(t){if(t==='Add Manual Source'){renderSourceModal('Add Source','','','')}}
-function renderSourceModal(t,n,i,g){document.getElementById('modalContentBox').innerHTML=`<div class="modal-header-row"><h3 style="margin:0;color:#fff;">${t}</h3><span class="modal-close-x" onclick="closeModal()">✕</span></div><div class="modal-body-add-source">
-    <div class="form-group"><label class="form-label">Search Scope (NDI Group)</label><input type="text" id="inputSrcGroup" class="form-input" value="${g}" placeholder="Select or type group..." list="group-options"><datalist id="group-options">${ndiSearchGroups.map(grp => `<option value="${grp}">`).join('')}</datalist></div>
+function renderSourceModal(t,n,i,g){
+    const container = document.getElementById('modalContentBox');
+    const groupValue = g || (ndiSearchGroups.length > 0 ? ndiSearchGroups[0] : '');
+    container.innerHTML=`<div class="modal-header-row"><h3 style="margin:0;color:#fff;">${t}</h3><span class="modal-close-x" onclick="closeModal()">✕</span></div><div class="modal-body-add-source">
+    
+    <div class="form-group"><label class="form-label">Search Scope (NDI Group)</label><div class="combobox-container"><input type="text" id="inputSrcGroup" class="form-input" value="${groupValue}" placeholder="Select or type group..."><div class="btn-combo-toggle" onclick="toggleCombobox(event)">▼</div><div class="combobox-dropdown" id="group-dropdown">${ndiSearchGroups.map(grp => `<div class="combobox-item" onclick="selectComboboxItem('${grp}')">${grp}</div>`).join('')}</div></div></div>
+    
     <div class="form-group"><label class="form-label">Source Name</label><input type="text" id="inputSrcName" class="form-input" value="${n}"></div>
     <div class="form-group"><label class="form-label">IP Address</label><div style="display:flex; gap:10px;"><input type="text" id="inputSrcIP" class="form-input" value="${i}"><button class="btn btn-outline" style="padding:0 12px;" onclick="openAutoSearch()">🔍</button></div></div>
     <div class="form-group"><label class="form-label">Remark</label><textarea id="inputSrcRemark" class="form-input remark-input" placeholder="Optional notes..."></textarea></div>
-</div><div class="modal-footer"><button class="modal-footer-btn" onclick="closeModal()">Cancel</button><button class="modal-footer-btn" onclick="saveSourceData()">Save</button></div>`;document.getElementById('modalOverlay').style.display='flex';}
+    
+    </div><div class="modal-footer"><button class="modal-footer-btn" onclick="closeModal()">Cancel</button><button class="modal-footer-btn" onclick="saveSourceData()">Save</button></div>`;
+    document.getElementById('modalOverlay').style.display='flex';
+}
+
+function toggleCombobox(e) {
+    e.stopPropagation();
+    document.getElementById('group-dropdown').classList.toggle('show');
+}
+
+function selectComboboxItem(val) {
+    document.getElementById('inputSrcGroup').value = val;
+    document.getElementById('group-dropdown').classList.remove('show');
+}
 
 function saveSourceData() { 
     const groupVal = document.getElementById('inputSrcGroup').value;
@@ -371,7 +405,6 @@ function saveSourceData() {
 
     if(groupVal && !ndiSearchGroups.includes(groupVal)) ndiSearchGroups.push(groupVal);
     
-    // Add logic to actually push to sourcesData if needed (for demo)
     if(name && ip) {
         const newId = 'src_' + Date.now();
         sourcesData.push({ id: newId, name: name, ip: ip, group: groupVal, remark: remarkVal, status: 'online', thumb: 'https://picsum.photos/200/112', resHeight: 1080, resolution: '1920x1080', presets: {} });
@@ -380,11 +413,14 @@ function saveSourceData() {
     showToast("Source Added", "success"); closeModal(); refreshSourceList(); 
 }
 
+function showRebootWarning(targetMode) { pendingRebootMode = targetMode; document.getElementById('modal-reboot-warning').style.display = 'flex'; }
+function executeReboot() { document.getElementById('modal-reboot-warning').style.display = 'none'; document.getElementById('modal-large-settings').style.display = 'none'; document.getElementById('reboot-overlay').style.display = 'flex'; setTimeout(() => { document.getElementById('reboot-overlay').style.display = 'none'; performSwitch(pendingRebootMode); pendingRebootMode = null; }, 2000); }
+function performSwitch(mode) { currentSystemMode = mode; enterView(mode); }
+function enterView(mode) { document.getElementById('app-shell').style.display = 'grid'; document.getElementById('view-encoder').style.display = (mode === 'encoder') ? 'block' : 'none'; document.getElementById('view-decoder').style.display = (mode === 'decoder') ? 'block' : 'none'; document.getElementById('current-mode-badge').innerText = mode.toUpperCase() + ' MODE'; document.documentElement.style.setProperty('--theme-color', mode === 'encoder' ? '#007AFF' : '#FF9500'); if(mode === 'decoder') { renderSourceList(); loadDefaultSource(); selectSlot('slot-1'); } }
+
 function openAutoSearch() {
     const modal = document.getElementById('modal-auto-search');
     const list = document.getElementById('search-list-content');
-    
-    // Use the group from the parent modal to filter/display
     const currentScope = document.getElementById('inputSrcGroup').value || "Public";
     
     list.innerHTML = `
@@ -401,7 +437,6 @@ function openAutoSearch() {
     `;
     modal.style.display = 'flex';
     
-    // Simulate finding devices after 1s
     setTimeout(() => {
         const container = document.getElementById('found-devices-list');
         if(container) {
@@ -435,7 +470,3 @@ function toggleSlotMenu(slotId, event) { event.stopPropagation(); document.query
 function removeSource(slotId, targetSourceId = null) { if (targetSourceId) { const slot = document.querySelector(`.preview-slot[data-source-id="${targetSourceId}"]`); if (slot) slotId = slot.id; else return; } const slot = document.getElementById(slotId); if(slot) { delete slot.dataset.sourceId; slot.classList.remove('active-slot', 'offline-state'); slot.innerHTML = `<div class="slot-label">Window ${slotId.split('-')[1]}</div><div class="slot-content" style="text-align:center;"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div>`; updateLiveHeader(); selectSlot(slotId); renderSourceList(); } }
 function togglePTZ() { console.log("PTZ is embedded now"); }
 function switchEncTab(tabName) { document.querySelectorAll('.enc-tab').forEach(t => t.classList.remove('active')); document.getElementById('enc-tab-video').style.display = 'none'; document.getElementById('enc-tab-audio').style.display = 'none'; event.target.classList.add('active'); document.getElementById('enc-tab-' + tabName).style.display = 'block'; }
-function showRebootWarning(targetMode) { pendingRebootMode = targetMode; document.getElementById('modal-reboot-warning').style.display = 'flex'; }
-function executeReboot() { document.getElementById('modal-reboot-warning').style.display = 'none'; document.getElementById('modal-large-settings').style.display = 'none'; document.getElementById('reboot-overlay').style.display = 'flex'; setTimeout(() => { document.getElementById('reboot-overlay').style.display = 'none'; performSwitch(pendingRebootMode); pendingRebootMode = null; }, 2000); }
-function performSwitch(mode) { currentSystemMode = mode; enterView(mode); }
-function enterView(mode) { document.getElementById('app-shell').style.display = 'grid'; document.getElementById('view-encoder').style.display = (mode === 'encoder') ? 'block' : 'none'; document.getElementById('view-decoder').style.display = (mode === 'decoder') ? 'block' : 'none'; document.getElementById('current-mode-badge').innerText = mode.toUpperCase() + ' MODE'; document.documentElement.style.setProperty('--theme-color', mode === 'encoder' ? '#007AFF' : '#FF9500'); if(mode === 'decoder') { renderSourceList(); loadDefaultSource(); selectSlot('slot-1'); } }
