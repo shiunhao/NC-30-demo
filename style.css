@@ -1,4 +1,4 @@
-/* style.css - V65 (Add Source UI Reorder & Remark) */
+/* style.css - Final Demo Version (V66 - Custom Combobox UI) */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -51,7 +51,7 @@ body {
 .btn-icon-action:hover { background: #333; color: #fff; border-color: #555; }
 .btn-icon-action.danger:hover { color: var(--danger-color); border-color: var(--danger-color); }
 
-.form-group { margin-bottom: 15px; }
+.form-group { margin-bottom: 15px; position: relative; }
 .form-label { display: block; color: var(--text-sub); font-size: 12px; margin-bottom: 5px; }
 .form-select, .form-input {
     width: 100%; background-color: #252526; border: 1px solid #444;
@@ -60,7 +60,27 @@ body {
 .form-select:focus, .form-input:focus { border-color: var(--theme-color); outline: none; }
 .form-input[readonly] { background-color: #1a1a1a; color: #777; border-color: #333; cursor: not-allowed; }
 .darker-input { background-color: #111; border-color: #333; }
-.remark-input { height: 60px; resize: none; font-family: inherit; } /* New for Remark */
+.remark-input { height: 60px; resize: none; font-family: inherit; }
+
+/* Custom Combobox (V66) */
+.combobox-container { display: flex; position: relative; width: 100%; }
+.combobox-container .form-input { border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: none; }
+.btn-combo-toggle {
+    background: #333; border: 1px solid #444; color: #ccc;
+    border-top-right-radius: 4px; border-bottom-right-radius: 4px;
+    padding: 0 10px; cursor: pointer; font-size: 10px;
+}
+.btn-combo-toggle:hover { background: #444; color: #fff; }
+.combobox-dropdown {
+    position: absolute; top: 100%; left: 0; right: 0;
+    background: #252526; border: 1px solid #444; border-radius: 4px;
+    margin-top: 2px; z-index: 100; max-height: 150px; overflow-y: auto;
+    display: none; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+.combobox-dropdown.show { display: block; }
+.combobox-item { padding: 8px 12px; font-size: 13px; color: #ddd; cursor: pointer; border-bottom: 1px solid #333; }
+.combobox-item:hover { background: var(--theme-color); color: #fff; }
+.combobox-item:last-child { border-bottom: none; }
 
 .switch { position: relative; display: inline-block; width: 34px; height: 20px; }
 .switch input { opacity: 0; width: 0; height: 0; }
@@ -459,7 +479,11 @@ input[type=range].ptz-range::-webkit-slider-thumb { height: 14px; width: 14px; b
     background: #1E1E1E; width: 480px; border-radius: 12px; border: 1px solid #444; padding: 40px 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.7); display: flex; flex-direction: column; text-align: center; position: relative; overflow: hidden;
 }
 .onboarding-close-x {
-    position: absolute; top: 15px; right: 15px; color: #666; font-size: 20px; cursor: pointer; line-height: 1; z-index: 10;
+    position: absolute;
+    top: 15px; right: 15px;
+    color: #666; font-size: 20px;
+    cursor: pointer; line-height: 1;
+    z-index: 10;
 }
 .onboarding-close-x:hover { color: #fff; }
 .step-indicators { display: flex; justify-content: center; gap: 8px; margin-bottom: 30px; }
@@ -480,6 +504,14 @@ input[type=range].ptz-range::-webkit-slider-thumb { height: 14px; width: 14px; b
 .card-title { color: #fff; font-weight: bold; margin-bottom: 5px; }
 .card-desc { color: #666; font-size: 11px; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Group Chips (V64) */
+.group-chips-container { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.group-chip { background: #333; border: 1px solid #555; padding: 4px 10px; border-radius: 12px; font-size: 12px; color: #ccc; display: flex; align-items: center; gap: 6px; }
+.group-chip.active { border-color: var(--theme-color); color: #fff; background: rgba(0, 122, 255, 0.2); }
+.group-chip-remove { cursor: pointer; color: #888; font-weight: bold; }
+.group-chip-remove:hover { color: #fff; }
+.group-input-row { display: flex; gap: 8px; margin-bottom: 15px; }
 
 /* Modals */
 .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 3000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(3px); }
