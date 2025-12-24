@@ -1,29 +1,29 @@
-/* script.js - Final Demo Version (V63 - Group Mgmt & PTZ Fixed) */
+/* script.js - Final Demo Version (V65 - UI Refined & Group Logic) */
 
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
 let currentOutputMode = 'Single'; 
 let maxDecResolution = 2160; 
-let ndiSearchGroups = ['Public']; // Default Groups
+let ndiSearchGroups = ['Public', 'Studio A']; // Default NDI Groups
 
 // Initial Data
 let sourcesData = [
     { 
-        id: 'src_01', name: 'Main Camera 01', ip: '192.168.1.101', group: 'Studio A', status: 'online', thumb: 'https://picsum.photos/id/64/100/56',
+        id: 'src_01', name: 'Main Camera 01', ip: '192.168.1.101', group: 'Studio A', remark: 'Main stage view', status: 'online', thumb: 'https://picsum.photos/id/64/100/56',
         resHeight: 2160, resolution: '3840x2160',
         presets: { 1: 'https://picsum.photos/id/65/160/90', 2: 'https://picsum.photos/id/66/160/90' }
     },
     { 
-        id: 'src_02', name: 'PTZ Camera 02', ip: '192.168.1.102', group: 'Studio B', status: 'online', thumb: 'https://picsum.photos/id/1/100/56',
+        id: 'src_02', name: 'PTZ Camera 02', ip: '192.168.1.102', group: 'Studio B', remark: '', status: 'online', thumb: 'https://picsum.photos/id/1/100/56',
         resHeight: 1080, resolution: '1920x1080',
         presets: { 1: 'https://picsum.photos/id/2/160/90' }
     },
     { 
-        id: 'src_03', name: 'OBS Output', ip: '192.168.1.120', group: 'OBS', status: 'error', 
+        id: 'src_03', name: 'OBS Output', ip: '192.168.1.120', group: 'OBS', remark: 'Direct feed', status: 'error', 
         errorMsg: 'Input Resolution Not Supported',
         thumb: 'https://picsum.photos/id/48/100/56', resHeight: 1080, resolution: '1920x1080', presets: {} 
     },
-    { id: 'src_04', name: 'Outdoor Cam', ip: '192.168.1.104', group: 'Outdoor', status: 'offline', thumb: '', resHeight: 720, resolution: '1280x720', presets: {} }
+    { id: 'src_04', name: 'Outdoor Cam', ip: '192.168.1.104', group: 'Outdoor', remark: '', status: 'offline', thumb: '', resHeight: 720, resolution: '1280x720', presets: {} }
 ];
 
 let editingSourceId = null;
@@ -45,7 +45,7 @@ function doLogin() {
     btn.innerHTML = "Logging in...";
     setTimeout(() => { 
         document.getElementById('page-login').style.display = 'none'; 
-        const hasOnboarded = localStorage.getItem('nc30_onboarding_v63_fix');
+        const hasOnboarded = localStorage.getItem('nc30_onboarding_v65');
         if (!hasOnboarded) {
             startOnboarding();
         } else {
@@ -61,7 +61,7 @@ function startOnboarding() {
 }
 
 function closeOnboarding() {
-    localStorage.setItem('nc30_onboarding_v63_fix', 'true');
+    localStorage.setItem('nc30_onboarding_v65', 'true');
     document.getElementById('onboarding-overlay').style.display = 'none';
     if (!currentSystemMode) performSwitch('encoder');
 }
@@ -356,73 +356,75 @@ function closeModal(e) { if(!e || e.target.id === 'modalOverlay' || e.target.cla
 function closeSpecificModal(id) { document.getElementById(id).style.display = 'none'; }
 function showToast(msg, type) { const div = document.createElement('div'); div.className = 'toast'; div.innerHTML = `<span>${msg}</span>`; let container = document.getElementById('toast-container'); if(!container) { container = document.createElement('div'); container.id='toast-container'; document.body.appendChild(container); } container.appendChild(div); setTimeout(() => div.remove(), 3000); }
 function showModal(t){if(t==='Add Manual Source'){renderSourceModal('Add Source','','','')}}
-function renderSourceModal(t,n,i,g){document.getElementById('modalContentBox').innerHTML=`<div class="modal-header-row"><h3 style="margin:0;color:#fff;">${t}</h3><span class="modal-close-x" onclick="closeModal()">✕</span></div><div class="modal-body-add-source"><div class="form-group"><label class="form-label">Source Name</label><input type="text" id="inputSrcName" class="form-input" value="${n}"></div><div class="form-group"><label class="form-label">Group</label><input type="text" id="inputSrcGroup" class="form-input" value="${g}" placeholder="Select or type group..." list="group-options"><datalist id="group-options">${ndiSearchGroups.map(grp => `<option value="${grp}">`).join('')}</datalist></div><div class="form-group"><label class="form-label">IP Address</label><div style="display:flex; gap:10px;"><input type="text" id="inputSrcIP" class="form-input" value="${i}"><button class="btn btn-outline" style="padding:0 12px;" onclick="openAutoSearch()">🔍</button></div></div></div><div class="modal-footer"><button class="modal-footer-btn" onclick="closeModal()">Cancel</button><button class="modal-footer-btn" onclick="saveSourceData()">Save</button></div>`;document.getElementById('modalOverlay').style.display='flex';}
+function renderSourceModal(t,n,i,g){document.getElementById('modalContentBox').innerHTML=`<div class="modal-header-row"><h3 style="margin:0;color:#fff;">${t}</h3><span class="modal-close-x" onclick="closeModal()">✕</span></div><div class="modal-body-add-source">
+    <div class="form-group"><label class="form-label">Search Scope (NDI Group)</label><input type="text" id="inputSrcGroup" class="form-input" value="${g}" placeholder="Select or type group..." list="group-options"><datalist id="group-options">${ndiSearchGroups.map(grp => `<option value="${grp}">`).join('')}</datalist></div>
+    <div class="form-group"><label class="form-label">Source Name</label><input type="text" id="inputSrcName" class="form-input" value="${n}"></div>
+    <div class="form-group"><label class="form-label">IP Address</label><div style="display:flex; gap:10px;"><input type="text" id="inputSrcIP" class="form-input" value="${i}"><button class="btn btn-outline" style="padding:0 12px;" onclick="openAutoSearch()">🔍</button></div></div>
+    <div class="form-group"><label class="form-label">Remark</label><textarea id="inputSrcRemark" class="form-input remark-input" placeholder="Optional notes..."></textarea></div>
+</div><div class="modal-footer"><button class="modal-footer-btn" onclick="closeModal()">Cancel</button><button class="modal-footer-btn" onclick="saveSourceData()">Save</button></div>`;document.getElementById('modalOverlay').style.display='flex';}
+
 function saveSourceData() { 
     const groupVal = document.getElementById('inputSrcGroup').value;
+    const remarkVal = document.getElementById('inputSrcRemark').value;
+    const name = document.getElementById('inputSrcName').value;
+    const ip = document.getElementById('inputSrcIP').value;
+
     if(groupVal && !ndiSearchGroups.includes(groupVal)) ndiSearchGroups.push(groupVal);
+    
+    // Add logic to actually push to sourcesData if needed (for demo)
+    if(name && ip) {
+        const newId = 'src_' + Date.now();
+        sourcesData.push({ id: newId, name: name, ip: ip, group: groupVal, remark: remarkVal, status: 'online', thumb: 'https://picsum.photos/200/112', resHeight: 1080, resolution: '1920x1080', presets: {} });
+    }
+
     showToast("Source Added", "success"); closeModal(); refreshSourceList(); 
 }
-function showRebootWarning(targetMode) { pendingRebootMode = targetMode; document.getElementById('modal-reboot-warning').style.display = 'flex'; }
-function executeReboot() { document.getElementById('modal-reboot-warning').style.display = 'none'; document.getElementById('modal-large-settings').style.display = 'none'; document.getElementById('reboot-overlay').style.display = 'flex'; setTimeout(() => { document.getElementById('reboot-overlay').style.display = 'none'; performSwitch(pendingRebootMode); pendingRebootMode = null; }, 2000); }
-function performSwitch(mode) { currentSystemMode = mode; enterView(mode); }
-function enterView(mode) { document.getElementById('app-shell').style.display = 'grid'; document.getElementById('view-encoder').style.display = (mode === 'encoder') ? 'block' : 'none'; document.getElementById('view-decoder').style.display = (mode === 'decoder') ? 'block' : 'none'; document.getElementById('current-mode-badge').innerText = mode.toUpperCase() + ' MODE'; document.documentElement.style.setProperty('--theme-color', mode === 'encoder' ? '#007AFF' : '#FF9500'); if(mode === 'decoder') { renderSourceList(); loadDefaultSource(); selectSlot('slot-1'); } }
 
 function openAutoSearch() {
     const modal = document.getElementById('modal-auto-search');
     const list = document.getElementById('search-list-content');
-    const chipsHtml = ndiSearchGroups.map(g => `<span class="group-chip active">${g} <span class="group-chip-remove" onclick="removeSearchGroup('${g}')">×</span></span>`).join('');
+    
+    // Use the group from the parent modal to filter/display
+    const currentScope = document.getElementById('inputSrcGroup').value || "Public";
     
     list.innerHTML = `
-        <div style="padding:10px; border-bottom:1px solid #333;">
-            <div class="form-label" style="margin-bottom:5px;">Search Scope (NDI Groups)</div>
-            <div class="group-chips-container" id="group-chips">${chipsHtml}</div>
-            <div class="group-input-row">
-                <input type="text" id="new-group-input" class="form-input" placeholder="Add group...">
-                <button class="btn btn-primary btn-sm" onclick="addSearchGroup()">Add</button>
-            </div>
-            <button class="btn btn-outline btn-sm" style="width:100%;" onclick="simulateSearch()">↻ Rescan</button>
+        <div style="padding:15px; border-bottom:1px solid #333; text-align:center;">
+            <div style="color:#fff; font-weight:bold; margin-bottom:5px;">Scanning Scope: <span style="color:#007AFF">${currentScope}</span></div>
+            <div style="color:#888; font-size:12px;">Searching for NDI sources in ${currentScope}...</div>
         </div>
         <div id="found-devices-list" style="margin-top:10px;">
-            <div style="color:#888; text-align:center; padding:20px;">Scanning...</div>
+            <div style="color:#888; text-align:center; padding:20px;">
+                <div class="spinner-ring" style="margin:0 auto 10px auto;"></div>
+                Scanning...
+            </div>
         </div>
     `;
     modal.style.display = 'flex';
-    setTimeout(simulateSearch, 500);
-}
-
-function addSearchGroup() {
-    const val = document.getElementById('new-group-input').value.trim();
-    if(val && !ndiSearchGroups.includes(val)) {
-        ndiSearchGroups.push(val);
-        openAutoSearch(); 
-    }
-}
-
-function removeSearchGroup(g) {
-    ndiSearchGroups = ndiSearchGroups.filter(x => x !== g);
-    openAutoSearch();
-}
-
-function simulateSearch() {
-    const container = document.getElementById('found-devices-list');
-    container.innerHTML = '';
-    const devices = [ 
-        { ip: '192.168.1.101', name: 'Camera 01' }, 
-        { ip: '192.168.1.105', name: 'PTZ Cam' }, 
-        { ip: '192.168.1.200', name: 'PC Stream' }, 
-        { ip: '192.168.1.205', name: 'Meeting Room' } 
-    ]; 
-    devices.forEach(d => { 
-        const el = document.createElement('div'); 
-        el.className = 'search-list-item'; 
-        el.innerText = `${d.ip} (${d.name})`; 
-        el.onclick = function() { 
-            document.querySelectorAll('.search-list-item').forEach(i => i.classList.remove('selected')); 
-            el.classList.add('selected'); 
-            selectedAutoSearchIp = d.ip; 
-        }; 
-        container.appendChild(el); 
-    });
+    
+    // Simulate finding devices after 1s
+    setTimeout(() => {
+        const container = document.getElementById('found-devices-list');
+        if(container) {
+            container.innerHTML = '';
+            const devices = [ 
+                { ip: '192.168.1.101', name: 'Camera 01' }, 
+                { ip: '192.168.1.105', name: 'PTZ Cam' }, 
+                { ip: '192.168.1.200', name: 'PC Stream' }, 
+                { ip: '192.168.1.205', name: 'Meeting Room' } 
+            ]; 
+            devices.forEach(d => { 
+                const el = document.createElement('div'); 
+                el.className = 'search-list-item'; 
+                el.innerText = `${d.ip} (${d.name})`; 
+                el.onclick = function() { 
+                    document.getElementById('inputSrcIP').value = d.ip;
+                    document.getElementById('inputSrcName').value = d.name;
+                    closeAutoSearch();
+                }; 
+                container.appendChild(el); 
+            });
+        }
+    }, 1000);
 }
 
 function closeAutoSearch() { document.getElementById('modal-auto-search').style.display = 'none'; }
@@ -433,3 +435,7 @@ function toggleSlotMenu(slotId, event) { event.stopPropagation(); document.query
 function removeSource(slotId, targetSourceId = null) { if (targetSourceId) { const slot = document.querySelector(`.preview-slot[data-source-id="${targetSourceId}"]`); if (slot) slotId = slot.id; else return; } const slot = document.getElementById(slotId); if(slot) { delete slot.dataset.sourceId; slot.classList.remove('active-slot', 'offline-state'); slot.innerHTML = `<div class="slot-label">Window ${slotId.split('-')[1]}</div><div class="slot-content" style="text-align:center;"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div>`; updateLiveHeader(); selectSlot(slotId); renderSourceList(); } }
 function togglePTZ() { console.log("PTZ is embedded now"); }
 function switchEncTab(tabName) { document.querySelectorAll('.enc-tab').forEach(t => t.classList.remove('active')); document.getElementById('enc-tab-video').style.display = 'none'; document.getElementById('enc-tab-audio').style.display = 'none'; event.target.classList.add('active'); document.getElementById('enc-tab-' + tabName).style.display = 'block'; }
+function showRebootWarning(targetMode) { pendingRebootMode = targetMode; document.getElementById('modal-reboot-warning').style.display = 'flex'; }
+function executeReboot() { document.getElementById('modal-reboot-warning').style.display = 'none'; document.getElementById('modal-large-settings').style.display = 'none'; document.getElementById('reboot-overlay').style.display = 'flex'; setTimeout(() => { document.getElementById('reboot-overlay').style.display = 'none'; performSwitch(pendingRebootMode); pendingRebootMode = null; }, 2000); }
+function performSwitch(mode) { currentSystemMode = mode; enterView(mode); }
+function enterView(mode) { document.getElementById('app-shell').style.display = 'grid'; document.getElementById('view-encoder').style.display = (mode === 'encoder') ? 'block' : 'none'; document.getElementById('view-decoder').style.display = (mode === 'decoder') ? 'block' : 'none'; document.getElementById('current-mode-badge').innerText = mode.toUpperCase() + ' MODE'; document.documentElement.style.setProperty('--theme-color', mode === 'encoder' ? '#007AFF' : '#FF9500'); if(mode === 'decoder') { renderSourceList(); loadDefaultSource(); selectSlot('slot-1'); } }
