@@ -1,4 +1,4 @@
-/* style.css - Final Demo Version (V71 - Group Delete Flow) */
+/* style.css - Final Demo Version (V72 - UI Reorder & New Menu) */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -62,7 +62,7 @@ body {
 .darker-input { background-color: #111; border-color: #333; }
 .remark-input { height: 60px; resize: none; font-family: inherit; }
 
-/* === Custom Editable Combobox (V71 Updated) === */
+/* === Custom Editable Combobox === */
 .combobox-container { display: flex; position: relative; width: 100%; cursor: pointer; }
 .combobox-container .form-input { 
     border-top-right-radius: 0; 
@@ -87,7 +87,6 @@ body {
 }
 .combobox-dropdown.show { display: block; }
 
-/* Flex layout for item and delete button */
 .combobox-item { 
     padding: 8px 12px; font-size: 13px; color: #ddd; cursor: pointer; border-bottom: 1px solid #333; 
     transition: background 0.1s;
@@ -96,7 +95,6 @@ body {
 .combobox-item:hover { background: var(--theme-color); color: #fff; }
 .combobox-item:last-child { border-bottom: none; }
 
-/* Delete Button in Dropdown */
 .group-delete-btn {
     width: 20px; height: 20px; border-radius: 4px; 
     display: flex; align-items: center; justify-content: center;
@@ -105,7 +103,6 @@ body {
 }
 .group-delete-btn:hover { background: #D32F2F; color: #fff; }
 
-/* Footer Style for "+ Create new" */
 .combobox-footer {
     padding: 10px 12px; font-size: 13px; color: var(--theme-color); font-weight: bold; 
     cursor: pointer; border-top: 1px solid #444; background: #2a2a2a;
@@ -369,9 +366,10 @@ input[type=range].ptz-range::-webkit-slider-thumb { height: 14px; width: 14px; b
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
 /* Source Tour Specifics (V70) */
-.settings-help-icon { color: var(--theme-color); font-size: 12px; margin-left: 10px; cursor: pointer; border: 1px solid var(--theme-color); border-radius: 12px; padding: 2px 8px; display: inline-block; vertical-align: middle; transition: all 0.2s; }
+.settings-help-icon { color: var(--theme-color); font-size: 12px; cursor: pointer; border: 1px solid var(--theme-color); border-radius: 12px; padding: 2px 10px; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s; white-space: nowrap; }
 .settings-help-icon:hover { background: var(--theme-color); color: white; }
 #source-tour-overlay { z-index: 3500 !important; }
+.settings-header-right { display: flex; align-items: center; gap: 15px; }
 
 /* Modals */
 .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 3000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(3px); }
