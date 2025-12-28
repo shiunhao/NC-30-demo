@@ -1,4 +1,4 @@
-/* script.js - Final Demo Version (V70 - Source Tour & Default Decoder) */
+/* script.js - Final Demo Version (V71 - Group Delete & Default Decoder) */
 
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
@@ -34,9 +34,7 @@ let presetHoverTimer = null;
 let onboardingSelectedMode = null;
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Generate Source Tour Overlay on load (Hidden)
     generateSourceTourOverlay();
-    
     if(document.getElementById('view-decoder').style.display !== 'none' || document.getElementById('view-encoder').style.display !== 'none') {
         renderSourceList();
         updateLiveHeader();
@@ -61,7 +59,7 @@ function doLogin() {
     btn.innerHTML = "Logging in...";
     setTimeout(() => { 
         document.getElementById('page-login').style.display = 'none'; 
-        const hasOnboarded = localStorage.getItem('nc30_onboarding_v70');
+        const hasOnboarded = localStorage.getItem('nc30_onboarding_v71');
         if (!hasOnboarded) {
             startOnboarding();
         } else {
@@ -78,7 +76,7 @@ function startOnboarding() {
 }
 
 function closeOnboarding() {
-    localStorage.setItem('nc30_onboarding_v70', 'true');
+    localStorage.setItem('nc30_onboarding_v71', 'true');
     document.getElementById('onboarding-overlay').style.display = 'none';
     if (!currentSystemMode) performSwitch('decoder');
 }
@@ -93,7 +91,7 @@ function nextOnboardingStep(step) {
 
 function finishOnboarding() { closeOnboarding(); }
 
-// === Source Setup Tour (New) ===
+// === Source Setup Tour ===
 function generateSourceTourOverlay() {
     const div = document.createElement('div');
     div.id = 'source-tour-overlay';
@@ -102,45 +100,22 @@ function generateSourceTourOverlay() {
     div.innerHTML = `
         <div class="onboarding-box">
             <span class="onboarding-close-x" onclick="closeSourceTour()">✕</span>
-            
             <div class="source-tour-step" id="tour-step-1" style="display:block;">
-                <div class="onboarding-icon">➕</div>
-                <h2>1. Add a New Source</h2>
-                <p>Click the <strong>"+ Add Source"</strong> button to manually enter an IP address or use Auto Search to find NDI sources on your network.</p>
-                <div class="onboarding-actions"><button class="btn btn-primary" onclick="nextSourceTour(2)">Next</button></div>
+                <div class="onboarding-icon">➕</div><h2>1. Add a New Source</h2><p>Click the <strong>"+ Add Source"</strong> button to manually enter an IP address or use Auto Search to find NDI sources on your network.</p><div class="onboarding-actions"><button class="btn btn-primary" onclick="nextSourceTour(2)">Next</button></div>
             </div>
-
             <div class="source-tour-step" id="tour-step-2" style="display:none;">
-                <div class="onboarding-icon">🖱️</div>
-                <h2>2. Manage Sources</h2>
-                <p>In <strong>Decoder Mode</strong>, simply drag and drop any source from the list on the right into the preview window to start monitoring.</p>
-                <div class="onboarding-actions"><button class="btn btn-outline" onclick="nextSourceTour(1)">Back</button><button class="btn btn-primary" onclick="nextSourceTour(3)">Next</button></div>
+                <div class="onboarding-icon">🖱️</div><h2>2. Manage Sources</h2><p>In <strong>Decoder Mode</strong>, simply drag and drop any source from the list on the right into the preview window to start monitoring.</p><div class="onboarding-actions"><button class="btn btn-outline" onclick="nextSourceTour(1)">Back</button><button class="btn btn-primary" onclick="nextSourceTour(3)">Next</button></div>
             </div>
-
             <div class="source-tour-step" id="tour-step-3" style="display:none;">
-                <div class="onboarding-icon">🔄</div>
-                <h2>3. Switch Modes</h2>
-                <p>Need to transmit? Go to the <strong>"Video & Audio"</strong> tab in Settings to switch this device to <strong>Encoder Mode</strong>.</p>
-                <div class="onboarding-actions"><button class="btn btn-outline" onclick="nextSourceTour(2)">Back</button><button class="btn btn-primary" onclick="closeSourceTour()">Finish</button></div>
+                <div class="onboarding-icon">🔄</div><h2>3. Switch Modes</h2><p>Need to transmit? Go to the <strong>"Video & Audio"</strong> tab in Settings to switch this device to <strong>Encoder Mode</strong>.</p><div class="onboarding-actions"><button class="btn btn-outline" onclick="nextSourceTour(2)">Back</button><button class="btn btn-primary" onclick="closeSourceTour()">Finish</button></div>
             </div>
         </div>
     `;
     document.body.appendChild(div);
 }
-
-function startSourceTour() {
-    document.getElementById('source-tour-overlay').style.display = 'flex';
-    nextSourceTour(1);
-}
-
-function nextSourceTour(step) {
-    document.querySelectorAll('.source-tour-step').forEach(el => el.style.display = 'none');
-    document.getElementById('tour-step-' + step).style.display = 'block';
-}
-
-function closeSourceTour() {
-    document.getElementById('source-tour-overlay').style.display = 'none';
-}
+function startSourceTour() { document.getElementById('source-tour-overlay').style.display = 'flex'; nextSourceTour(1); }
+function nextSourceTour(step) { document.querySelectorAll('.source-tour-step').forEach(el => el.style.display = 'none'); document.getElementById('tour-step-' + step).style.display = 'block'; }
+function closeSourceTour() { document.getElementById('source-tour-overlay').style.display = 'none'; }
 
 // === Account Functions ===
 function toggleAccountMenu() { document.getElementById('accountMenu').classList.toggle('show'); }
@@ -297,6 +272,7 @@ function setPTZPanelState(enabled) {
     }
 }
 
+// === CRITICAL FIX: Always render buttons ===
 function updatePTZPresets(sourceObj) {
     const grid = document.getElementById('ptz-preset-grid');
     if(!grid) return;
@@ -341,12 +317,16 @@ function renderSourceList() {
         const tr = document.createElement('tr');
         const isUnsupported = src.resHeight > maxDecResolution;
         tr.className = `source-row ${src.status === 'offline' ? 'offline' : ''}`;
+        
+        // FIX: Drag JSON
         tr.draggable = !isUnsupported;
         tr.ondragstart = (event) => { event.dataTransfer.setData("application/json", JSON.stringify(src)); };
+        
         let statusHtml = `<span style="color:#4CAF50;">Online</span>`;
         if(src.status === 'error') statusHtml = `<span class="src-status-error">${src.errorMsg}</span>`;
         if(src.status === 'offline') statusHtml = `<span style="color:#888;">Offline</span>`;
         if(isUnsupported) statusHtml += `<span class="src-status-warning">Input Resolution Not Supported</span>`;
+
         tr.innerHTML = `
             <td class="drag-col"><span class="drag-handle-icon" style="opacity:${isUnsupported?0.3:1}">⋮⋮</span></td>
             <td class="info-col">
@@ -388,11 +368,8 @@ function switchSettingsTab(tabId) {
     const titleEl = document.getElementById('settings-title');
     let htmlContent = '';
     
-    // === 1. Source Management ===
     if(tabId === 'source') {
-        // Inject "Quick Setup Tour" button here
         titleEl.innerHTML = 'Source Management <span class="settings-help-icon" onclick="startSourceTour()">🎓 Quick Setup Tour</span>';
-        
         if (currentSystemMode === 'encoder') {
             bodyEl.innerHTML = `<div style="background:#332b00; border:1px solid #d4b106; color:#ffeeba; padding:10px; border-radius:4px;">⚠️ Source management is only available in <a href="#" onclick="switchSettingsTab('av-settings')" style="color:#FF9500; font-weight:bold;">Decoder Mode</a>.</div>`;
         } else {
@@ -400,9 +377,7 @@ function switchSettingsTab(tabId) {
              <table class="source-list-table"><thead class="source-list-header"><tr><th>Preview</th><th>Name & IP</th><th>Status</th><th style="text-align:right;">Actions</th></tr></thead>
              <tbody>${sourcesData.map(s => `<tr><td style="padding:10px;"><div class="thumb-box"><img src="${s.thumb}"></div></td><td style="padding:10px;"><div style="color:#fff;">${s.name}</div><div style="font-size:12px;color:#888;">${s.ip}</div></td><td style="padding:10px;color:${s.status==='online'?'#4CAF50':'#888'}">${s.status.toUpperCase()}</td><td style="text-align:right;padding:10px;"><button class="btn btn-outline btn-sm">Edit</button> <button class="btn btn-danger btn-sm">Delete</button></td></tr>`).join('')}</tbody></table>`;
         }
-    } 
-    // === 2. AV Settings ===
-    else if(tabId === 'av-settings') {
+    } else if(tabId === 'av-settings') {
         titleEl.innerText = currentSystemMode === 'encoder' ? "Encoder Settings" : "Decoder Settings";
         const opModeHtml = `<div class="settings-subsection"><div class="settings-group-title">Operation Mode</div><div class="mode-switch-container"><div class="mode-switch-btn ${currentSystemMode==='encoder'?'active':''}" onclick="showRebootWarning('encoder')">Encoder Mode</div><div class="mode-switch-btn ${currentSystemMode==='decoder'?'active':''}" onclick="showRebootWarning('decoder')">Decoder Mode</div></div></div>`;
         if (currentSystemMode === 'encoder') {
@@ -411,14 +386,10 @@ function switchSettingsTab(tabId) {
              htmlContent = opModeHtml + `<div class="settings-subsection"><div class="settings-group-title">Video Input</div><div class="form-group"><label class="form-label">Maximum Video Input</label><select class="form-select"><option>2160p/60</option></select></div></div><div class="settings-subsection"><div class="settings-group-title">Video Output</div><div class="form-group"><label class="form-label">Maximum Video Output</label><select class="form-select"><option>2160p/60</option></select></div></div><div class="settings-subsection"><div class="settings-group-title">Stream</div><div class="form-group"><label class="form-label">Rate Control</label><select class="form-select"><option>VBR</option><option>CBR</option></select></div></div><div class="settings-subsection"><div class="settings-group-title">Audio Settings</div><div class="form-group"><label class="form-label">Source Select</label><select class="form-select"><option>2160p/60</option></select></div><div class="form-group"><label class="form-label">Volume</label><div style="display:flex;gap:10px;"><input type="range" class="ptz-range" min="1" max="10" value="5"><span style="color:#ccc;font-size:12px;">5</span></div></div><div class="form-group"><label class="form-label">Audio Delay</label><div style="display:flex;gap:10px;"><input type="range" class="ptz-range" min="-500" max="500" value="250"><span style="color:#ccc;font-size:12px;">250ms</span></div></div></div>`;
         }
         bodyEl.innerHTML = htmlContent;
-    } 
-    // === 3. Network ===
-    else if (tabId === 'network') { 
+    } else if (tabId === 'network') { 
         titleEl.innerText = "Network Settings"; 
         bodyEl.innerHTML = `<div class="settings-subsection"><div class="settings-group-title">IP Configuration</div><div class="form-group"><div style="display:flex; justify-content:space-between;"><label class="form-label">DHCP</label><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></div></div><div class="form-group"><label class="form-label">Hostname</label><input type="text" class="form-input" value="Hostname" readonly></div><div class="form-group"><label class="form-label">IP Address</label><input type="text" class="form-input darker-input" value="10.100.10.10" readonly></div><div class="form-group"><label class="form-label">Netmask</label><input type="text" class="form-input darker-input" value="255.255.255.0" readonly></div><div class="form-group"><label class="form-label">Gateway</label><input type="text" class="form-input darker-input" value="10.100.10.254" readonly></div><div class="form-group"><label class="form-label">DNS</label><input type="text" class="form-input darker-input" value="10.100.10.10" readonly></div></div><div class="settings-subsection"><div class="settings-group-title">NDI Settings</div><div class="form-group"><label class="form-label">Local Device Name</label><input type="text" class="form-input" value="AVer NC30"></div><div class="form-group"><label class="form-label">Group Name</label><input type="text" class="form-input" value="Public"></div><div class="form-group"><label class="radio-custom"><input type="checkbox"> Reliable UDP</label></div></div><div class="settings-subsection"><div class="settings-group-title">Advanced NDI</div><div class="form-group"><label class="form-label">Connection Mode</label><select class="form-select"><option>RUDP</option><option>TCP</option></select></div><div class="form-group"><label class="form-label">Discovery Server</label><label class="radio-custom"><input type="checkbox"> Discovery Server</label></div><div class="form-group"><label class="form-label">Discovery Server Address</label><input type="text" class="form-input" value="10.10.10.100"></div><div class="form-group"><div class="settings-group-title">Multicast</div><label class="radio-custom"><input type="checkbox"> Multicast Server</label></div><div class="form-group"><label class="form-label">Multicast Server Address</label><input type="text" class="form-input" value="10.10.10.100"></div><div class="form-group"><label class="form-label">Multicast Server Mask</label><select class="form-select"><option>255.255.255.0</option></select></div><div class="form-group"><label class="form-label">Multicast TL</label><select class="form-select"><option>10</option></select></div><div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;"><button class="btn btn-outline">Cancel</button><button class="btn btn-primary">Confirm</button></div></div>`; 
-    } 
-    // === 4. System ===
-    else if (tabId === 'system') { 
+    } else if (tabId === 'system') { 
         titleEl.innerText = "NC30 Information"; 
         bodyEl.innerHTML = `<div class="settings-subsection"><div class="settings-group-title">General</div><div class="form-group" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; font-size:12px; color:#ccc;"><div>Model Name</div><div style="text-align:right; color:#fff;">Tracking Box</div><div>IP Address</div><div style="text-align:right; color:#fff;">192.168.10.10</div><div>Serial Number</div><div style="text-align:right; color:#fff;">abc123456789</div><div>MAC Address</div><div style="text-align:right; color:#fff;">abc123456789</div><div>Firmware Version</div><div style="text-align:right; color:#fff;">abc123456789</div></div></div><div class="settings-subsection"><div class="settings-group-title">Language</div><select class="form-select"><option>繁體中文</option><option>English</option></select></div><div class="settings-subsection"><div class="settings-group-title">Help us improve</div><label class="radio-custom"><input type="checkbox"> Allow anonymous usage data</label></div><div class="settings-subsection"><div class="settings-group-title">Account</div><div class="form-group"><label class="form-label">Admin account</label><input type="text" class="form-input" value="Admin" readonly></div><div class="form-group"><label class="form-label">Password</label><input type="password" class="form-input" value="********" readonly></div><div style="text-align:right; margin-bottom:10px;"><button class="btn btn-outline btn-sm">Change</button></div><div class="form-group"><label class="form-label">User account</label><input type="text" class="form-input" readonly></div><div class="form-group"><label class="form-label">Password</label><input type="password" class="form-input" readonly></div><div style="text-align:right;"><button class="btn btn-outline btn-sm">Change</button></div></div><div class="settings-subsection"><div class="settings-group-title">Date & Time</div><div class="form-group" style="display:flex; justify-content:space-between; align-items:center;"><span>Date/Time</span><button class="btn btn-outline btn-sm">Set</button></div><div class="form-group" style="display:flex; justify-content:space-between; align-items:center;"><span>Power Schedule</span><button class="btn btn-outline btn-sm">Set</button></div></div><div class="settings-subsection"><div class="settings-group-title">Maintenance</div><div class="form-group"><label class="form-label">Upload Firmware</label><div style="display:flex; gap:10px;"><input type="text" class="form-input" value="No file chosen" readonly style="flex:1;"><button class="btn btn-outline btn-sm">Choose File</button><button class="btn btn-primary btn-sm" disabled>Upgrade</button></div></div><div class="form-group" style="display:flex; justify-content:space-between; align-items:center;"><span>Factory Default</span><button class="btn btn-outline btn-sm">Reset To Factory Default</button></div><div class="form-group" style="display:flex; justify-content:space-between; align-items:center;"><span>Reboot System</span><button class="btn btn-outline btn-sm" onclick="showRebootWarning(currentSystemMode)">Reboot</button></div><div class="settings-group-title" style="margin-top:10px;">Export/import settings</div><div class="form-group" style="display:flex; justify-content:space-between; align-items:center;"><span>Import Settings</span><button class="btn btn-outline btn-sm">Import</button></div><div class="form-group" style="display:flex; justify-content:space-between; align-items:center;"><span>Export Settings</span><button class="btn btn-outline btn-sm">Export</button></div></div>`; 
     }
@@ -430,9 +401,18 @@ function closeSpecificModal(id) { document.getElementById(id).style.display = 'n
 function showToast(msg, type) { const div = document.createElement('div'); div.className = 'toast'; div.innerHTML = `<span>${msg}</span>`; let container = document.getElementById('toast-container'); if(!container) { container = document.createElement('div'); container.id='toast-container'; document.body.appendChild(container); } container.appendChild(div); setTimeout(() => div.remove(), 3000); }
 function showModal(t){if(t==='Add Manual Source'){renderSourceModal('Add Source','','','')}}
 
+// === RENDER SOURCE MODAL with COMBOBOX & DELETE ===
 function renderSourceModal(t,n,i,g){
     const container = document.getElementById('modalContentBox');
     const groupValue = g || (ndiSearchGroups.length > 0 ? ndiSearchGroups[0] : '');
+    
+    // Generate Dropdown HTML Helper
+    const dropdownItems = ndiSearchGroups.map(grp => `
+        <div class="combobox-item" onclick="selectComboboxItem('${grp}')">
+            <span>${grp}</span>
+            ${grp !== 'Public' ? `<span class="group-delete-btn" onclick="deleteSearchGroup('${grp}', event)">×</span>` : ''}
+        </div>
+    `).join('');
     
     container.innerHTML=`<div class="modal-header-row"><h3 style="margin:0;color:#fff;">${t}</h3><span class="modal-close-x" onclick="closeModal()">✕</span></div><div class="modal-body-add-source">
     
@@ -441,7 +421,7 @@ function renderSourceModal(t,n,i,g){
             <input type="text" id="inputSrcGroup" class="form-input" value="${groupValue}" readonly placeholder="Select or create group..." onclick="toggleCombobox(event)">
             <div class="btn-combo-toggle" onclick="toggleCombobox(event)">▼</div>
             <div class="combobox-dropdown" id="group-dropdown">
-                ${ndiSearchGroups.map(grp => `<div class="combobox-item" onclick="selectComboboxItem('${grp}')">${grp}</div>`).join('')}
+                ${dropdownItems}
                 <div class="combobox-footer" onclick="openAddGroupModal()">+ Create new</div>
             </div>
         </div>
@@ -477,6 +457,33 @@ function selectComboboxItem(val) {
     document.getElementById('group-dropdown').classList.remove('show');
 }
 
+// === NEW: Delete Group Function ===
+function deleteSearchGroup(grpName, event) {
+    event.stopPropagation(); // Stop click from selecting the item
+    
+    if(confirm(`Are you sure you want to delete group "${grpName}"?`)) {
+        // Remove from array
+        ndiSearchGroups = ndiSearchGroups.filter(g => g !== grpName);
+        
+        // If current selection was deleted, revert to Public
+        const currentInput = document.getElementById('inputSrcGroup');
+        if(currentInput.value === grpName) {
+            currentInput.value = 'Public';
+        }
+        
+        // Re-render dropdown items
+        const dropdown = document.getElementById('group-dropdown');
+        const itemsHtml = ndiSearchGroups.map(grp => `
+            <div class="combobox-item" onclick="selectComboboxItem('${grp}')">
+                <span>${grp}</span>
+                ${grp !== 'Public' ? `<span class="group-delete-btn" onclick="deleteSearchGroup('${grp}', event)">×</span>` : ''}
+            </div>
+        `).join('');
+        
+        dropdown.innerHTML = itemsHtml + `<div class="combobox-footer" onclick="openAddGroupModal()">+ Create new</div>`;
+    }
+}
+
 // Group Modal Functions
 function openAddGroupModal() {
     document.getElementById('group-dropdown').classList.remove('show');
@@ -496,9 +503,15 @@ function confirmAddGroup() {
             ndiSearchGroups.push(newName);
         }
         document.getElementById('inputSrcGroup').value = newName;
+        // Re-render
         const dropdown = document.getElementById('group-dropdown');
-        dropdown.innerHTML = ndiSearchGroups.map(grp => `<div class="combobox-item" onclick="selectComboboxItem('${grp}')">${grp}</div>`).join('') + 
-                             `<div class="combobox-footer" onclick="openAddGroupModal()">+ Create new</div>`;
+        const itemsHtml = ndiSearchGroups.map(grp => `
+            <div class="combobox-item" onclick="selectComboboxItem('${grp}')">
+                <span>${grp}</span>
+                ${grp !== 'Public' ? `<span class="group-delete-btn" onclick="deleteSearchGroup('${grp}', event)">×</span>` : ''}
+            </div>
+        `).join('');
+        dropdown.innerHTML = itemsHtml + `<div class="combobox-footer" onclick="openAddGroupModal()">+ Create new</div>`;
     }
     closeAddGroupModal();
 }
