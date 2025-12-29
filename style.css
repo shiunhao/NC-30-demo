@@ -1,4 +1,4 @@
-/* style.css - Final Demo Version (V73 - Help UI & Fixes) */
+/* style.css - Final Demo Version (V74 - Source List Fixes) */
 
 /* === 1. Global Variables & Base === */
 * { box-sizing: border-box; }
@@ -62,14 +62,9 @@ body {
 .darker-input { background-color: #111; border-color: #333; }
 .remark-input { height: 60px; resize: none; font-family: inherit; }
 
-/* === Custom Editable Combobox === */
+/* Custom Combobox */
 .combobox-container { display: flex; position: relative; width: 100%; cursor: pointer; }
-.combobox-container .form-input { 
-    border-top-right-radius: 0; 
-    border-bottom-right-radius: 0; 
-    border-right: none; 
-    cursor: pointer;
-}
+.combobox-container .form-input { border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: none; cursor: pointer; }
 .btn-combo-toggle {
     background: #333; border: 1px solid #444; color: #ccc;
     border-top-right-radius: 4px; border-bottom-right-radius: 4px;
@@ -78,7 +73,6 @@ body {
     transition: all 0.2s;
 }
 .btn-combo-toggle:hover { background: #444; color: #fff; }
-
 .combobox-dropdown {
     position: absolute; top: 100%; left: 0; right: 0;
     background: #252526; border: 1px solid #444; border-radius: 4px;
@@ -86,27 +80,20 @@ body {
     display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.8);
 }
 .combobox-dropdown.show { display: block; }
-
 .combobox-item { 
     padding: 8px 12px; font-size: 13px; color: #ddd; cursor: pointer; border-bottom: 1px solid #333; 
-    transition: background 0.1s;
-    display: flex; justify-content: space-between; align-items: center;
+    transition: background 0.1s; display: flex; justify-content: space-between; align-items: center;
 }
 .combobox-item:hover { background: var(--theme-color); color: #fff; }
 .combobox-item:last-child { border-bottom: none; }
-
 .group-delete-btn {
-    width: 20px; height: 20px; border-radius: 4px; 
-    display: flex; align-items: center; justify-content: center;
-    color: #888; font-weight: bold; font-size: 14px;
-    transition: all 0.2s;
+    width: 20px; height: 20px; border-radius: 4px; display: flex; align-items: center; justify-content: center;
+    color: #888; font-weight: bold; font-size: 14px; transition: all 0.2s;
 }
 .group-delete-btn:hover { background: #D32F2F; color: #fff; }
-
 .combobox-footer {
     padding: 10px 12px; font-size: 13px; color: var(--theme-color); font-weight: bold; 
-    cursor: pointer; border-top: 1px solid #444; background: #2a2a2a;
-    display: flex; align-items: center; gap: 6px;
+    cursor: pointer; border-top: 1px solid #444; background: #2a2a2a; display: flex; align-items: center; gap: 6px;
 }
 .combobox-footer:hover { background: #333; color: #fff; }
 
@@ -292,12 +279,14 @@ input:checked + .slider:before { transform: translateX(14px); }
 .empty-list-container { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #555; font-size: 12px; }
 .drag-col { width: 40px; text-align: center; }
 .drag-handle-icon { color: #666; font-size: 18px; cursor: move; }
+/* Re-added thumb-col styles */
 .thumb-col { width: 120px; }
 .thumb-box { width: 100px; height: 56px; background: #000; border-radius: 2px; border: 1px solid #333; display: flex; align-items: center; justify-content: center; overflow: hidden; }
 .thumb-box img { width: 100%; height: 100%; object-fit: cover; }
 .thumb-box.offline { background: #000; color: #aaa; display: flex; flex-direction: column; font-size: 9px; }
 .thumb-box.unsupported { position: relative; }
 .thumb-box.unsupported::after { content: "UNSUPPORTED"; position: absolute; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.85); color: #FF3B30; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; letter-spacing: 1px; }
+
 .src-name { font-weight: bold; font-size: 13px; display: block; color: #fff; margin-bottom: 4px; }
 .src-meta { font-size: 11px; color: #888; font-family: monospace; }
 .src-status-error { color: #888; font-weight: bold; margin-left: 5px; }
@@ -365,13 +354,13 @@ input[type=range].ptz-range::-webkit-slider-thumb { height: 14px; width: 14px; b
 .onboarding-actions .btn { min-width: 100px; padding: 10px 20px; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-/* Source Tour Specifics (V70) */
+/* Source Tour Specifics */
 .settings-help-icon { color: var(--theme-color); font-size: 12px; cursor: pointer; border: 1px solid var(--theme-color); border-radius: 12px; padding: 2px 10px; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s; white-space: nowrap; }
 .settings-help-icon:hover { background: var(--theme-color); color: white; }
 #source-tour-overlay { z-index: 3500 !important; }
 .settings-header-right { display: flex; align-items: center; gap: 15px; }
 
-/* Help Tab Styles (V73) */
+/* Help Tab Styles (V73/74) */
 .help-nav { display: flex; border-bottom: 1px solid #333; margin-bottom: 20px; }
 .help-tab-item { padding: 10px 20px; cursor: pointer; color: #888; font-size: 14px; position: relative; transition: color 0.2s; }
 .help-tab-item.active { color: #fff; font-weight: bold; }
@@ -381,7 +370,6 @@ input[type=range].ptz-range::-webkit-slider-thumb { height: 14px; width: 14px; b
 
 /* Modals */
 .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 3000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(3px); }
-/* Z-Index Fixes */
 #modal-auto-search { z-index: 3100 !important; }
 #modal-alert { z-index: 3200 !important; }
 #modal-add-group { z-index: 3200 !important; }
