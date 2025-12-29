@@ -1,4 +1,4 @@
-/* script.js - Final Demo Version (V72 - UI Refined, Reordered Modal, New Side Menu) */
+/* script.js - Final Demo Version (V73 - Fixes & Help Page) */
 
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
@@ -57,7 +57,7 @@ function doLogin() {
     btn.innerHTML = "Logging in...";
     setTimeout(() => { 
         document.getElementById('page-login').style.display = 'none'; 
-        const hasOnboarded = localStorage.getItem('nc30_onboarding_v72');
+        const hasOnboarded = localStorage.getItem('nc30_onboarding_v73');
         if (!hasOnboarded) {
             startOnboarding();
         } else {
@@ -73,7 +73,7 @@ function startOnboarding() {
 }
 
 function closeOnboarding() {
-    localStorage.setItem('nc30_onboarding_v72', 'true');
+    localStorage.setItem('nc30_onboarding_v73', 'true');
     document.getElementById('onboarding-overlay').style.display = 'none';
     if (!currentSystemMode) performSwitch('decoder');
 }
@@ -88,7 +88,7 @@ function nextOnboardingStep(step) {
 
 function finishOnboarding() { closeOnboarding(); }
 
-// ... (Account Functions omitted for brevity, same as V71)
+// ... (Account Functions omitted for brevity)
 function toggleAccountMenu() { document.getElementById('accountMenu').classList.toggle('show'); }
 function actionAdminMode() { if (currentUserRole === 'admin') return; document.getElementById('accountMenu').classList.remove('show'); document.getElementById('modal-admin-auth').style.display = 'flex'; }
 function confirmAdminLogin() { document.getElementById('modal-admin-auth').style.display = 'none'; currentUserRole = 'admin'; document.getElementById('current-user-label').innerText = 'Admin'; document.getElementById('role-admin').classList.add('active'); document.getElementById('role-user').classList.remove('active'); showToast("Switched to Admin", "success"); }
@@ -296,30 +296,21 @@ function openFullSettings(tab, autoAdd=false) {
     if(autoAdd && tab === 'source') { setTimeout(() => showModal('Add Manual Source'), 300); } 
 }
 
-// === NEW: switchSettingsTab with New Sidebar Structure ===
 function switchSettingsTab(tabId) {
-    // 1. Update Sidebar Active State
-    // Re-render sidebar to match new structure
-    const sidebar = document.querySelector('.settings-sidebar');
-    sidebar.innerHTML = `
-        <div class="sidebar-item ${tabId==='source'?'active':''}" onclick="switchSettingsTab('source')" id="tab-source">Source</div>
-        <div class="sidebar-item ${tabId==='av-settings'?'active':''}" onclick="switchSettingsTab('av-settings')" id="tab-av-settings">Video & Audio</div>
-        <div class="sidebar-item ${tabId==='ndi'?'active':''}" onclick="switchSettingsTab('ndi')" id="tab-ndi">NDI</div>
-        <div class="sidebar-item ${tabId==='network'?'active':''}" onclick="switchSettingsTab('network')" id="tab-network">Network</div>
-        <div class="sidebar-item ${tabId==='system'?'active':''}" onclick="switchSettingsTab('system')" id="tab-system">System</div>
-        <div class="sidebar-item ${tabId==='help'?'active':''}" onclick="switchSettingsTab('help')" id="tab-help">Help</div>
-    `;
-
-    const bodyEl = document.getElementById('settings-body-content');
-    const headerEl = document.querySelector('.settings-header');
+    document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
+    document.getElementById('tab-' + tabId).classList.add('active');
     
-    // Default Header
-    let headerContent = `<span class="settings-title" id="settings-title">Settings</span><span class="settings-close-btn" onclick="closeSpecificModal('modal-large-settings')">✕</span>`;
+    const bodyEl = document.getElementById('settings-body-content');
+    const titleEl = document.getElementById('settings-title');
+    // Clear right header elements when switching (except for source tab which re-adds them)
+    const headerRight = document.querySelector('.settings-header-right');
+    if(headerRight) headerRight.innerHTML = `<span class="settings-close-btn" onclick="closeSpecificModal('modal-large-settings')">✕</span>`;
 
-    // Tab Content Logic
+    let htmlContent = '';
+    
     if(tabId === 'source') {
-        // Custom Header for Source with Tour Button on Right
-        headerContent = `
+        const headerEl = document.querySelector('.settings-header');
+        headerEl.innerHTML = `
             <span class="settings-title">Source Management</span>
             <div class="settings-header-right">
                 <span class="settings-help-icon" onclick="startSourceTour()">🎓 Quick Setup Tour</span>
@@ -329,48 +320,63 @@ function switchSettingsTab(tabId) {
         if (currentSystemMode === 'encoder') {
             bodyEl.innerHTML = `<div style="background:#332b00; border:1px solid #d4b106; color:#ffeeba; padding:10px; border-radius:4px;">⚠️ Source management is only available in <a href="#" onclick="switchSettingsTab('av-settings')" style="color:#FF9500; font-weight:bold;">Decoder Mode</a>.</div>`;
         } else {
+             // Added Delete Action Handler
              bodyEl.innerHTML = `<div style="display:flex; justify-content:flex-end; margin-bottom:20px;"><button class="btn btn-primary" onclick="showModal('Add Manual Source')">+ Add Source</button></div>
              <table class="source-list-table"><thead class="source-list-header"><tr><th>Preview</th><th>Name & IP</th><th>Status</th><th style="text-align:right;">Actions</th></tr></thead>
-             <tbody>${sourcesData.map(s => `<tr><td style="padding:10px;"><div class="thumb-box"><img src="${s.thumb}"></div></td><td style="padding:10px;"><div style="color:#fff;">${s.name}</div><div style="font-size:12px;color:#888;">${s.ip}</div></td><td style="padding:10px;color:${s.status==='online'?'#4CAF50':'#888'}">${s.status.toUpperCase()}</td><td style="text-align:right;padding:10px;"><button class="btn btn-outline btn-sm">Edit</button> <button class="btn btn-danger btn-sm">Delete</button></td></tr>`).join('')}</tbody></table>`;
+             <tbody>${sourcesData.map(s => `<tr><td style="padding:10px;"><div class="thumb-box"><img src="${s.thumb}"></div></td><td style="padding:10px;"><div style="color:#fff;">${s.name}</div><div style="font-size:12px;color:#888;">${s.ip}</div></td><td style="padding:10px;color:${s.status==='online'?'#4CAF50':'#888'}">${s.status.toUpperCase()}</td><td style="text-align:right;padding:10px;"><button class="btn btn-outline btn-sm">Edit</button> <button class="btn btn-danger btn-sm" onclick="askRemoveSource('${s.id}')">Delete</button></td></tr>`).join('')}</tbody></table>`;
         }
-    } 
-    else if(tabId === 'av-settings') {
-        const title = currentSystemMode === 'encoder' ? "Encoder Settings" : "Decoder Settings";
-        headerContent = `<span class="settings-title">${title}</span><span class="settings-close-btn" onclick="closeSpecificModal('modal-large-settings')">✕</span>`;
+    } else if(tabId === 'av-settings') {
+        titleEl.innerText = currentSystemMode === 'encoder' ? "Encoder Settings" : "Decoder Settings";
         const opModeHtml = `<div class="settings-subsection"><div class="settings-group-title">Operation Mode</div><div class="mode-switch-container"><div class="mode-switch-btn ${currentSystemMode==='encoder'?'active':''}" onclick="showRebootWarning('encoder')">Encoder Mode</div><div class="mode-switch-btn ${currentSystemMode==='decoder'?'active':''}" onclick="showRebootWarning('decoder')">Decoder Mode</div></div></div>`;
         if (currentSystemMode === 'encoder') {
-            bodyEl.innerHTML = opModeHtml + `<div class="settings-subsection"><div class="settings-group-title">Video Input</div><div class="form-group"><label class="form-label">Maximum Video Input</label><select class="form-select"><option>2160p/60</option></select></div><div class="form-group"><label class="form-label">Current Video Input Resolution</label><input type="text" class="form-input darker-input" value="1080p/60" readonly></div></div><div class="settings-subsection"><div class="settings-group-title">Video Output</div><div class="form-group"><label class="form-label">Maximum Video Output</label><select class="form-select"><option>2160p/60</option></select></div></div><div class="settings-subsection"><div class="settings-group-title">Stream</div><div class="form-group"><label class="form-label">Maximum Steam Output</label><select class="form-select"><option>2160p/60</option></select></div><div class="form-group"><label class="form-label">Framerate</label><select class="form-select"><option>30</option><option selected>60</option></select></div><div class="form-group"><label class="form-label">Bitrate</label><select class="form-select"><option>20Mbps</option><option>AUTO</option></select></div><div class="form-group"><label class="form-label">Encoding Type</label><select class="form-select"><option>H.264</option><option>H.265</option></select></div><div class="form-group"><label class="form-label">I-VOP Interval(S)</label><div style="display:flex; gap:10px; align-items:center;"><input type="range" class="ptz-range" min="1" max="10" value="3"><span style="color:#ccc; font-size:12px;">3S</span></div></div></div>`;
+            htmlContent = opModeHtml + `<div class="settings-subsection"><div class="settings-group-title">Video Input</div><div class="form-group"><label class="form-label">Maximum Video Input</label><select class="form-select"><option>2160p/60</option></select></div><div class="form-group"><label class="form-label">Current Video Input Resolution</label><input type="text" class="form-input darker-input" value="1080p/60" readonly></div></div><div class="settings-subsection"><div class="settings-group-title">Video Output</div><div class="form-group"><label class="form-label">Maximum Video Output</label><select class="form-select"><option>2160p/60</option></select></div></div><div class="settings-subsection"><div class="settings-group-title">Stream</div><div class="form-group"><label class="form-label">Maximum Steam Output</label><select class="form-select"><option>2160p/60</option></select></div><div class="form-group"><label class="form-label">Framerate</label><select class="form-select"><option>30</option><option selected>60</option></select></div><div class="form-group"><label class="form-label">Bitrate</label><select class="form-select"><option>20Mbps</option><option>AUTO</option></select></div><div class="form-group"><label class="form-label">Encoding Type</label><select class="form-select"><option>H.264</option><option>H.265</option></select></div><div class="form-group"><label class="form-label">I-VOP Interval(S)</label><div style="display:flex; gap:10px; align-items:center;"><input type="range" class="ptz-range" min="1" max="10" value="3"><span style="color:#ccc; font-size:12px;">3S</span></div></div></div>`;
         } else {
-            bodyEl.innerHTML = opModeHtml + `<div class="settings-subsection"><div class="settings-group-title">Video Input</div><div class="form-group"><label class="form-label">Maximum Video Input</label><select class="form-select"><option>2160p/60</option></select></div></div><div class="settings-subsection"><div class="settings-group-title">Video Output</div><div class="form-group"><label class="form-label">Maximum Video Output</label><select class="form-select"><option>2160p/60</option></select></div></div><div class="settings-subsection"><div class="settings-group-title">Stream</div><div class="form-group"><label class="form-label">Rate Control</label><select class="form-select"><option>VBR</option><option>CBR</option></select></div></div><div class="settings-subsection"><div class="settings-group-title">Audio Settings</div><div class="form-group"><label class="form-label">Source Select</label><select class="form-select"><option>2160p/60</option></select></div><div class="form-group"><label class="form-label">Volume</label><div style="display:flex;gap:10px;"><input type="range" class="ptz-range" min="1" max="10" value="5"><span style="color:#ccc;font-size:12px;">5</span></div></div><div class="form-group"><label class="form-label">Audio Delay</label><div style="display:flex;gap:10px;"><input type="range" class="ptz-range" min="-500" max="500" value="250"><span style="color:#ccc;font-size:12px;">250ms</span></div></div></div>`;
+             htmlContent = opModeHtml + `<div class="settings-subsection"><div class="settings-group-title">Video Input</div><div class="form-group"><label class="form-label">Maximum Video Input</label><select class="form-select"><option>2160p/60</option></select></div></div><div class="settings-subsection"><div class="settings-group-title">Video Output</div><div class="form-group"><label class="form-label">Maximum Video Output</label><select class="form-select"><option>2160p/60</option></select></div></div><div class="settings-subsection"><div class="settings-group-title">Stream</div><div class="form-group"><label class="form-label">Rate Control</label><select class="form-select"><option>VBR</option><option>CBR</option></select></div></div><div class="settings-subsection"><div class="settings-group-title">Audio Settings</div><div class="form-group"><label class="form-label">Source Select</label><select class="form-select"><option>2160p/60</option></select></div><div class="form-group"><label class="form-label">Volume</label><div style="display:flex;gap:10px;"><input type="range" class="ptz-range" min="1" max="10" value="5"><span style="color:#ccc;font-size:12px;">5</span></div></div><div class="form-group"><label class="form-label">Audio Delay</label><div style="display:flex;gap:10px;"><input type="range" class="ptz-range" min="-500" max="500" value="250"><span style="color:#ccc;font-size:12px;">250ms</span></div></div></div>`;
         }
+        bodyEl.innerHTML = htmlContent;
+    } else if (tabId === 'network') { 
+        titleEl.innerText = "Network Settings"; 
+        bodyEl.innerHTML = `<div class="settings-subsection"><div class="settings-group-title">IP Configuration</div><div class="form-group"><div style="display:flex; justify-content:space-between;"><label class="form-label">DHCP</label><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></div></div><div class="form-group"><label class="form-label">Hostname</label><input type="text" class="form-input" value="Hostname" readonly></div><div class="form-group"><label class="form-label">IP Address</label><input type="text" class="form-input darker-input" value="10.100.10.10" readonly></div><div class="form-group"><label class="form-label">Netmask</label><input type="text" class="form-input darker-input" value="255.255.255.0" readonly></div><div class="form-group"><label class="form-label">Gateway</label><input type="text" class="form-input darker-input" value="10.100.10.254" readonly></div><div class="form-group"><label class="form-label">DNS</label><input type="text" class="form-input darker-input" value="10.100.10.10" readonly></div></div><div class="settings-subsection"><div class="settings-group-title">NDI Settings</div><div class="form-group"><label class="form-label">Local Device Name</label><input type="text" class="form-input" value="AVer NC30"></div><div class="form-group"><label class="form-label">Group Name</label><input type="text" class="form-input" value="Public"></div><div class="form-group"><label class="radio-custom"><input type="checkbox"> Reliable UDP</label></div></div><div class="settings-subsection"><div class="settings-group-title">Advanced NDI</div><div class="form-group"><label class="form-label">Connection Mode</label><select class="form-select"><option>RUDP</option><option>TCP</option></select></div><div class="form-group"><label class="form-label">Discovery Server</label><label class="radio-custom"><input type="checkbox"> Discovery Server</label></div><div class="form-group"><label class="form-label">Discovery Server Address</label><input type="text" class="form-input" value="10.10.10.100"></div><div class="form-group"><div class="settings-group-title">Multicast</div><label class="radio-custom"><input type="checkbox"> Multicast Server</label></div><div class="form-group"><label class="form-label">Multicast Server Address</label><input type="text" class="form-input" value="10.10.10.100"></div><div class="form-group"><label class="form-label">Multicast Server Mask</label><select class="form-select"><option>255.255.255.0</option></select></div><div class="form-group"><label class="form-label">Multicast TL</label><select class="form-select"><option>10</option></select></div><div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;"><button class="btn btn-outline">Cancel</button><button class="btn btn-primary">Confirm</button></div></div>`; 
+    } else if (tabId === 'system') { 
+        titleEl.innerText = "NC30 Information"; 
+        bodyEl.innerHTML = `<div class="settings-subsection"><div class="settings-group-title">General</div><div class="form-group" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; font-size:12px; color:#ccc;"><div>Model Name</div><div style="text-align:right; color:#fff;">Tracking Box</div><div>IP Address</div><div style="text-align:right; color:#fff;">192.168.10.10</div><div>Serial Number</div><div style="text-align:right; color:#fff;">abc123456789</div><div>MAC Address</div><div style="text-align:right; color:#fff;">abc123456789</div><div>Firmware Version</div><div style="text-align:right; color:#fff;">abc123456789</div></div></div><div class="settings-subsection"><div class="settings-group-title">Language</div><select class="form-select"><option>繁體中文</option><option>English</option></select></div><div class="settings-subsection"><div class="settings-group-title">Help us improve</div><label class="radio-custom"><input type="checkbox"> Allow anonymous usage data</label></div><div class="settings-subsection"><div class="settings-group-title">Account</div><div class="form-group"><label class="form-label">Admin account</label><input type="text" class="form-input" value="Admin" readonly></div><div class="form-group"><label class="form-label">Password</label><input type="password" class="form-input" value="********" readonly></div><div style="text-align:right; margin-bottom:10px;"><button class="btn btn-outline btn-sm">Change</button></div><div class="form-group"><label class="form-label">User account</label><input type="text" class="form-input" readonly></div><div class="form-group"><label class="form-label">Password</label><input type="password" class="form-input" readonly></div><div style="text-align:right;"><button class="btn btn-outline btn-sm">Change</button></div></div><div class="settings-subsection"><div class="settings-group-title">Date & Time</div><div class="form-group" style="display:flex; justify-content:space-between; align-items:center;"><span>Date/Time</span><button class="btn btn-outline btn-sm">Set</button></div><div class="form-group" style="display:flex; justify-content:space-between; align-items:center;"><span>Power Schedule</span><button class="btn btn-outline btn-sm">Set</button></div></div><div class="settings-subsection"><div class="settings-group-title">Maintenance</div><div class="form-group"><label class="form-label">Upload Firmware</label><div style="display:flex; gap:10px;"><input type="text" class="form-input" value="No file chosen" readonly style="flex:1;"><button class="btn btn-outline btn-sm">Choose File</button><button class="btn btn-primary btn-sm" disabled>Upgrade</button></div></div><div class="form-group" style="display:flex; justify-content:space-between; align-items:center;"><span>Factory Default</span><button class="btn btn-outline btn-sm">Reset To Factory Default</button></div><div class="form-group" style="display:flex; justify-content:space-between; align-items:center;"><span>Reboot System</span><button class="btn btn-outline btn-sm" onclick="showRebootWarning(currentSystemMode)">Reboot</button></div><div class="settings-group-title" style="margin-top:10px;">Export/import settings</div><div class="form-group" style="display:flex; justify-content:space-between; align-items:center;"><span>Import Settings</span><button class="btn btn-outline btn-sm">Import</button></div><div class="form-group" style="display:flex; justify-content:space-between; align-items:center;"><span>Export Settings</span><button class="btn btn-outline btn-sm">Export</button></div></div>`; 
     } 
-    else if (tabId === 'ndi') {
-        headerContent = `<span class="settings-title">NDI Settings</span><span class="settings-close-btn" onclick="closeSpecificModal('modal-large-settings')">✕</span>`;
-        bodyEl.innerHTML = `<div class="settings-subsection"><div class="settings-group-title">General</div><div class="form-group"><label class="form-label">Local Device Name</label><input type="text" class="form-input" value="AVer NC30"></div><div class="form-group"><label class="form-label">Group Name</label><input type="text" class="form-input" value="Public"></div><div class="form-group"><label class="radio-custom"><input type="checkbox"> Reliable UDP</label></div></div><div class="settings-subsection"><div class="settings-group-title">Advanced</div><div class="form-group"><label class="form-label">Connection Mode</label><select class="form-select"><option>RUDP</option><option>TCP</option></select></div><div class="form-group"><label class="form-label">Discovery Server</label><label class="radio-custom"><input type="checkbox"> Enable</label></div><div class="form-group"><label class="form-label">Discovery Server Address</label><input type="text" class="form-input" value="10.10.10.100"></div><div class="form-group"><label class="form-label">Multicast</label><label class="radio-custom"><input type="checkbox"> Enable</label></div><div class="form-group"><label class="form-label">Multicast Address</label><input type="text" class="form-input" value="239.255.0.1"></div><div class="form-group"><label class="form-label">Multicast Mask</label><input type="text" class="form-input" value="255.255.255.0"></div><div class="form-group"><label class="form-label">Multicast TTL</label><select class="form-select"><option>1</option></select></div><div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;"><button class="btn btn-outline">Cancel</button><button class="btn btn-primary">Confirm</button></div></div>`;
-    }
-    else if (tabId === 'network') { 
-        headerContent = `<span class="settings-title">Network Settings</span><span class="settings-close-btn" onclick="closeSpecificModal('modal-large-settings')">✕</span>`;
-        bodyEl.innerHTML = `<div class="settings-subsection"><div class="settings-group-title">IP Configuration</div><div class="form-group"><div style="display:flex; justify-content:space-between;"><label class="form-label">DHCP</label><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></div></div><div class="form-group"><label class="form-label">Hostname</label><input type="text" class="form-input" value="AVer-NC30"></div><div class="form-group"><label class="form-label">IP Address</label><input type="text" class="form-input darker-input" value="192.168.10.10" readonly></div><div class="form-group"><label class="form-label">Netmask</label><input type="text" class="form-input darker-input" value="255.255.255.0" readonly></div><div class="form-group"><label class="form-label">Gateway</label><input type="text" class="form-input darker-input" value="192.168.10.254" readonly></div><div class="form-group"><label class="form-label">DNS</label><input type="text" class="form-input darker-input" value="8.8.8.8" readonly></div></div>`;
-    } 
-    else if (tabId === 'system') { 
-        headerContent = `<span class="settings-title">System Information</span><span class="settings-close-btn" onclick="closeSpecificModal('modal-large-settings')">✕</span>`;
-        bodyEl.innerHTML = `<div class="settings-subsection"><div class="settings-group-title">Device</div><div class="form-group" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; font-size:12px; color:#ccc;"><div>Model</div><div style="text-align:right; color:#fff;">NC30</div><div>Serial</div><div style="text-align:right; color:#fff;">123456789</div><div>MAC</div><div style="text-align:right; color:#fff;">00:10:FA:CE:B0:0C</div><div>Firmware</div><div style="text-align:right; color:#fff;">1.0.0.35</div></div></div><div class="settings-subsection"><div class="settings-group-title">Maintenance</div><div class="form-group"><button class="btn btn-outline btn-sm" onclick="showRebootWarning(currentSystemMode)">Reboot System</button></div></div>`;
-    }
+    // === NEW: Help Tab matching image ===
     else if (tabId === 'help') {
-        headerContent = `<span class="settings-title">Help</span><span class="settings-close-btn" onclick="closeSpecificModal('modal-large-settings')">✕</span>`;
-        bodyEl.innerHTML = `<div class="settings-subsection"><p>For more information, visit <a href="#" style="color:var(--theme-color)">aver.com</a></p><button class="btn btn-primary" onclick="startOnboarding()">Restart Feature Tour</button></div>`;
+        titleEl.innerText = "Help";
+        bodyEl.innerHTML = `
+            <div class="help-nav">
+                <div class="help-tab-item active">Manual</div>
+                <div class="help-tab-item">About</div>
+                <div class="help-tab-item">Privacy Policy</div>
+            </div>
+            <div class="help-content">
+                <div class="help-content-title">User Manual</div>
+                <div class="help-content-row">
+                    <span style="color:#ccc; font-size:13px;">Online Software User Manual</span>
+                    <button class="btn btn-outline btn-sm">Read</button>
+                </div>
+            </div>
+        `;
     }
-
-    headerEl.innerHTML = headerContent;
 }
 
 // ... (Standard Modals)
 function closeModal(e) { if(!e || e.target.id === 'modalOverlay' || e.target.classList.contains('modal-close-x')) document.getElementById('modalOverlay').style.display = 'none'; }
 function closeSpecificModal(id) { document.getElementById(id).style.display = 'none'; }
 function showToast(msg, type) { const div = document.createElement('div'); div.className = 'toast'; div.innerHTML = `<span>${msg}</span>`; let container = document.getElementById('toast-container'); if(!container) { container = document.createElement('div'); container.id='toast-container'; document.body.appendChild(container); } container.appendChild(div); setTimeout(() => div.remove(), 3000); }
-function showModal(t){if(t==='Add Manual Source'){renderSourceModal('Add Source','','','')}}
 
-// === RENDER SOURCE MODAL (Reordered: Group -> IP -> Name -> Remark) ===
+// === MODIFIED: showModal with Limit Check ===
+function showModal(t){
+    if(t==='Add Manual Source'){
+        if (sourcesData.length >= 4) {
+            document.getElementById('modal-alert').style.display = 'flex';
+            return;
+        }
+        renderSourceModal('Add Source','','','')
+    }
+}
+
 function renderSourceModal(t,n,i,g){
     const container = document.getElementById('modalContentBox');
     const groupValue = g || (ndiSearchGroups.length > 0 ? ndiSearchGroups[0] : '');
@@ -430,7 +436,6 @@ function deleteSearchGroup(grpName, event) {
         const currentInput = document.getElementById('inputSrcGroup');
         if(currentInput.value === grpName) currentInput.value = 'Public';
         
-        // Re-render dropdown
         const dropdown = document.getElementById('group-dropdown');
         dropdown.innerHTML = ndiSearchGroups.map(grp => `<div class="combobox-item" onclick="selectComboboxItem('${grp}')"><span>${grp}</span>${grp !== 'Public' ? `<span class="group-delete-btn" onclick="deleteSearchGroup('${grp}', event)">×</span>` : ''}</div>`).join('') + `<div class="combobox-footer" onclick="openAddGroupModal()">+ Create new</div>`;
     }
@@ -454,7 +459,6 @@ function confirmAddGroup() {
             ndiSearchGroups.push(newName);
         }
         document.getElementById('inputSrcGroup').value = newName;
-        // Re-render
         const dropdown = document.getElementById('group-dropdown');
         dropdown.innerHTML = ndiSearchGroups.map(grp => `<div class="combobox-item" onclick="selectComboboxItem('${grp}')"><span>${grp}</span>${grp !== 'Public' ? `<span class="group-delete-btn" onclick="deleteSearchGroup('${grp}', event)">×</span>` : ''}</div>`).join('') + `<div class="combobox-footer" onclick="openAddGroupModal()">+ Create new</div>`;
     }
@@ -477,25 +481,6 @@ function saveSourceData() {
     showToast("Source Added", "success"); closeModal(); refreshSourceList(); 
 }
 
-// ... (Source Tour / Auto Search logic remains V71)
-function generateSourceTourOverlay() {
-    const div = document.createElement('div');
-    div.id = 'source-tour-overlay';
-    div.className = 'modal-overlay';
-    div.style.display = 'none';
-    div.innerHTML = `
-        <div class="onboarding-box">
-            <span class="onboarding-close-x" onclick="closeSourceTour()">✕</span>
-            <div class="source-tour-step" id="tour-step-1" style="display:block;"><div class="onboarding-icon">➕</div><h2>1. Add a New Source</h2><p>Click the <strong>"+ Add Source"</strong> button to manually enter an IP address or use Auto Search to find NDI sources on your network.</p><div class="onboarding-actions"><button class="btn btn-primary" onclick="nextSourceTour(2)">Next</button></div></div>
-            <div class="source-tour-step" id="tour-step-2" style="display:none;"><div class="onboarding-icon">🖱️</div><h2>2. Manage Sources</h2><p>In <strong>Decoder Mode</strong>, simply drag and drop any source from the list on the right into the preview window to start monitoring.</p><div class="onboarding-actions"><button class="btn btn-outline" onclick="nextSourceTour(1)">Back</button><button class="btn btn-primary" onclick="nextSourceTour(3)">Next</button></div></div>
-            <div class="source-tour-step" id="tour-step-3" style="display:none;"><div class="onboarding-icon">🔄</div><h2>3. Switch Modes</h2><p>Need to transmit? Go to the <strong>"Video & Audio"</strong> tab in Settings to switch this device to <strong>Encoder Mode</strong>.</p><div class="onboarding-actions"><button class="btn btn-outline" onclick="nextSourceTour(2)">Back</button><button class="btn btn-primary" onclick="closeSourceTour()">Finish</button></div></div>
-        </div>
-    `;
-    document.body.appendChild(div);
-}
-function startSourceTour() { document.getElementById('source-tour-overlay').style.display = 'flex'; nextSourceTour(1); }
-function nextSourceTour(step) { document.querySelectorAll('.source-tour-step').forEach(el => el.style.display = 'none'); document.getElementById('tour-step-' + step).style.display = 'block'; }
-function closeSourceTour() { document.getElementById('source-tour-overlay').style.display = 'none'; }
 function showRebootWarning(targetMode) { pendingRebootMode = targetMode; document.getElementById('modal-reboot-warning').style.display = 'flex'; }
 function executeReboot() { document.getElementById('modal-reboot-warning').style.display = 'none'; document.getElementById('modal-large-settings').style.display = 'none'; document.getElementById('reboot-overlay').style.display = 'flex'; setTimeout(() => { document.getElementById('reboot-overlay').style.display = 'none'; performSwitch(pendingRebootMode); pendingRebootMode = null; }, 2000); }
 function performSwitch(mode) { currentSystemMode = mode; enterView(mode); }
@@ -509,3 +494,10 @@ function toggleSlotMenu(slotId, event) { event.stopPropagation(); document.query
 function removeSource(slotId, targetSourceId = null) { if (targetSourceId) { const slot = document.querySelector(`.preview-slot[data-source-id="${targetSourceId}"]`); if (slot) slotId = slot.id; else return; } const slot = document.getElementById(slotId); if(slot) { delete slot.dataset.sourceId; slot.classList.remove('active-slot', 'offline-state'); slot.innerHTML = `<div class="slot-label">Window ${slotId.split('-')[1]}</div><div class="slot-content" style="text-align:center;"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div>`; updateLiveHeader(); selectSlot(slotId); renderSourceList(); } }
 function togglePTZ() { console.log("PTZ is embedded now"); }
 function switchEncTab(tabName) { document.querySelectorAll('.enc-tab').forEach(t => t.classList.remove('active')); document.getElementById('enc-tab-video').style.display = 'none'; document.getElementById('enc-tab-audio').style.display = 'none'; event.target.classList.add('active'); document.getElementById('enc-tab-' + tabName).style.display = 'block'; }
+function generateSourceTourOverlay() { const div = document.createElement('div'); div.id = 'source-tour-overlay'; div.className = 'modal-overlay'; div.style.display = 'none'; div.innerHTML = `<div class="onboarding-box"><span class="onboarding-close-x" onclick="closeSourceTour()">✕</span><div class="source-tour-step" id="tour-step-1" style="display:block;"><div class="onboarding-icon">➕</div><h2>1. Add a New Source</h2><p>Click the <strong>"+ Add Source"</strong> button to manually enter an IP address or use Auto Search to find NDI sources on your network.</p><div class="onboarding-actions"><button class="btn btn-primary" onclick="nextSourceTour(2)">Next</button></div></div><div class="source-tour-step" id="tour-step-2" style="display:none;"><div class="onboarding-icon">🖱️</div><h2>2. Manage Sources</h2><p>In <strong>Decoder Mode</strong>, simply drag and drop any source from the list on the right into the preview window to start monitoring.</p><div class="onboarding-actions"><button class="btn btn-outline" onclick="nextSourceTour(1)">Back</button><button class="btn btn-primary" onclick="nextSourceTour(3)">Next</button></div></div><div class="source-tour-step" id="tour-step-3" style="display:none;"><div class="onboarding-icon">🔄</div><h2>3. Switch Modes</h2><p>Need to transmit? Go to the <strong>"Video & Audio"</strong> tab in Settings to switch this device to <strong>Encoder Mode</strong>.</p><div class="onboarding-actions"><button class="btn btn-outline" onclick="nextSourceTour(2)">Back</button><button class="btn btn-primary" onclick="closeSourceTour()">Finish</button></div></div></div>`; document.body.appendChild(div); }
+function startSourceTour() { document.getElementById('source-tour-overlay').style.display = 'flex'; nextSourceTour(1); }
+function nextSourceTour(step) { document.querySelectorAll('.source-tour-step').forEach(el => el.style.display = 'none'); document.getElementById('tour-step-' + step).style.display = 'block'; }
+function closeSourceTour() { document.getElementById('source-tour-overlay').style.display = 'none'; }
+function askRemoveSource(id) { sourceToRemoveId = id; document.getElementById('modal-remove-confirm').style.display = 'flex'; }
+function confirmRemoveSource() { if(sourceToRemoveId) { removeSource(null, sourceToRemoveId); sourcesData = sourcesData.filter(s => s.id !== sourceToRemoveId); refreshSourceList(); showToast("Source Removed", "success"); document.getElementById('modal-remove-confirm').style.display = 'none'; sourceToRemoveId = null; } }
+function cancelRemoveSource() { document.getElementById('modal-remove-confirm').style.display = 'none'; sourceToRemoveId = null; }
