@@ -1,4 +1,4 @@
-/* script.js - Final Demo Version (V74 - Source List Restored & Optimized) */
+/* script.js - Final Demo Version (V75 - Edit Logic Fixed) */
 
 let currentSystemMode = null; 
 let currentUserRole = 'admin'; 
@@ -57,7 +57,7 @@ function doLogin() {
     btn.innerHTML = "Logging in...";
     setTimeout(() => { 
         document.getElementById('page-login').style.display = 'none'; 
-        const hasOnboarded = localStorage.getItem('nc30_onboarding_v74');
+        const hasOnboarded = localStorage.getItem('nc30_onboarding_v75');
         if (!hasOnboarded) {
             startOnboarding();
         } else {
@@ -73,7 +73,7 @@ function startOnboarding() {
 }
 
 function closeOnboarding() {
-    localStorage.setItem('nc30_onboarding_v74', 'true');
+    localStorage.setItem('nc30_onboarding_v75', 'true');
     document.getElementById('onboarding-overlay').style.display = 'none';
     if (!currentSystemMode) performSwitch('decoder');
 }
@@ -122,7 +122,7 @@ function applySourceToSlot(slot, data) {
     }
     slot.classList.add('active-slot');
     selectSlot(slot.id);
-    renderSourceList(); // Fix: Update list highlight
+    renderSourceList();
 }
 
 function clearSlot(slot) {
@@ -131,7 +131,7 @@ function clearSlot(slot) {
     const windowNum = slot.id.split('-')[1];
     slot.innerHTML = `<div class="slot-label">Window ${windowNum}</div><div class="slot-content" style="text-align:center;"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div>`;
     selectSlot(slot.id);
-    renderSourceList(); // Fix: Update list highlight
+    renderSourceList();
 }
 
 function checkEmptyState() {
@@ -251,38 +251,28 @@ function showPresetTooltip(targetBtn, imgUrl, label) {
 function hidePresetTooltip() { const tooltip = document.getElementById('presetTooltip'); if(tooltip) tooltip.style.display = 'none'; }
 function savePreset() { showToast("Preset Saved", "success"); }
 
-// === FIXED: renderSourceList with Thumbnails & Active State ===
 function renderSourceList() {
     const tbody = document.getElementById('source-list-body');
     if(!tbody) return;
-    
-    // Get active source from slot
     const slot = document.getElementById('slot-1');
     const activeSourceId = slot ? slot.dataset.sourceId : null;
-
     tbody.innerHTML = '';
-    
     sourcesData.forEach(src => {
         const tr = document.createElement('tr');
         const isActive = src.id === activeSourceId;
         const isUnsupported = src.resHeight > maxDecResolution;
         tr.className = `source-row ${src.status === 'offline' ? 'offline' : ''} ${isActive ? 'active-source-row' : ''}`;
-        
         tr.draggable = !isUnsupported;
         tr.ondragstart = (event) => { event.dataTransfer.setData("application/json", JSON.stringify(src)); };
-        
         let statusHtml = `<span style="color:#4CAF50;">Online</span>`;
         if(src.status === 'error') statusHtml = `<span class="src-status-error">${src.errorMsg}</span>`;
         if(src.status === 'offline') statusHtml = `<span style="color:#888;">Offline</span>`;
         if(isUnsupported) statusHtml += `<span class="src-status-warning">Input Resolution Not Supported</span>`;
         else if(isActive) statusHtml += ` <span style="color:#007AFF; font-weight:bold; font-size:10px; margin-left:5px;">● PREVIEW</span>`;
-
-        // Restored Thumbnail Logic
         let thumbClass = "thumb-box";
         if(src.status === 'offline') thumbClass += " offline";
         if(isUnsupported) thumbClass += " unsupported";
         let thumbHtml = src.status === 'offline' && !src.thumb ? `<div class="${thumbClass}"><span>Offline</span></div>` : `<div class="${thumbClass}"><img src="${src.thumb}"></div>`;
-
         tr.innerHTML = `
             <td class="drag-col"><span class="drag-handle-icon" style="opacity:${isUnsupported?0.3:1}">⋮⋮</span></td>
             <td class="thumb-col" style="padding:10px;">${thumbHtml}</td>
@@ -326,8 +316,6 @@ function switchSettingsTab(tabId) {
     const headerRight = document.querySelector('.settings-header-right');
     if(headerRight) headerRight.innerHTML = `<span class="settings-close-btn" onclick="closeSpecificModal('modal-large-settings')">✕</span>`;
 
-    let htmlContent = '';
-    
     if(tabId === 'source') {
         const headerEl = document.querySelector('.settings-header');
         headerEl.innerHTML = `<span class="settings-title">Source Management</span><div class="settings-header-right"><span class="settings-help-icon" onclick="startSourceTour()">🎓 Quick Setup Tour</span><span class="settings-close-btn" onclick="closeSpecificModal('modal-large-settings')">✕</span></div>`;
@@ -335,10 +323,17 @@ function switchSettingsTab(tabId) {
         if (currentSystemMode === 'encoder') {
             bodyEl.innerHTML = `<div style="background:#332b00; border:1px solid #d4b106; color:#ffeeba; padding:10px; border-radius:4px;">⚠️ Source management is only available in <a href="#" onclick="switchSettingsTab('av-settings')" style="color:#FF9500; font-weight:bold;">Decoder Mode</a>.</div>`;
         } else {
-             bodyEl.innerHTML = `<div style="display:flex; justify-content:flex-end; margin-bottom:20px;"><button class="btn btn-primary" onclick="showModal('Add Manual Source')">+ Add Source</button></div><table class="source-list-table"><thead class="source-list-header"><tr><th>Preview</th><th>Name & IP</th><th>Status</th><th style="text-align:right;">Actions</th></tr></thead><tbody>${sourcesData.map(s => `<tr><td style="padding:10px;"><div class="thumb-box"><img src="${s.thumb}"></div></td><td style="padding:10px;"><div style="color:#fff;">${s.name}</div><div style="font-size:12px;color:#888;">${s.ip}</div></td><td style="padding:10px;color:${s.status==='online'?'#4CAF50':'#888'}">${s.status.toUpperCase()}</td><td style="text-align:right;padding:10px;"><button class="btn btn-outline btn-sm">Edit</button> <button class="btn btn-danger btn-sm" onclick="askRemoveSource('${s.id}')">Delete</button></td></tr>`).join('')}</tbody></table>`;
+             // Added Edit and Delete handlers
+             bodyEl.innerHTML = `<div style="display:flex; justify-content:flex-end; margin-bottom:20px;"><button class="btn btn-primary" onclick="showModal('Add Manual Source')">+ Add Source</button></div>
+             <table class="source-list-table"><thead class="source-list-header"><tr><th>Preview</th><th>Name & IP</th><th>Status</th><th style="text-align:right;">Actions</th></tr></thead>
+             <tbody>${sourcesData.map(s => `<tr><td style="padding:10px;"><div class="thumb-box"><img src="${s.thumb}"></div></td><td style="padding:10px;"><div style="color:#fff;">${s.name}</div><div style="font-size:12px;color:#888;">${s.ip}</div></td><td style="padding:10px;color:${s.status==='online'?'#4CAF50':'#888'}">${s.status.toUpperCase()}</td><td style="text-align:right;padding:10px;"><button class="btn btn-outline btn-sm" onclick="editSource('${s.id}')">Edit</button> <button class="btn btn-danger btn-sm" onclick="askRemoveSource('${s.id}')">Delete</button></td></tr>`).join('')}</tbody></table>`;
         }
-    } else if(tabId === 'av-settings') {
-        titleEl.innerText = currentSystemMode === 'encoder' ? "Encoder Settings" : "Decoder Settings";
+    } 
+    else if(tabId === 'av-settings') {
+        // ... (Same AV Settings code as V72)
+        const title = currentSystemMode === 'encoder' ? "Encoder Settings" : "Decoder Settings";
+        const headerEl = document.querySelector('.settings-header');
+        headerEl.innerHTML = `<span class="settings-title">${title}</span><span class="settings-close-btn" onclick="closeSpecificModal('modal-large-settings')">✕</span>`;
         const opModeHtml = `<div class="settings-subsection"><div class="settings-group-title">Operation Mode</div><div class="mode-switch-container"><div class="mode-switch-btn ${currentSystemMode==='encoder'?'active':''}" onclick="showRebootWarning('encoder')">Encoder Mode</div><div class="mode-switch-btn ${currentSystemMode==='decoder'?'active':''}" onclick="showRebootWarning('decoder')">Decoder Mode</div></div></div>`;
         if (currentSystemMode === 'encoder') {
             bodyEl.innerHTML = opModeHtml + `<div class="settings-subsection"><div class="settings-group-title">Video Input</div><div class="form-group"><label class="form-label">Maximum Video Input</label><select class="form-select"><option>2160p/60</option></select></div><div class="form-group"><label class="form-label">Current Video Input Resolution</label><input type="text" class="form-input darker-input" value="1080p/60" readonly></div></div><div class="settings-subsection"><div class="settings-group-title">Video Output</div><div class="form-group"><label class="form-label">Maximum Video Output</label><select class="form-select"><option>2160p/60</option></select></div></div><div class="settings-subsection"><div class="settings-group-title">Stream</div><div class="form-group"><label class="form-label">Maximum Steam Output</label><select class="form-select"><option>2160p/60</option></select></div><div class="form-group"><label class="form-label">Framerate</label><select class="form-select"><option>30</option><option selected>60</option></select></div><div class="form-group"><label class="form-label">Bitrate</label><select class="form-select"><option>20Mbps</option><option>AUTO</option></select></div><div class="form-group"><label class="form-label">Encoding Type</label><select class="form-select"><option>H.264</option><option>H.265</option></select></div><div class="form-group"><label class="form-label">I-VOP Interval(S)</label><div style="display:flex; gap:10px; align-items:center;"><input type="range" class="ptz-range" min="1" max="10" value="3"><span style="color:#ccc; font-size:12px;">3S</span></div></div></div>`;
@@ -347,19 +342,22 @@ function switchSettingsTab(tabId) {
         }
     } 
     else if (tabId === 'ndi') {
+        // ... (Same NDI settings code)
         const headerEl = document.querySelector('.settings-header');
         headerEl.innerHTML = `<span class="settings-title">NDI Settings</span><div class="settings-header-right"><span class="settings-close-btn" onclick="closeSpecificModal('modal-large-settings')">✕</span></div>`;
         bodyEl.innerHTML = `<div class="settings-subsection"><div class="settings-group-title">General</div><div class="form-group"><label class="form-label">Local Device Name</label><input type="text" class="form-input" value="AVer NC30"></div><div class="form-group"><label class="form-label">Group Name</label><input type="text" class="form-input" value="Public"></div><div class="form-group"><label class="radio-custom"><input type="checkbox"> Reliable UDP</label></div></div><div class="settings-subsection"><div class="settings-group-title">Advanced</div><div class="form-group"><label class="form-label">Connection Mode</label><select class="form-select"><option>RUDP</option><option>TCP</option></select></div><div class="form-group"><label class="form-label">Discovery Server</label><label class="radio-custom"><input type="checkbox"> Enable</label></div><div class="form-group"><label class="form-label">Discovery Server Address</label><input type="text" class="form-input" value="10.10.10.100"></div><div class="form-group"><label class="form-label">Multicast</label><label class="radio-custom"><input type="checkbox"> Enable</label></div><div class="form-group"><label class="form-label">Multicast Address</label><input type="text" class="form-input" value="239.255.0.1"></div><div class="form-group"><label class="form-label">Multicast Mask</label><input type="text" class="form-input" value="255.255.255.0"></div><div class="form-group"><label class="form-label">Multicast TTL</label><select class="form-select"><option>1</option></select></div><div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;"><button class="btn btn-outline">Cancel</button><button class="btn btn-primary">Confirm</button></div></div>`;
     }
     else if (tabId === 'network') { 
+        // ... (Same Network settings code)
         const headerEl = document.querySelector('.settings-header');
         headerEl.innerHTML = `<span class="settings-title">Network Settings</span><div class="settings-header-right"><span class="settings-close-btn" onclick="closeSpecificModal('modal-large-settings')">✕</span></div>`;
         bodyEl.innerHTML = `<div class="settings-subsection"><div class="settings-group-title">IP Configuration</div><div class="form-group"><div style="display:flex; justify-content:space-between;"><label class="form-label">DHCP</label><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></div></div><div class="form-group"><label class="form-label">Hostname</label><input type="text" class="form-input" value="AVer-NC30"></div><div class="form-group"><label class="form-label">IP Address</label><input type="text" class="form-input darker-input" value="192.168.10.10" readonly></div><div class="form-group"><label class="form-label">Netmask</label><input type="text" class="form-input darker-input" value="255.255.255.0" readonly></div><div class="form-group"><label class="form-label">Gateway</label><input type="text" class="form-input darker-input" value="192.168.10.254" readonly></div><div class="form-group"><label class="form-label">DNS</label><input type="text" class="form-input darker-input" value="8.8.8.8" readonly></div></div>`;
     } 
     else if (tabId === 'system') { 
+        // ... (Same System settings code)
         const headerEl = document.querySelector('.settings-header');
         headerEl.innerHTML = `<span class="settings-title">System Information</span><div class="settings-header-right"><span class="settings-close-btn" onclick="closeSpecificModal('modal-large-settings')">✕</span></div>`;
-        bodyEl.innerHTML = `<div class="settings-subsection"><div class="settings-group-title">Device</div><div class="form-group" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; font-size:12px; color:#ccc;"><div>Model</div><div style="text-align:right; color:#fff;">NC30</div><div>Serial</div><div style="text-align:right; color:#fff;">123456789</div><div>MAC</div><div style="text-align:right; color:#fff;">00:10:FA:CE:B0:0C</div><div>Firmware</div><div style="text-align:right; color:#fff;">1.0.0.35</div></div></div><div class="settings-subsection"><div class="settings-group-title">Maintenance</div><div class="form-group"><button class="btn btn-outline btn-sm" onclick="showRebootWarning(currentSystemMode)">Reboot System</button></div></div>`;
+        bodyEl.innerHTML = `<div class="settings-subsection"><div class="settings-group-title">General</div><div class="form-group" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; font-size:12px; color:#ccc;"><div>Model Name</div><div style="text-align:right; color:#fff;">Tracking Box</div><div>IP Address</div><div style="text-align:right; color:#fff;">192.168.10.10</div><div>Serial Number</div><div style="text-align:right; color:#fff;">abc123456789</div><div>MAC Address</div><div style="text-align:right; color:#fff;">abc123456789</div><div>Firmware Version</div><div style="text-align:right; color:#fff;">abc123456789</div></div></div><div class="settings-subsection"><div class="settings-group-title">Language</div><select class="form-select"><option>繁體中文</option><option>English</option></select></div><div class="settings-subsection"><div class="settings-group-title">Help us improve</div><label class="radio-custom"><input type="checkbox"> Allow anonymous usage data</label></div><div class="settings-subsection"><div class="settings-group-title">Account</div><div class="form-group"><label class="form-label">Admin account</label><input type="text" class="form-input" value="Admin" readonly></div><div class="form-group"><label class="form-label">Password</label><input type="password" class="form-input" value="********" readonly></div><div style="text-align:right; margin-bottom:10px;"><button class="btn btn-outline btn-sm">Change</button></div><div class="form-group"><label class="form-label">User account</label><input type="text" class="form-input" readonly></div><div class="form-group"><label class="form-label">Password</label><input type="password" class="form-input" readonly></div><div style="text-align:right;"><button class="btn btn-outline btn-sm">Change</button></div></div><div class="settings-subsection"><div class="settings-group-title">Date & Time</div><div class="form-group" style="display:flex; justify-content:space-between; align-items:center;"><span>Date/Time</span><button class="btn btn-outline btn-sm">Set</button></div><div class="form-group" style="display:flex; justify-content:space-between; align-items:center;"><span>Power Schedule</span><button class="btn btn-outline btn-sm">Set</button></div></div><div class="settings-subsection"><div class="settings-group-title">Maintenance</div><div class="form-group"><label class="form-label">Upload Firmware</label><div style="display:flex; gap:10px;"><input type="text" class="form-input" value="No file chosen" readonly style="flex:1;"><button class="btn btn-outline btn-sm">Choose File</button><button class="btn btn-primary btn-sm" disabled>Upgrade</button></div></div><div class="form-group" style="display:flex; justify-content:space-between; align-items:center;"><span>Factory Default</span><button class="btn btn-outline btn-sm">Reset To Factory Default</button></div><div class="form-group" style="display:flex; justify-content:space-between; align-items:center;"><span>Reboot System</span><button class="btn btn-outline btn-sm" onclick="showRebootWarning(currentSystemMode)">Reboot</button></div><div class="settings-group-title" style="margin-top:10px;">Export/import settings</div><div class="form-group" style="display:flex; justify-content:space-between; align-items:center;"><span>Import Settings</span><button class="btn btn-outline btn-sm">Import</button></div><div class="form-group" style="display:flex; justify-content:space-between; align-items:center;"><span>Export Settings</span><button class="btn btn-outline btn-sm">Export</button></div></div>`; 
     }
     else if (tabId === 'help') {
         const headerEl = document.querySelector('.settings-header');
@@ -373,21 +371,31 @@ function closeModal(e) { if(!e || e.target.id === 'modalOverlay' || e.target.cla
 function closeSpecificModal(id) { document.getElementById(id).style.display = 'none'; }
 function showToast(msg, type) { const div = document.createElement('div'); div.className = 'toast'; div.innerHTML = `<span>${msg}</span>`; let container = document.getElementById('toast-container'); if(!container) { container = document.createElement('div'); container.id='toast-container'; document.body.appendChild(container); } container.appendChild(div); setTimeout(() => div.remove(), 3000); }
 
-// === MODIFIED: showModal with Limit Check ===
+// === MODIFIED: showModal with Limit Check & Reset Edit ID ===
 function showModal(t){
     if(t==='Add Manual Source'){
         if (sourcesData.length >= 4) {
             document.getElementById('modal-alert').style.display = 'flex';
             return;
         }
-        renderSourceModal('Add Source','','','')
+        editingSourceId = null; // Important reset
+        renderSourceModal('Add Source','','','','');
     }
 }
 
-// ... (renderSourceModal, toggleCombobox, etc. same as V72)
-function renderSourceModal(t,n,i,g){
+// === NEW: Edit Source Function ===
+function editSource(id) {
+    const src = sourcesData.find(s => s.id === id);
+    if(src) {
+        editingSourceId = id; // Set global flag
+        renderSourceModal('Edit Source', src.name, src.ip, src.group, src.remark);
+    }
+}
+
+function renderSourceModal(t,n,i,g,r){
     const container = document.getElementById('modalContentBox');
     const groupValue = g || (ndiSearchGroups.length > 0 ? ndiSearchGroups[0] : '');
+    const remarkValue = r || '';
     
     container.innerHTML=`<div class="modal-header-row"><h3 style="margin:0;color:#fff;">${t}</h3><span class="modal-close-x" onclick="closeModal()">✕</span></div><div class="modal-body-add-source">
     <div class="form-group"><label class="form-label">Search Scope (NDI Group)</label>
@@ -402,7 +410,7 @@ function renderSourceModal(t,n,i,g){
     </div>
     <div class="form-group"><label class="form-label">IP Address</label><div style="display:flex; gap:10px;"><input type="text" id="inputSrcIP" class="form-input" value="${i}"><button class="btn btn-outline" style="padding:0 12px;" onclick="openAutoSearch()">🔍</button></div></div>
     <div class="form-group"><label class="form-label">Source Name</label><input type="text" id="inputSrcName" class="form-input" value="${n}"></div>
-    <div class="form-group"><label class="form-label">Remark</label><textarea id="inputSrcRemark" class="form-input remark-input" placeholder="Optional notes..."></textarea></div>
+    <div class="form-group"><label class="form-label">Remark</label><textarea id="inputSrcRemark" class="form-input remark-input" placeholder="Optional notes...">${remarkValue}</textarea></div>
     </div><div class="modal-footer"><button class="modal-footer-btn" onclick="closeModal()">Cancel</button><button class="modal-footer-btn" onclick="saveSourceData()">Save</button></div>
     <div id="modal-add-group" class="modal-overlay" style="display:none; z-index:3200;" onclick="if(event.target===this) closeAddGroupModal()">
         <div class="modal-box" style="width:300px;">
@@ -438,17 +446,37 @@ function confirmAddGroup() {
     }
     closeAddGroupModal();
 }
+
+// === MODIFIED: saveSourceData (Handle Create/Update) ===
 function saveSourceData() { 
     const groupVal = document.getElementById('inputSrcGroup').value;
     const remarkVal = document.getElementById('inputSrcRemark').value;
     const name = document.getElementById('inputSrcName').value;
     const ip = document.getElementById('inputSrcIP').value;
+
     if(groupVal && !ndiSearchGroups.includes(groupVal)) ndiSearchGroups.push(groupVal);
+    
     if(name && ip) {
-        const newId = 'src_' + Date.now();
-        sourcesData.push({ id: newId, name: name, ip: ip, group: groupVal, remark: remarkVal, status: 'online', thumb: 'https://picsum.photos/200/112', resHeight: 1080, resolution: '1920x1080', presets: {} });
+        if (editingSourceId) {
+            // Update Existing
+            const index = sourcesData.findIndex(s => s.id === editingSourceId);
+            if (index !== -1) {
+                sourcesData[index].name = name;
+                sourcesData[index].ip = ip;
+                sourcesData[index].group = groupVal;
+                sourcesData[index].remark = remarkVal;
+                showToast("Source Updated", "success");
+            }
+        } else {
+            // Create New
+            const newId = 'src_' + Date.now();
+            sourcesData.push({ id: newId, name: name, ip: ip, group: groupVal, remark: remarkVal, status: 'online', thumb: 'https://picsum.photos/200/112', resHeight: 1080, resolution: '1920x1080', presets: {} });
+            showToast("Source Added", "success");
+        }
+        closeModal(); 
+        refreshSourceList(); 
+        editingSourceId = null; // Reset
     }
-    showToast("Source Added", "success"); closeModal(); refreshSourceList(); 
 }
 
 function showRebootWarning(targetMode) { pendingRebootMode = targetMode; document.getElementById('modal-reboot-warning').style.display = 'flex'; }
@@ -462,7 +490,7 @@ function checkModalValidity(){const n=document.getElementById('inputSrcName').va
 function renderSlotMenu(slotId) { return `<button class="slot-menu-btn" onclick="toggleSlotMenu('${slotId}', event)">•••</button><div class="slot-dropdown" id="menu-${slotId}"><button class="slot-action danger" onclick="removeSource('${slotId}')">Clear</button></div>`; }
 function toggleSlotMenu(slotId, event) { event.stopPropagation(); document.querySelectorAll('.slot-dropdown').forEach(el => el.classList.remove('show')); const menu = document.getElementById(`menu-${slotId}`); if(menu) menu.classList.add('show'); }
 function askRemoveSource(id) { sourceToRemoveId = id; document.getElementById('modal-remove-confirm').style.display = 'flex'; }
-function confirmRemoveSource() { if(sourceToRemoveId) { removeSource(null, sourceToRemoveId); sourcesData = sourcesData.filter(s => s.id !== sourceToRemoveId); refreshSourceList(); showToast("Source Removed", "success"); document.getElementById('modal-remove-confirm').style.display = 'none'; sourceToRemoveId = null; } }
+function confirmRemoveSource() { if(sourceToRemoveId) { removeSource(null, sourceToRemoveId); sourcesData = sourcesData.filter(s => s.id !== sourceToRemoveId); refreshSourceList(); showToast("Source Removed", "success"); document.getElementById('modal-remove-confirm').style.display = 'none'; sourceToRemoveId = null; if(document.getElementById('modal-large-settings').style.display !== 'none') switchSettingsTab('source'); } }
 function cancelRemoveSource() { document.getElementById('modal-remove-confirm').style.display = 'none'; sourceToRemoveId = null; }
 function removeSource(slotId, targetSourceId = null) { if (targetSourceId) { const slot = document.querySelector(`.preview-slot[data-source-id="${targetSourceId}"]`); if (slot) slotId = slot.id; else return; } const slot = document.getElementById(slotId); if(slot) { delete slot.dataset.sourceId; slot.classList.remove('active-slot', 'offline-state'); slot.innerHTML = `<div class="slot-label">Window ${slotId.split('-')[1]}</div><div class="slot-content" style="text-align:center;"><div class="slot-name" style="color:#555;">[ Drag Source Here ]</div></div>`; updateLiveHeader(); selectSlot(slotId); renderSourceList(); } }
 function togglePTZ() { console.log("PTZ is embedded now"); }
