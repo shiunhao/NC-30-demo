@@ -1,44 +1,63 @@
-/* mobile.css - RWD for Tablet & Mobile (Compatible with V75) */
+/* mobile.css - RWD for Tablet & Mobile (V76 - Fixed Width & Scroll) */
 
 /* =========================================
    1. Tablet / Small Laptop (Max Width: 1024px)
    ========================================= */
 @media screen and (max-width: 1024px) {
     
-    /* Layout: Switch Decoder from Left-Right to Top-Bottom */
-    .decoder-layout {
-        grid-template-columns: 1fr; /* Single column */
-        grid-template-rows: auto 1fr; /* Auto height for video, rest for controls */
-        height: auto; /* Remove fixed 100vh calculation */
-        overflow-y: auto; /* Allow full page scroll */
-        padding-bottom: 20px;
+    /* FIX: Allow main content to scroll */
+    .main-content {
+        padding: 20px; /* Reduce desktop padding */
+        height: calc(100vh - 60px); /* Full height minus header */
+        overflow-y: auto; /* Enable vertical scrolling */
+        -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
     }
 
-    .main-content {
-        padding: 15px; /* Reduce padding */
-        height: calc(100vh - 60px); /* Adjust height */
-        overflow-y: auto;
+    /* FIX: Layout changes to stacked column, remove fixed height */
+    .decoder-layout {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        height: auto !important; /* Force auto height to allow scrolling */
+        overflow: visible; /* Don't clip content */
+        padding-bottom: 40px; /* Extra space at bottom for touch */
     }
 
     /* Video Preview Area */
     .dec-left-col {
-        height: 50vh; /* Video takes half screen height */
-        min-height: 300px;
-        margin-bottom: 15px;
+        width: 100%;
+        height: auto;
+        flex: none; /* Don't flex, just take space needed */
+    }
+
+    /* Ensure Preview Window has a good height on tablet */
+    .preview-window {
+        height: 45vh; /* Take up roughly half screen */
+        min-height: 350px;
+        width: 100%;
+    }
+    
+    .output-container {
+        height: auto;
+        min-height: 0;
     }
 
     /* Right Control Panel (Source List + PTZ) */
     .dec-right-col {
-        height: auto;
-        gap: 15px;
-        flex-direction: row; /* Put List and PTZ side-by-side on tablet */
-        align-items: flex-start;
+        width: 100%;
+        height: auto; /* Grow with content */
+        flex: none;
+        display: flex;
+        flex-direction: row; /* Side-by-side on wide tablets */
+        gap: 20px;
+        align-items: stretch;
     }
 
     .source-list-panel, 
     .embedded-ptz-panel {
         flex: 1;
-        height: 400px; /* Fixed height for panels on tablet */
+        height: 450px; /* Fixed height for panels so internal lists scroll */
+        min-height: 400px;
     }
 
     /* Encoder View Adjustments */
@@ -46,14 +65,10 @@
         height: auto;
         padding-bottom: 20px;
     }
-    
-    .preview-window {
-        min-height: 350px;
-    }
 
     /* Settings Modal Adjustments */
     .modal-box {
-        width: 80% !important; /* Override fixed 500px */
+        width: 80% !important;
     }
 }
 
@@ -65,6 +80,11 @@
     /* --- Global & Typography --- */
     body { font-size: 14px; }
     
+    /* FIX: Fill Width Issue */
+    .main-content {
+        padding: 10px; /* Minimal padding for mobile */
+    }
+
     /* --- Login Page --- */
     .login-box {
         width: 90%;
@@ -99,7 +119,8 @@
 
     /* --- Encoder View (Mobile) --- */
     .preview-window {
-        min-height: 200px; /* Smaller video height */
+        height: 250px; /* Specific height for mobile */
+        min-height: 200px; 
     }
 
     .enc-status-bar {
@@ -127,41 +148,53 @@
     /* --- Decoder View (Mobile) --- */
     /* Force stack everything vertical */
     .dec-right-col {
-        flex-direction: column; 
+        flex-direction: column; /* Stack List on top of PTZ */
         height: auto;
     }
 
     .dec-left-col {
-        height: 35vh; /* Video takes 1/3 screen */
-        min-height: 200px;
+        height: auto;
+        margin-bottom: 15px;
     }
 
     .source-list-panel {
-        height: 300px; /* Scrollable list */
+        height: 350px; /* Allow scroll inside list */
+        width: 100%;
     }
 
     .embedded-ptz-panel {
         height: auto;
-        min-height: 400px;
+        min-height: 450px; /* Ensure PTZ controls fit */
+        width: 100%;
     }
 
     /* Source List Table adjustments */
     .thumb-col {
         width: 80px; /* Smaller thumbnails */
+        padding: 8px !important;
     }
     .thumb-box {
         width: 70px;
         height: 40px;
     }
     .src-meta {
-        display: none; /* Hide resolution text on tiny screens if needed */
+        display: none; /* Hide resolution text on tiny screens */
+    }
+    
+    /* Make buttons larger for touch */
+    .btn-icon-action {
+        width: 32px;
+        height: 32px;
     }
 
     /* --- Large Settings Modal (Transform to Fullscreen Mobile) --- */
     #modal-large-settings .modal-box {
         width: 100% !important;
         height: 100% !important;
+        max-height: 100% !important;
         flex-direction: column; /* Stack Sidebar on top of Content */
+        border-radius: 0;
+        padding: 0;
     }
 
     .settings-sidebar {
@@ -181,6 +214,7 @@
         border-left: none;
         border-bottom: 3px solid transparent;
         font-size: 13px;
+        flex: 0 0 auto;
     }
 
     .sidebar-item.active {
@@ -200,31 +234,35 @@
     
     .settings-body {
         padding: 20px 15px;
+        overflow-y: auto; /* Scroll body content */
+        flex: 1;
     }
 
     .settings-help-icon {
-        display: none; /* Hide tour button in mobile header to save space, or make icon only */
+        display: none; /* Hide tour button in mobile header */
     }
 
     /* --- Add Source / Other Modals --- */
     .modal-box {
-        width: 90% !important;
+        width: 95% !important;
         max-height: 90vh;
         overflow-y: auto;
+        padding: 20px;
     }
 
     /* Combobox adjustments */
     .combobox-dropdown {
-        position: fixed; /* Fix dropdown on mobile to avoid overflow issues */
-        left: 5%;
-        width: 90%;
-        margin-top: 5px;
+        position: absolute; /* Keep absolute relative to container */
+        width: 100%;
+        max-height: 200px;
     }
 
     /* Onboarding Tour */
     .onboarding-box {
         width: 95%;
         padding: 30px 20px;
+        max-height: 90vh;
+        overflow-y: auto;
     }
     .onboarding-icon {
         font-size: 32px;
