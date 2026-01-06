@@ -1,51 +1,62 @@
-/* mobile.css - RWD for Tablet & Mobile (V76 - Fixed Width & Scroll) */
+/* mobile.css - RWD for Tablet & Mobile (V77 - Fixed Preview Collapse) */
 
 /* =========================================
    1. Tablet / Small Laptop (Max Width: 1024px)
    ========================================= */
 @media screen and (max-width: 1024px) {
     
-    /* FIX: Allow main content to scroll */
+    /* Allow main content to scroll */
     .main-content {
-        padding: 20px; /* Reduce desktop padding */
-        height: calc(100vh - 60px); /* Full height minus header */
-        overflow-y: auto; /* Enable vertical scrolling */
-        -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
+        padding: 20px;
+        height: calc(100vh - 60px);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
-    /* FIX: Layout changes to stacked column, remove fixed height */
+    /* Layout changes to stacked column */
     .decoder-layout {
         display: flex;
         flex-direction: column;
         gap: 20px;
-        height: auto !important; /* Force auto height to allow scrolling */
-        overflow: visible; /* Don't clip content */
-        padding-bottom: 40px; /* Extra space at bottom for touch */
+        height: auto !important;
+        overflow: visible;
+        padding-bottom: 40px;
     }
 
-    /* Video Preview Area */
+    /* Video Preview Area (Wrapper) */
     .dec-left-col {
         width: 100%;
         height: auto;
-        flex: none; /* Don't flex, just take space needed */
+        flex: none;
     }
 
-    /* Ensure Preview Window has a good height on tablet */
-    .preview-window {
-        height: 45vh; /* Take up roughly half screen */
+    /* FIX: Force Height for Decoder Preview Container */
+    /* Previously 'auto' caused collapse because children are absolute */
+    .output-container {
+        height: 50vh !important; 
         min-height: 350px;
         width: 100%;
+        display: flex;
+        flex-direction: column;
     }
     
-    .output-container {
-        height: auto;
-        min-height: 0;
+    /* Ensure the slot layout fills the container */
+    .output-layout-single, .output-layout-quad {
+        flex: 1;
+        height: 100%;
+    }
+
+    /* Ensure Preview Window (Encoder Mode) also has height */
+    .preview-window {
+        height: 50vh;
+        min-height: 350px;
+        width: 100%;
     }
 
     /* Right Control Panel (Source List + PTZ) */
     .dec-right-col {
         width: 100%;
-        height: auto; /* Grow with content */
+        height: auto;
         flex: none;
         display: flex;
         flex-direction: row; /* Side-by-side on wide tablets */
@@ -56,7 +67,7 @@
     .source-list-panel, 
     .embedded-ptz-panel {
         flex: 1;
-        height: 450px; /* Fixed height for panels so internal lists scroll */
+        height: 450px;
         min-height: 400px;
     }
 
@@ -80,9 +91,8 @@
     /* --- Global & Typography --- */
     body { font-size: 14px; }
     
-    /* FIX: Fill Width Issue */
     .main-content {
-        padding: 10px; /* Minimal padding for mobile */
+        padding: 10px;
     }
 
     /* --- Login Page --- */
@@ -96,7 +106,6 @@
         padding: 0 10px;
     }
     
-    /* Hide less important status items on mobile */
     .status-group .status-text-badge {
         display: none; 
     }
@@ -109,7 +118,6 @@
         font-size: 10px;
     }
 
-    /* Account Pill - Hide Name, Keep Avatar */
     #current-user-label {
         display: none;
     }
@@ -119,13 +127,13 @@
 
     /* --- Encoder View (Mobile) --- */
     .preview-window {
-        height: 250px; /* Specific height for mobile */
+        height: 250px; /* Smaller height for mobile */
         min-height: 200px; 
     }
 
     .enc-status-bar {
         height: auto;
-        flex-direction: column; /* Stack Mode and Grid */
+        flex-direction: column;
     }
 
     .mode-indicator {
@@ -133,12 +141,12 @@
         height: 50px;
         border-right: none;
         border-bottom: 1px solid #333;
-        flex-direction: row; /* Horizontal mode info */
+        flex-direction: row;
         gap: 10px;
     }
 
     .status-grid {
-        grid-template-columns: 1fr 1fr; /* 2 columns instead of 3 */
+        grid-template-columns: 1fr 1fr;
     }
 
     .status-cell {
@@ -146,10 +154,10 @@
     }
 
     /* --- Decoder View (Mobile) --- */
-    /* Force stack everything vertical */
-    .dec-right-col {
-        flex-direction: column; /* Stack List on top of PTZ */
-        height: auto;
+    /* FIX: Decoder Preview Height on Mobile */
+    .output-container {
+        height: 35vh !important; /* Smaller percentage for mobile */
+        min-height: 220px;
     }
 
     .dec-left-col {
@@ -157,20 +165,26 @@
         margin-bottom: 15px;
     }
 
+    /* Stack Right Column Vertical */
+    .dec-right-col {
+        flex-direction: column;
+        height: auto;
+    }
+
     .source-list-panel {
-        height: 350px; /* Allow scroll inside list */
+        height: 350px;
         width: 100%;
     }
 
     .embedded-ptz-panel {
         height: auto;
-        min-height: 450px; /* Ensure PTZ controls fit */
+        min-height: 450px;
         width: 100%;
     }
 
     /* Source List Table adjustments */
     .thumb-col {
-        width: 80px; /* Smaller thumbnails */
+        width: 80px;
         padding: 8px !important;
     }
     .thumb-box {
@@ -178,21 +192,20 @@
         height: 40px;
     }
     .src-meta {
-        display: none; /* Hide resolution text on tiny screens */
+        display: none;
     }
     
-    /* Make buttons larger for touch */
     .btn-icon-action {
         width: 32px;
         height: 32px;
     }
 
-    /* --- Large Settings Modal (Transform to Fullscreen Mobile) --- */
+    /* --- Large Settings Modal --- */
     #modal-large-settings .modal-box {
         width: 100% !important;
         height: 100% !important;
         max-height: 100% !important;
-        flex-direction: column; /* Stack Sidebar on top of Content */
+        flex-direction: column;
         border-radius: 0;
         padding: 0;
     }
@@ -200,7 +213,7 @@
     .settings-sidebar {
         width: 100%;
         height: auto;
-        flex-direction: row; /* Horizontal Scroll Menu */
+        flex-direction: row;
         overflow-x: auto;
         padding: 0;
         border-right: none;
@@ -234,12 +247,12 @@
     
     .settings-body {
         padding: 20px 15px;
-        overflow-y: auto; /* Scroll body content */
+        overflow-y: auto;
         flex: 1;
     }
 
     .settings-help-icon {
-        display: none; /* Hide tour button in mobile header */
+        display: none;
     }
 
     /* --- Add Source / Other Modals --- */
@@ -250,9 +263,8 @@
         padding: 20px;
     }
 
-    /* Combobox adjustments */
     .combobox-dropdown {
-        position: absolute; /* Keep absolute relative to container */
+        position: absolute;
         width: 100%;
         max-height: 200px;
     }
