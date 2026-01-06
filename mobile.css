@@ -1,4 +1,4 @@
-/* mobile.css - RWD for Tablet & Mobile (V78 - 2/3 Screen Preview) */
+/* mobile.css - RWD for Tablet & Mobile (V79 - Grid Ratio & Scroll) */
 
 /* =========================================
    1. Tablet / Small Laptop (Max Width: 1024px)
@@ -7,78 +7,75 @@
     
     /* Allow main content to scroll */
     .main-content {
-        padding: 20px;
-        height: calc(100vh - 60px); /* Full height minus header */
-        overflow-y: auto; /* Enable vertical scrolling */
-        -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
+        padding: 0; /* Full width, no padding */
+        height: calc(100vh - 60px);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
-    /* Layout changes to stacked column */
+    /* === Layout Strategy: Vertical Grid === */
     .decoder-layout {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-        height: auto !important; /* Force auto height to allow scrolling */
-        overflow: visible;
-        padding-bottom: 40px; /* Extra space at bottom */
+        display: grid;
+        width: 100%;
+        /* [CONFIGURATION] Height Ratio 
+           55vh = Preview takes 55% of screen height
+           auto = Control panel takes the rest (scrolls if needed)
+        */
+        grid-template-rows: 55vh auto; 
+        gap: 0; 
+        padding-bottom: 40px;
     }
 
-    /* Video Preview Area (Wrapper) */
+    /* Top: Preview Area */
     .dec-left-col {
         width: 100%;
-        height: auto;
-        flex: none;
+        height: 100%; /* Fill the grid row */
+        overflow: hidden;
     }
 
-    /* FIX: Height set to 66vh (2/3 of screen) */
     .output-container {
-        height: 66vh !important; 
-        min-height: 400px;
         width: 100%;
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .output-layout-single, .output-layout-quad {
-        flex: 1;
-        height: 100%;
+        height: 100%; /* Fill parent */
+        border-radius: 0; /* Remove radius for full-width feel */
+        border-left: none;
+        border-right: none;
+        border-top: none;
     }
 
-    /* Ensure Preview Window matches the container */
     .preview-window {
-        height: 66vh; 
-        min-height: 400px;
         width: 100%;
+        height: 100%;
+        border-radius: 0;
+        border: none;
     }
 
-    /* Right Control Panel (Source List + PTZ) */
+    /* Bottom: Control Panels */
     .dec-right-col {
         width: 100%;
         height: auto;
-        flex: none;
+        padding: 20px; /* Add padding back for controls */
         display: flex;
-        flex-direction: row; /* Side-by-side on wide tablets */
+        flex-direction: column;
         gap: 20px;
-        align-items: stretch;
     }
 
     .source-list-panel, 
     .embedded-ptz-panel {
-        flex: 1;
-        height: 450px;
+        flex: none;
+        height: 400px;
         min-height: 400px;
     }
 
     /* Encoder View Adjustments */
     .encoder-grid {
+        display: grid;
+        grid-template-rows: 55vh auto; /* Same ratio for consistency */
         height: auto;
         padding-bottom: 20px;
     }
 
-    /* Settings Modal Adjustments */
-    .modal-box {
-        width: 80% !important;
-    }
+    /* Settings Modal */
+    .modal-box { width: 80% !important; }
 }
 
 /* =========================================
@@ -86,88 +83,50 @@
    ========================================= */
 @media screen and (max-width: 768px) {
 
-    /* --- Global & Typography --- */
     body { font-size: 14px; }
     
     .main-content {
-        padding: 10px;
+        padding: 0; /* Full bleed */
     }
 
-    /* --- Login Page --- */
-    .login-box {
-        width: 90%;
-        padding: 30px 20px;
+    /* === Mobile Layout Strategy === */
+    .decoder-layout {
+        /* [CONFIGURATION] Mobile Height Ratio 
+           68vh = Approximately 2/3 of the screen height.
+           Adjust this number to change the proportion.
+           e.g., 50vh = 1/2, 75vh = 3/4
+        */
+        grid-template-rows: 68vh auto;
     }
     
-    /* --- Top Bar (Header) --- */
-    .top-bar {
-        padding: 0 10px;
-    }
-    
-    .status-group .status-text-badge {
-        display: none; 
+    .encoder-grid {
+        grid-template-rows: 60vh auto; /* Encoder slightly smaller header */
     }
 
-    .header-left-group { gap: 10px; }
-    .header-right-group { gap: 10px; }
+    /* Header & Tools */
+    .top-bar { padding: 0 10px; }
+    .status-group .status-text-badge { display: none; }
+    .header-left-group, .header-right-group { gap: 10px; }
+    .mode-badge { padding: 4px 10px; font-size: 10px; }
+    #current-user-label { display: none; }
+    .account-pill { padding: 4px 8px; }
 
-    .mode-badge {
-        padding: 4px 10px;
-        font-size: 10px;
-    }
-
-    #current-user-label {
-        display: none;
-    }
-    .account-pill {
-        padding: 4px 8px;
-    }
-
-    /* --- Encoder View (Mobile) --- */
-    .preview-window {
-        height: 60vh; /* Also increased for Encoder mode */
-        min-height: 300px; 
-    }
-
+    /* Encoder Components */
     .enc-status-bar {
         height: auto;
         flex-direction: column;
+        margin: 20px; /* Add margin for floating look */
     }
-
     .mode-indicator {
-        width: 100%;
-        height: 50px;
-        border-right: none;
-        border-bottom: 1px solid #333;
-        flex-direction: row;
-        gap: 10px;
+        width: 100%; height: 50px; border-right: none;
+        border-bottom: 1px solid #333; flex-direction: row; gap: 10px;
     }
+    .status-grid { grid-template-columns: 1fr 1fr; }
+    .status-cell { padding: 8px 10px; }
 
-    .status-grid {
-        grid-template-columns: 1fr 1fr;
-    }
-
-    .status-cell {
-        padding: 8px 10px;
-    }
-
-    /* --- Decoder View (Mobile) --- */
-    
-    /* FIX: Decoder Preview Height to 66vh (2/3) on Mobile */
-    .output-container {
-        height: 66vh !important; 
-        min-height: 300px;
-    }
-
-    .dec-left-col {
-        height: auto;
-        margin-bottom: 15px;
-    }
-
-    /* Stack Right Column Vertical */
+    /* Decoder Controls */
     .dec-right-col {
-        flex-direction: column;
-        height: auto;
+        padding: 15px; /* Tighter padding on mobile */
     }
 
     .source-list-panel {
@@ -181,101 +140,36 @@
         width: 100%;
     }
 
-    /* Source List Table adjustments */
-    .thumb-col {
-        width: 80px;
-        padding: 8px !important;
-    }
-    .thumb-box {
-        width: 70px;
-        height: 40px;
-    }
-    .src-meta {
-        display: none;
-    }
-    
-    .btn-icon-action {
-        width: 32px;
-        height: 32px;
-    }
+    /* Source List Table */
+    .thumb-col { width: 80px; padding: 8px !important; }
+    .thumb-box { width: 70px; height: 40px; }
+    .src-meta { display: none; }
+    .btn-icon-action { width: 32px; height: 32px; }
 
-    /* --- Large Settings Modal --- */
+    /* Settings Modal Fullscreen */
     #modal-large-settings .modal-box {
-        width: 100% !important;
-        height: 100% !important;
-        max-height: 100% !important;
-        flex-direction: column;
-        border-radius: 0;
-        padding: 0;
+        width: 100% !important; height: 100% !important; max-height: 100% !important;
+        flex-direction: column; border-radius: 0; padding: 0;
     }
-
     .settings-sidebar {
-        width: 100%;
-        height: auto;
-        flex-direction: row;
-        overflow-x: auto;
-        padding: 0;
-        border-right: none;
-        border-bottom: 1px solid #333;
-        flex-shrink: 0;
+        width: 100%; height: auto; flex-direction: row; overflow-x: auto;
+        padding: 0; border-right: none; border-bottom: 1px solid #333; flex-shrink: 0;
     }
-
     .sidebar-item {
-        padding: 15px 15px;
-        white-space: nowrap;
-        border-left: none;
-        border-bottom: 3px solid transparent;
-        font-size: 13px;
-        flex: 0 0 auto;
+        padding: 15px 15px; white-space: nowrap; border-left: none;
+        border-bottom: 3px solid transparent; font-size: 13px; flex: 0 0 auto;
     }
+    .sidebar-item.active { background: #252526; border-left: none; border-bottom-color: var(--theme-color); }
+    .settings-header { padding: 0 15px; height: 50px; }
+    .settings-title { font-size: 16px; }
+    .settings-body { padding: 20px 15px; overflow-y: auto; flex: 1; }
+    .settings-help-icon { display: none; }
 
-    .sidebar-item.active {
-        background: #252526;
-        border-left: none;
-        border-bottom-color: var(--theme-color);
-    }
-
-    .settings-header {
-        padding: 0 15px;
-        height: 50px;
-    }
-
-    .settings-title {
-        font-size: 16px;
-    }
+    /* Modals */
+    .modal-box { width: 95% !important; max-height: 90vh; overflow-y: auto; padding: 20px; }
+    .combobox-dropdown { position: absolute; width: 100%; max-height: 200px; }
     
-    .settings-body {
-        padding: 20px 15px;
-        overflow-y: auto;
-        flex: 1;
-    }
-
-    .settings-help-icon {
-        display: none;
-    }
-
-    /* --- Add Source / Other Modals --- */
-    .modal-box {
-        width: 95% !important;
-        max-height: 90vh;
-        overflow-y: auto;
-        padding: 20px;
-    }
-
-    .combobox-dropdown {
-        position: absolute;
-        width: 100%;
-        max-height: 200px;
-    }
-
-    /* Onboarding Tour */
-    .onboarding-box {
-        width: 95%;
-        padding: 30px 20px;
-        max-height: 90vh;
-        overflow-y: auto;
-    }
-    .onboarding-icon {
-        font-size: 32px;
-    }
+    /* Onboarding */
+    .onboarding-box { width: 95%; padding: 30px 20px; max-height: 90vh; overflow-y: auto; }
+    .onboarding-icon { font-size: 32px; }
 }
