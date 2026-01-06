@@ -1,4 +1,4 @@
-/* mobile.css - RWD for Tablet & Mobile (V80 - Stacked 2/3 Preview) */
+/* mobile.css - RWD for Tablet & Mobile (V81 - Tablet 1:1 Grid) */
 
 /* =========================================
    1. Tablet / Small Laptop (Max Width: 1024px)
@@ -53,26 +53,28 @@
         border: none;
     }
 
-    /* 4. CONTROL AREA: Pushed below, Natural Height */
+    /* 4. CONTROL AREA: 1:1 Side-by-Side Grid */
     .dec-right-col {
         width: 100%;
         height: auto; /* Let content dictate height */
         flex: none;
         padding: 20px; /* Add padding for controls */
         
-        /* On Tablet: Keep List and PTZ side-by-side if space allows */
-        display: flex;
-        flex-direction: row; 
+        /* FIX: Use Grid for strict 1:1 Ratio */
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* Exactly 50% / 50% */
         gap: 20px;
-        align-items: flex-start;
-        background-color: var(--bg-color); /* Ensure bg covers scroll area */
+        align-items: stretch;
+        background-color: var(--bg-color);
     }
 
+    /* Ensure panels stretch to match height */
     .source-list-panel, 
     .embedded-ptz-panel {
-        flex: 1;
         height: 450px; /* Fixed height for internal scrolling */
         min-height: 400px;
+        width: 100%;
+        flex: none; /* Reset flex props just in case */
     }
 
     /* Encoder View Adjustments */
@@ -96,16 +98,22 @@
 }
 
 /* =========================================
-   2. Mobile (Max Width: 768px)
+   2. Mobile Phone Only (Max Width: 700px)
    ========================================= */
-@media screen and (max-width: 768px) {
+/* FIX: Lowered breakpoint to 700px. 
+   Tablets (768px+) will now use the 1:1 Grid layout above. 
+   Only small phones will stack vertically. */
+
+@media screen and (max-width: 700px) {
 
     body { font-size: 14px; }
     
-    /* Ensure strict column stacking for controls on mobile */
+    /* Ensure strict column stacking for controls on PHONE */
     .dec-right-col {
+        display: flex; /* Switch back to Flex for simple stacking */
         flex-direction: column; /* Stack List on top of PTZ */
         padding: 15px;
+        gap: 15px;
     }
 
     /* Adjust heights for mobile thumb/touch */
