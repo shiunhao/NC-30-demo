@@ -1,4 +1,4 @@
-/* mobile.css - RWD for Tablet & Mobile (V77 - Fixed Preview Collapse) */
+/* mobile.css - RWD for Tablet & Mobile (V78 - 2/3 Screen Preview) */
 
 /* =========================================
    1. Tablet / Small Laptop (Max Width: 1024px)
@@ -8,9 +8,9 @@
     /* Allow main content to scroll */
     .main-content {
         padding: 20px;
-        height: calc(100vh - 60px);
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
+        height: calc(100vh - 60px); /* Full height minus header */
+        overflow-y: auto; /* Enable vertical scrolling */
+        -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
     }
 
     /* Layout changes to stacked column */
@@ -18,9 +18,9 @@
         display: flex;
         flex-direction: column;
         gap: 20px;
-        height: auto !important;
+        height: auto !important; /* Force auto height to allow scrolling */
         overflow: visible;
-        padding-bottom: 40px;
+        padding-bottom: 40px; /* Extra space at bottom */
     }
 
     /* Video Preview Area (Wrapper) */
@@ -30,26 +30,24 @@
         flex: none;
     }
 
-    /* FIX: Force Height for Decoder Preview Container */
-    /* Previously 'auto' caused collapse because children are absolute */
+    /* FIX: Height set to 66vh (2/3 of screen) */
     .output-container {
-        height: 50vh !important; 
-        min-height: 350px;
+        height: 66vh !important; 
+        min-height: 400px;
         width: 100%;
         display: flex;
         flex-direction: column;
     }
     
-    /* Ensure the slot layout fills the container */
     .output-layout-single, .output-layout-quad {
         flex: 1;
         height: 100%;
     }
 
-    /* Ensure Preview Window (Encoder Mode) also has height */
+    /* Ensure Preview Window matches the container */
     .preview-window {
-        height: 50vh;
-        min-height: 350px;
+        height: 66vh; 
+        min-height: 400px;
         width: 100%;
     }
 
@@ -127,8 +125,8 @@
 
     /* --- Encoder View (Mobile) --- */
     .preview-window {
-        height: 250px; /* Smaller height for mobile */
-        min-height: 200px; 
+        height: 60vh; /* Also increased for Encoder mode */
+        min-height: 300px; 
     }
 
     .enc-status-bar {
@@ -154,10 +152,11 @@
     }
 
     /* --- Decoder View (Mobile) --- */
-    /* FIX: Decoder Preview Height on Mobile */
+    
+    /* FIX: Decoder Preview Height to 66vh (2/3) on Mobile */
     .output-container {
-        height: 35vh !important; /* Smaller percentage for mobile */
-        min-height: 220px;
+        height: 66vh !important; 
+        min-height: 300px;
     }
 
     .dec-left-col {
