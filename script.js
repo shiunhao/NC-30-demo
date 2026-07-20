@@ -314,13 +314,13 @@ function renderSourceList() {
         
         let statusHtml = '';
         if(src.status === 'online') {
-            statusHtml = `<span style="color:#30d158; font-weight:bold; font-size:13px; padding-right:15px;">Online</span>`;
+            statusHtml = `<span style="color:#30d158; font-weight:bold; font-size:13px;">Online</span>`;
         } else if(src.status === 'unsupported_ndi') {
-            statusHtml = `<span style="color:#8e8e93; font-size:12px; padding-right:15px; text-align:right; display:block; line-height:1.2;">Unsupported<br>Full NDI</span>`;
+            statusHtml = `<span style="color:#8e8e93; font-size:12px; text-align:right; display:block; line-height:1.2;">Unsupported<br>Full NDI</span>`;
         } else if(src.status === 'unsupported_res') {
-            statusHtml = `<span style="color:#8e8e93; font-size:12px; padding-right:15px; text-align:right; display:block; line-height:1.2;">Unsupported<br>Resolution</span>`;
+            statusHtml = `<span style="color:#8e8e93; font-size:12px; text-align:right; display:block; line-height:1.2;">Unsupported<br>Resolution</span>`;
         } else if(src.status === 'offline') {
-            statusHtml = `<span style="color:#555; font-size:13px; padding-right:15px;">Offline</span>`;
+            statusHtml = `<span style="color:#555; font-size:13px;">Offline</span>`;
         }
         
         let thumbHtml = '';
