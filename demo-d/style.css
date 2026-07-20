@@ -297,7 +297,7 @@ input:checked + .slider:before { transform: translateX(14px); }
 .drag-col { width: 40px; text-align: center; }
 .drag-handle-icon { color: #666; font-size: 18px; cursor: move; }
 /* Re-added thumb-col styles */
-.thumb-col { width: 98px; }
+.thumb-col { width: 88px; }
 .thumb-box { width: 78px; height: 44px; background: #000; border-radius: 2px; border: 1px solid #333; display: flex; align-items: center; justify-content: center; overflow: hidden; }
 .thumb-box img { width: 100%; height: 100%; object-fit: cover; }
 .thumb-box.offline { background: #000; color: #aaa; display: flex; flex-direction: column; font-size: 9px; }
