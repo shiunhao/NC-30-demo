@@ -1119,43 +1119,51 @@ function renderSourceModal(t,n,i,g,r){
         <span class="modal-close-x" style="position:absolute; right:20px; top:20px; font-size:16px; color:#aaa; cursor:pointer;" onclick="closeModal()">✕</span>
     </div>
 
-    <!-- Toggle Buttons -->
-    <div style="display:flex; justify-content:center; gap:30px; margin-bottom:20px; border-bottom:1px solid #333;">
-        <div id="tab-btn-ndi" style="cursor:pointer; color:${type==='ndi'?'#FF9500':'#888'}; padding-bottom:10px; border-bottom:${type==='ndi'?'2px solid #FF9500':'2px solid transparent'}; font-weight:${type==='ndi'?'bold':'normal'};" onclick="switchSourceTab('ndi')">NDI</div>
-        <div id="tab-btn-rtsp" style="cursor:pointer; color:${type==='rtsp'?'#FF9500':'#888'}; padding-bottom:10px; border-bottom:${type==='rtsp'?'2px solid #FF9500':'2px solid transparent'}; font-weight:${type==='rtsp'?'bold':'normal'};" onclick="switchSourceTab('rtsp')">RTSP</div>
-    </div>
-
     <div class="modal-body-add-source" style="padding: 0 30px 20px; flex:1;">
+        <!-- Type Dropdown Select -->
+        <div class="form-group" style="margin-bottom:15px; position:relative;">
+            <select id="selectSourceType" class="form-input" style="width:100%; box-sizing:border-box; background:#111113; color:#fff; border:1px solid #333; border-radius:6px; height:40px; padding:0 15px; appearance:none; -webkit-appearance:none; font-size:14px;" onchange="switchSourceTab(this.value)">
+                <option value="ndi" ${type==='ndi'?'selected':''}>Streaming via NDI</option>
+                <option value="rtsp" ${type==='rtsp'?'selected':''}>Streaming via RTSP</option>
+            </select>
+            <svg style="position:absolute; right:15px; top:50%; transform:translateY(-50%); width:12px; height:12px; fill:#aaa; pointer-events:none;" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+        </div>
+
         <!-- NDI Group (NDI only) -->
         <div id="group-field-wrapper" class="form-group" style="margin-bottom:15px; display:${type==='ndi'?'block':'none'};">
             <label class="form-label" style="display:block; margin-bottom:8px; color:#ddd; font-size:13px;">NDI Group</label>
-            <input type="text" id="inputSrcGroup" class="form-input" value="${groupValue}" placeholder="Classroom" style="width:100%; box-sizing:border-box; background:#1e1e1e;" oninput="validateSourceForm()">
+            <input type="text" id="inputSrcGroup" class="form-input" value="${groupValue}" placeholder="Classroom" style="width:100%; box-sizing:border-box; background:#111113;" oninput="validateSourceForm()">
         </div>
         
         <!-- IP Address (both) -->
         <div class="form-group" style="margin-bottom:15px; position:relative; display:flex;">
-            <input type="text" id="inputSrcIP" class="form-input" value="${i}" placeholder="IP Address" style="width:100%; box-sizing:border-box; padding-right:100px; background:#1e1e1e;" oninput="validateSourceForm()">
-            <button class="btn" style="position:absolute; right:5px; top:5px; bottom:5px; background:#4a4a4a; color:#ddd; border:none; border-radius:4px; padding:0 15px; font-size:12px; cursor:pointer;" onclick="openAutoSearch()">Auto Search</button>
+            <input type="text" id="inputSrcIP" class="form-input" value="${i}" placeholder="IP Address" style="width:100%; box-sizing:border-box; padding-right:${type==='ndi'?'100px':'15px'}; background:#111113;" oninput="validateSourceForm()">
+            <button id="btnAutoSearch" class="btn" style="position:absolute; right:5px; top:5px; bottom:5px; background:#4a4a4a; color:#ddd; border:none; border-radius:4px; padding:0 15px; font-size:12px; cursor:pointer; display:${type==='ndi'?'block':'none'};" onclick="openAutoSearch()">Auto Search</button>
         </div>
         
         <!-- Device Channel (NDI only) -->
         <div id="channel-field-wrapper" class="form-group" style="margin-bottom:15px; display:${type==='ndi'?'block':'none'};">
-            <input type="text" id="inputSrcChannel" class="form-input" value="${channelVal}" placeholder="Device Channel(Device ID)" style="width:100%; box-sizing:border-box; background:#1e1e1e;" oninput="validateSourceForm()">
+            <input type="text" id="inputSrcChannel" class="form-input" value="${channelVal}" placeholder="Device Channel(Device ID)" style="width:100%; box-sizing:border-box; background:#111113;" oninput="validateSourceForm()">
         </div>
         
         <!-- Username (RTSP only) -->
-        <div id="username-field-wrapper" class="form-group" style="margin-bottom:15px; display:${type==='rtsp'?'block':'none'};">
-            <input type="text" id="inputSrcUser" class="form-input" value="${rtspUser}" placeholder="RTSP Account" style="width:100%; box-sizing:border-box; background:#1e1e1e;" oninput="validateSourceForm()">
+        <div id="username-field-wrapper" class="form-group" style="margin-bottom:15px; position:relative; display:${type==='rtsp'?'block':'none'};">
+            <input type="text" id="inputSrcUser" class="form-input" value="${rtspUser}" placeholder="RTSP Account" style="width:100%; box-sizing:border-box; padding-right:45px; background:#111113;" oninput="validateSourceForm()">
+            <svg style="position:absolute; right:15px; top:50%; transform:translateY(-50%); width:16px; height:16px; fill:#888;" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
         </div>
         
         <!-- Password (RTSP only) -->
-        <div id="password-field-wrapper" class="form-group" style="margin-bottom:15px; display:${type==='rtsp'?'block':'none'};">
-            <input type="password" id="inputSrcPass" class="form-input" value="${rtspPass}" placeholder="RTSP Password" style="width:100%; box-sizing:border-box; background:#1e1e1e;" oninput="validateSourceForm()">
+        <div id="password-field-wrapper" class="form-group" style="margin-bottom:15px; position:relative; display:${type==='rtsp'?'block':'none'};">
+            <input type="password" id="inputSrcPass" class="form-input" value="${rtspPass}" placeholder="RTSP Password" style="width:100%; box-sizing:border-box; padding-right:45px; background:#111113;" oninput="validateSourceForm()">
+            <svg style="position:absolute; right:15px; top:50%; transform:translateY(-50%); width:16px; height:16px; fill:#888;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
         </div>
 
         <!-- Device Name (both) -->
-        <div class="form-group" style="margin-bottom:25px;">
-            <input type="text" id="inputSrcName" class="form-input" value="${n}" placeholder="Device Name" style="width:100%; box-sizing:border-box; background:#1e1e1e;" oninput="validateSourceForm()">
+        <div id="name-field-wrapper" class="form-group" style="margin-bottom:25px; position:relative;">
+            <input type="text" id="inputSrcName" class="form-input" value="${n}" placeholder="Device Name" style="width:100%; box-sizing:border-box; padding-right:${type==='rtsp'?'45px':'15px'}; background:#111113;" oninput="validateSourceForm()">
+            <span id="name-icon-container" style="display:${type==='rtsp'?'block':'none'};">
+                <svg style="position:absolute; right:15px; top:50%; transform:translateY(-50%); width:16px; height:16px; fill:#888;" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 4h5v2h-5V7zm0 4h5v2h-5v-2zm-9 8c0-1.66 1.34-3 3-3s3 1.34 3 3H5zm3-5c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/></svg>
+            </span>
         </div>
     </div>
     <div class="modal-footer" style="display:flex; justify-content:center; gap:15px; padding: 0 30px 30px; border-top:none; margin-top:auto;">
@@ -1175,21 +1183,30 @@ function renderSourceModal(t,n,i,g,r){
 
 window.switchSourceTab = function(tab) {
     currentAddSourceTab = tab;
-    document.getElementById('group-field-wrapper').style.display = tab === 'ndi' ? 'block' : 'none';
-    document.getElementById('channel-field-wrapper').style.display = tab === 'ndi' ? 'block' : 'none';
-    document.getElementById('username-field-wrapper').style.display = tab === 'rtsp' ? 'block' : 'none';
-    document.getElementById('password-field-wrapper').style.display = tab === 'rtsp' ? 'block' : 'none';
     
-    const btnNdi = document.getElementById('tab-btn-ndi');
-    const btnRtsp = document.getElementById('tab-btn-rtsp');
+    const selectEl = document.getElementById('selectSourceType');
+    if (selectEl) selectEl.value = tab;
     
-    if (tab === 'ndi') {
-        btnNdi.style.color = '#FF9500'; btnNdi.style.fontWeight = 'bold'; btnNdi.style.borderBottom = '2px solid #FF9500';
-        btnRtsp.style.color = '#888'; btnRtsp.style.fontWeight = 'normal'; btnRtsp.style.borderBottom = '2px solid transparent';
-    } else {
-        btnRtsp.style.color = '#FF9500'; btnRtsp.style.fontWeight = 'bold'; btnRtsp.style.borderBottom = '2px solid #FF9500';
-        btnNdi.style.color = '#888'; btnNdi.style.fontWeight = 'normal'; btnNdi.style.borderBottom = '2px solid transparent';
-    }
+    const groupField = document.getElementById('group-field-wrapper');
+    const channelField = document.getElementById('channel-field-wrapper');
+    const userField = document.getElementById('username-field-wrapper');
+    const passField = document.getElementById('password-field-wrapper');
+    const searchBtn = document.getElementById('btnAutoSearch');
+    const ipInput = document.getElementById('inputSrcIP');
+    const nameIcon = document.getElementById('name-icon-container');
+    const nameInput = document.getElementById('inputSrcName');
+    
+    if (groupField) groupField.style.display = tab === 'ndi' ? 'block' : 'none';
+    if (channelField) channelField.style.display = tab === 'ndi' ? 'block' : 'none';
+    if (userField) userField.style.display = tab === 'rtsp' ? 'block' : 'none';
+    if (passField) passField.style.display = tab === 'rtsp' ? 'block' : 'none';
+    
+    if (searchBtn) searchBtn.style.display = tab === 'ndi' ? 'block' : 'none';
+    if (ipInput) ipInput.style.paddingRight = tab === 'ndi' ? '100px' : '15px';
+    
+    if (nameIcon) nameIcon.style.display = tab === 'rtsp' ? 'block' : 'none';
+    if (nameInput) nameInput.style.paddingRight = tab === 'rtsp' ? '45px' : '15px';
+    
     validateSourceForm();
 };
 
