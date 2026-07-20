@@ -76,6 +76,7 @@ let decoderSettings = {
 let encoderSettings = {
     streamOutputRes: '1920 X 1080',
     framerate: '30',
+    ndiHxVersion: 'HEX3',
     bitrate: '20Mbps',
     rateControl: 'CBR',
     encodingType: 'H.264',
@@ -481,6 +482,14 @@ function switchSettingsTab(tabId) {
                             <option value="60" ${e.framerate==='60'?'selected':''}>60</option>
                             <option value="50" ${e.framerate==='50'?'selected':''}>50</option>
                             <option value="25" ${e.framerate==='25'?'selected':''}>25</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom:15px;">
+                        <label class="form-label" style="display:block; margin-bottom:6px; color:#888; font-size:12px;">NDI HX Version</label>
+                        <select id="enc-ndiHxVersion" class="form-select" style="width:100%; box-sizing:border-box; background:#0e0e0e; border:1px solid #333; color:#fff; padding:10px 12px; border-radius:4px; height:40px;">
+                            <option value="HEX3" ${e.ndiHxVersion==='HEX3'?'selected':''}>HEX3</option>
+                            <option value="HEX2" ${e.ndiHxVersion==='HEX2'?'selected':''}>HEX2</option>
                         </select>
                     </div>
                     
@@ -1715,6 +1724,7 @@ window.adjustEncSliderVal = function(type, step) {
 window.saveEncSettings = function() {
     const streamOutputRes = document.getElementById('enc-streamOutputRes');
     const framerate = document.getElementById('enc-framerate');
+    const ndiHxVersion = document.getElementById('enc-ndiHxVersion');
     const bitrate = document.getElementById('enc-bitrate');
     const rateControl = document.getElementById('enc-rateControl');
     const encodingType = document.getElementById('enc-encodingType');
@@ -1726,6 +1736,7 @@ window.saveEncSettings = function() {
     
     if (streamOutputRes) encoderSettings.streamOutputRes = streamOutputRes.value;
     if (framerate) encoderSettings.framerate = framerate.value;
+    if (ndiHxVersion) encoderSettings.ndiHxVersion = ndiHxVersion.value;
     if (bitrate) encoderSettings.bitrate = bitrate.value;
     if (rateControl) encoderSettings.rateControl = rateControl.value;
     if (encodingType) encoderSettings.encodingType = encodingType.value;
