@@ -199,7 +199,7 @@ function refreshSourceList() {
     const listContainer = document.getElementById('right-panel-list-container');
     if(listContainer) listContainer.innerHTML = '<div style="height:100%; display:flex; align-items:center; justify-content:center; padding:40px;"><div class="loading-spinner-container"><div class="spinner-ring"></div><div style="margin-top:10px; color:#888; font-size:13px;">Updating sources...</div></div></div>';
     setTimeout(() => {
-        if(listContainer) listContainer.innerHTML = `<table class="source-list-table" id="right-panel-table"><thead class="source-list-header"><tr><th style="width:30px; text-align:center;"></th><th style="width:88px; padding-left:10px;">Preview</th><th style="padding-left:10px;">Details</th><th style="text-align:right; padding-right:20px; width:120px;">Status</th></tr></thead><tbody id="source-list-body"></tbody></table>`;
+        if(listContainer) listContainer.innerHTML = `<table class="source-list-table" id="right-panel-table"><thead class="source-list-header"><tr><th style="width:40px; text-align:center; padding-left:10px; box-sizing:border-box;"></th><th style="width:88px; padding-left:10px; padding-right:10px; box-sizing:border-box;">Preview</th><th style="padding-left:5px; padding-right:10px; box-sizing:border-box;">Details</th><th style="text-align:right; padding-right:15px; width:120px; box-sizing:border-box;">Status</th></tr></thead><tbody id="source-list-body"></tbody></table>`;
         renderSourceList(); 
         if(document.getElementById('modal-large-settings').style.display !== 'none' && document.getElementById('tab-source').classList.contains('active')) { switchSettingsTab('source'); }
         if(btn) { btn.innerText = "↻"; btn.disabled = false; }
@@ -357,7 +357,7 @@ function renderSourceList() {
         }
 
         tr.innerHTML = `
-            <td class="drag-col" style="padding-left:10px;">
+            <td class="drag-col" style="width:40px; text-align:center; padding-left:10px; box-sizing:border-box;">
                 <div style="display:flex; flex-direction:column; gap:2px; align-items:center; width:8px; opacity:${isUnsupported||src.status==='offline'?0.3:1}">
                     <span style="color:#555; font-size:10px; line-height:3px;">••</span>
                     <span style="color:#555; font-size:10px; line-height:3px;">••</span>
@@ -365,14 +365,14 @@ function renderSourceList() {
                     <span style="color:#555; font-size:10px; line-height:3px;">••</span>
                 </div>
             </td>
-            <td class="thumb-col" style="padding:5px 10px;">${thumbHtml}</td>
-            <td class="info-col" style="padding:5px 10px 5px 5px;">
+            <td class="thumb-col" style="width:88px; padding:5px 10px; box-sizing:border-box;">${thumbHtml}</td>
+            <td class="info-col" style="padding:5px 10px 5px 5px; box-sizing:border-box;">
                 <div class="src-name" style="${src.status==='offline'?'color:#555':'color:#fff'}; font-size:12px; font-weight:bold; margin-bottom:1px;">${src.name}</div>
                 <div style="font-size:10px; color:#888; margin-bottom:1px;">${src.channel || 'Device Channel'}</div>
                 <div style="font-size:10px; color:#888; margin-bottom:1px;">${src.resolution || 'Resolution'}</div>
                 <div style="font-size:10px; color:#888;">${src.ip}</div>
             </td>
-            <td style="text-align:right; vertical-align:middle; padding-right:5px;">${statusHtml}</td>
+            <td style="text-align:right; vertical-align:middle; padding-right:15px; box-sizing:border-box;">${statusHtml}</td>
         `;
         tbody.appendChild(tr);
     });
