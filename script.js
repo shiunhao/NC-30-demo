@@ -74,15 +74,16 @@ let decoderSettings = {
     audioDelay: 0
 };
 let encoderSettings = {
-    maxVideoInput: '2160p/60',
-    curVideoInput: '1080p/60',
-    maxVideoOutput: '2160p/60',
-    maxStreamOutput: '2160p/60',
-    framerate: '60',
+    streamOutputRes: '1920 X 1080',
+    framerate: '30',
     bitrate: '20Mbps',
+    rateControl: 'CBR',
     encodingType: 'H.264',
-    ndiHxVersion: 'NDI HX2',
-    vopInterval: 3
+    vopInterval: 3,
+    audioInputSource: 'HDMI',
+    audioAnalog: 'MIC In',
+    audioVolume: 5,
+    audioDelay: 0
 };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -460,62 +461,48 @@ function switchSettingsTab(tabId) {
             <div class="settings-subsection" style="margin-bottom:20px; border-bottom:none;">
                 <div class="settings-group-title" style="font-size:18px; color:#fff; margin-bottom:20px; font-weight:normal;">Encoder Settings</div>
                 
-                <!-- Video Input Group -->
+                <!-- Stream Output Group -->
                 <div style="margin-bottom:25px;">
-                    <div style="color:#aaa; font-size:14px; margin-bottom:12px;">Video Input</div>
+                    <div style="color:#aaa; font-size:14px; margin-bottom:12px;">Stream Output</div>
+                    
                     <div class="form-group" style="margin-bottom:15px;">
-                        <label class="form-label" style="display:block; margin-bottom:6px; color:#888; font-size:12px;">Maximum Video Input</label>
-                        <select id="enc-maxVideoInput" class="form-select" style="width:100%; box-sizing:border-box; background:#0e0e0e; border:1px solid #333; color:#fff; padding:10px 12px; border-radius:4px; height:40px;">
-                            <option value="2160p/60" ${e.maxVideoInput==='2160p/60'?'selected':''}>2160p/60</option>
+                        <label class="form-label" style="display:block; margin-bottom:6px; color:#888; font-size:12px;">Stream Output Resolution</label>
+                        <select id="enc-streamOutputRes" class="form-select" style="width:100%; box-sizing:border-box; background:#0e0e0e; border:1px solid #333; color:#fff; padding:10px 12px; border-radius:4px; height:40px;">
+                            <option value="1920 X 1080" ${e.streamOutputRes==='1920 X 1080'?'selected':''}>1920 X 1080</option>
+                            <option value="3840 X 2160" ${e.streamOutputRes==='3840 X 2160'?'selected':''}>3840 X 2160</option>
+                            <option value="1280 X 720" ${e.streamOutputRes==='1280 X 720'?'selected':''}>1280 X 720</option>
                         </select>
                     </div>
-                    <div class="form-group" style="margin-bottom:15px;">
-                        <label class="form-label" style="display:block; margin-bottom:6px; color:#888; font-size:12px;">Current Video Input Resolution</label>
-                        <input type="text" class="form-input" value="${e.curVideoInput}" readonly style="width:100%; box-sizing:border-box; background:#1b1b1b; border:1px solid #2a2a2a; color:#555; padding:10px 12px; border-radius:4px; cursor:not-allowed;">
-                    </div>
-                </div>
-
-                <!-- Video Output Group -->
-                <div style="margin-bottom:25px;">
-                    <div style="color:#aaa; font-size:14px; margin-bottom:12px;">Video Output</div>
-                    <div class="form-group" style="margin-bottom:15px;">
-                        <label class="form-label" style="display:block; margin-bottom:6px; color:#888; font-size:12px;">Maximum Video Output</label>
-                        <select id="enc-maxVideoOutput" class="form-select" style="width:100%; box-sizing:border-box; background:#0e0e0e; border:1px solid #333; color:#fff; padding:10px 12px; border-radius:4px; height:40px;">
-                            <option value="2160p/60" ${e.maxVideoOutput==='2160p/60'?'selected':''}>2160p/60</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Stream Group -->
-                <div style="margin-bottom:25px;">
-                    <div style="color:#aaa; font-size:14px; margin-bottom:12px;">Stream</div>
-                    <div class="form-group" style="margin-bottom:15px;">
-                        <label class="form-label" style="display:block; margin-bottom:6px; color:#888; font-size:12px;">Maximum Stream Output</label>
-                        <select id="enc-maxStreamOutput" class="form-select" style="width:100%; box-sizing:border-box; background:#0e0e0e; border:1px solid #333; color:#fff; padding:10px 12px; border-radius:4px; height:40px;">
-                            <option value="2160p/60" ${e.maxStreamOutput==='2160p/60'?'selected':''}>2160p/60</option>
-                        </select>
-                    </div>
-                    <div class="form-group" style="margin-bottom:15px;">
-                        <label class="form-label" style="display:block; margin-bottom:6px; color:#888; font-size:12px;">NDI HX Version</label>
-                        <select id="enc-ndiHxVersion" class="form-select" style="width:100%; box-sizing:border-box; background:#0e0e0e; border:1px solid #333; color:#fff; padding:10px 12px; border-radius:4px; height:40px;">
-                            <option value="NDI HX2" ${e.ndiHxVersion==='NDI HX2'?'selected':''}>NDI HX2</option>
-                            <option value="NDI HX3" ${e.ndiHxVersion==='NDI HX3'?'selected':''}>NDI HX3</option>
-                        </select>
-                    </div>
+                    
                     <div class="form-group" style="margin-bottom:15px;">
                         <label class="form-label" style="display:block; margin-bottom:6px; color:#888; font-size:12px;">Framerate</label>
                         <select id="enc-framerate" class="form-select" style="width:100%; box-sizing:border-box; background:#0e0e0e; border:1px solid #333; color:#fff; padding:10px 12px; border-radius:4px; height:40px;">
                             <option value="30" ${e.framerate==='30'?'selected':''}>30</option>
                             <option value="60" ${e.framerate==='60'?'selected':''}>60</option>
+                            <option value="50" ${e.framerate==='50'?'selected':''}>50</option>
+                            <option value="25" ${e.framerate==='25'?'selected':''}>25</option>
                         </select>
                     </div>
+                    
                     <div class="form-group" style="margin-bottom:15px;">
                         <label class="form-label" style="display:block; margin-bottom:6px; color:#888; font-size:12px;">Bitrate</label>
                         <select id="enc-bitrate" class="form-select" style="width:100%; box-sizing:border-box; background:#0e0e0e; border:1px solid #333; color:#fff; padding:10px 12px; border-radius:4px; height:40px;">
                             <option value="20Mbps" ${e.bitrate==='20Mbps'?'selected':''}>20Mbps</option>
+                            <option value="16Mbps" ${e.bitrate==='16Mbps'?'selected':''}>16Mbps</option>
+                            <option value="12Mbps" ${e.bitrate==='12Mbps'?'selected':''}>12Mbps</option>
+                            <option value="8Mbps" ${e.bitrate==='8Mbps'?'selected':''}>8Mbps</option>
                             <option value="AUTO" ${e.bitrate==='AUTO'?'selected':''}>AUTO</option>
                         </select>
                     </div>
+                    
+                    <div class="form-group" style="margin-bottom:15px;">
+                        <label class="form-label" style="display:block; margin-bottom:6px; color:#888; font-size:12px;">Rate Control</label>
+                        <select id="enc-rateControl" class="form-select" style="width:100%; box-sizing:border-box; background:#0e0e0e; border:1px solid #333; color:#fff; padding:10px 12px; border-radius:4px; height:40px;">
+                            <option value="CBR" ${e.rateControl==='CBR'?'selected':''}>CBR</option>
+                            <option value="VBR" ${e.rateControl==='VBR'?'selected':''}>VBR</option>
+                        </select>
+                    </div>
+                    
                     <div class="form-group" style="margin-bottom:15px;">
                         <label class="form-label" style="display:block; margin-bottom:6px; color:#888; font-size:12px;">Encoding Type</label>
                         <select id="enc-encodingType" class="form-select" style="width:100%; box-sizing:border-box; background:#0e0e0e; border:1px solid #333; color:#fff; padding:10px 12px; border-radius:4px; height:40px;">
@@ -523,6 +510,7 @@ function switchSettingsTab(tabId) {
                             <option value="H.265" ${e.encodingType==='H.265'?'selected':''}>H.265</option>
                         </select>
                     </div>
+                    
                     <div class="form-group" style="margin-bottom:15px;">
                         <label class="form-label" style="display:block; margin-bottom:6px; color:#888; font-size:12px;">I-VOP Interval (S)</label>
                         <div style="display:flex; gap:12px; align-items:center;">
@@ -530,6 +518,47 @@ function switchSettingsTab(tabId) {
                             <input type="range" id="enc-vopInterval" class="ptz-range" min="1" max="10" value="${e.vopInterval}" style="flex:1;" oninput="updateEncSliderVal(this.value)">
                             <span style="color:#aaa; font-size:12px; min-width:15px; text-align:center;">10</span>
                             <span id="enc-vop-val-box" style="background:#2a2a2c; color:#fff; padding:6px 12px; border-radius:4px; font-size:12px; min-width:25px; text-align:center;">${e.vopInterval}S</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Audio Settings Group -->
+                <div style="margin-bottom:25px;">
+                    <div style="color:#aaa; font-size:14px; margin-bottom:12px;">Audio Settings</div>
+
+                    <div class="form-group" style="margin-bottom:15px;">
+                        <label class="form-label" style="display:block; margin-bottom:6px; color:#888; font-size:12px;">Input Source Select</label>
+                        <select id="enc-audioSource" class="form-select" style="width:100%; box-sizing:border-box; background:#0e0e0e; border:1px solid #333; color:#fff; padding:10px 12px; border-radius:4px; height:40px;" onchange="updateEncAudioSourceLinkage()">
+                            <option value="HDMI" ${e.audioInputSource==='HDMI'?'selected':''}>HDMI</option>
+                            <option value="Analog" ${e.audioInputSource==='Analog'?'selected':''}>Analog</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:15px;">
+                        <label class="form-label" style="display:block; margin-bottom:6px; color:#888; font-size:12px;">Analog</label>
+                        <select id="enc-audioAnalog" class="form-select" style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:4px; height:40px; ${e.audioInputSource==='HDMI'?'background:transparent; color:#555; border-color:#222; cursor:not-allowed;':'background:#0e0e0e; color:#fff; border-color:#333; cursor:pointer;'}" ${e.audioInputSource==='HDMI'?'disabled':''}>
+                            <option value="MIC In" ${e.audioAnalog==='MIC In'?'selected':''}>MIC In</option>
+                            <option value="Line In" ${e.audioAnalog==='Line In'?'selected':''}>Line In</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:15px;">
+                        <label class="form-label" style="display:block; margin-bottom:6px; color:#888; font-size:12px;">Volume</label>
+                        <div style="display:flex; gap:12px; align-items:center;">
+                            <span style="color:#aaa; font-size:18px; min-width:15px; text-align:center; font-weight:bold; cursor:pointer;" onclick="adjustEncSliderVal('vol', -1)">—</span>
+                            <input type="range" id="enc-volume" class="ptz-range" min="1" max="10" value="${e.audioVolume}" style="flex:1;" oninput="updateEncAudioSliderVal('vol', this.value)">
+                            <span style="color:#aaa; font-size:18px; min-width:15px; text-align:center; font-weight:bold; cursor:pointer;" onclick="adjustEncSliderVal('vol', 1)">＋</span>
+                            <span id="enc-vol-val-box" style="background:#2a2a2c; color:#fff; padding:6px 12px; border-radius:4px; font-size:12px; min-width:25px; text-align:center;">${e.audioVolume}</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:15px;">
+                        <label class="form-label" style="display:block; margin-bottom:6px; color:#888; font-size:12px;">Audio Delay</label>
+                        <div style="display:flex; gap:12px; align-items:center;">
+                            <span style="color:#aaa; font-size:12px; min-width:45px; text-align:center;">-500ms</span>
+                            <input type="range" id="enc-audioDelay" class="ptz-range" min="-500" max="500" value="${e.audioDelay}" style="flex:1;" oninput="updateEncAudioSliderVal('delay', this.value)">
+                            <span style="color:#aaa; font-size:12px; min-width:45px; text-align:center;">500ms</span>
+                            <span id="enc-delay-val-box" style="background:#2a2a2c; color:#fff; padding:6px 12px; border-radius:4px; font-size:12px; min-width:25px; text-align:center;">${e.audioDelay}ms</span>
                         </div>
                     </div>
                 </div>
@@ -1640,24 +1669,71 @@ window.updateEncSliderVal = function(val) {
     if (box) box.innerText = `${val}S`;
 };
 
+window.updateEncAudioSourceLinkage = function() {
+    const srcEl = document.getElementById('enc-audioSource');
+    const analogEl = document.getElementById('enc-audioAnalog');
+    if (srcEl && analogEl) {
+        if (srcEl.value === 'HDMI') {
+            analogEl.disabled = true;
+            analogEl.style.background = 'transparent';
+            analogEl.style.color = '#555';
+            analogEl.style.borderColor = '#222';
+            analogEl.style.cursor = 'not-allowed';
+        } else {
+            analogEl.disabled = false;
+            analogEl.style.background = '#0e0e0e';
+            analogEl.style.color = '#fff';
+            analogEl.style.borderColor = '#333';
+            analogEl.style.cursor = 'pointer';
+        }
+    }
+};
+
+window.updateEncAudioSliderVal = function(type, val) {
+    if (type === 'vol') {
+        const box = document.getElementById('enc-vol-val-box');
+        if (box) box.innerText = val;
+    } else if (type === 'delay') {
+        const box = document.getElementById('enc-delay-val-box');
+        if (box) box.innerText = val;
+    }
+};
+
+window.adjustEncSliderVal = function(type, step) {
+    if (type === 'vol') {
+        const input = document.getElementById('enc-volume');
+        if (input) {
+            let val = parseInt(input.value) + step;
+            if (val >= 1 && val <= 10) {
+                input.value = val;
+                updateEncAudioSliderVal('vol', val);
+            }
+        }
+    }
+};
+
 window.saveEncSettings = function() {
-    const maxVideoInput = document.getElementById('enc-maxVideoInput');
-    const maxVideoOutput = document.getElementById('enc-maxVideoOutput');
-    const maxStreamOutput = document.getElementById('enc-maxStreamOutput');
+    const streamOutputRes = document.getElementById('enc-streamOutputRes');
     const framerate = document.getElementById('enc-framerate');
     const bitrate = document.getElementById('enc-bitrate');
+    const rateControl = document.getElementById('enc-rateControl');
     const encodingType = document.getElementById('enc-encodingType');
-    const ndiHxVersion = document.getElementById('enc-ndiHxVersion');
     const vopInterval = document.getElementById('enc-vopInterval');
+    const audioSource = document.getElementById('enc-audioSource');
+    const audioAnalog = document.getElementById('enc-audioAnalog');
+    const audioVolume = document.getElementById('enc-volume');
+    const audioDelay = document.getElementById('enc-audioDelay');
     
-    if (maxVideoInput) encoderSettings.maxVideoInput = maxVideoInput.value;
-    if (maxVideoOutput) encoderSettings.maxVideoOutput = maxVideoOutput.value;
-    if (maxStreamOutput) encoderSettings.maxStreamOutput = maxStreamOutput.value;
+    if (streamOutputRes) encoderSettings.streamOutputRes = streamOutputRes.value;
     if (framerate) encoderSettings.framerate = framerate.value;
     if (bitrate) encoderSettings.bitrate = bitrate.value;
+    if (rateControl) encoderSettings.rateControl = rateControl.value;
     if (encodingType) encoderSettings.encodingType = encodingType.value;
-    if (ndiHxVersion) encoderSettings.ndiHxVersion = ndiHxVersion.value;
     if (vopInterval) encoderSettings.vopInterval = parseInt(vopInterval.value);
+    if (audioSource) encoderSettings.audioInputSource = audioSource.value;
+    if (audioAnalog) encoderSettings.audioAnalog = audioAnalog.value;
+    if (audioVolume) encoderSettings.audioVolume = parseInt(audioVolume.value);
+    if (audioDelay) encoderSettings.audioDelay = parseInt(audioDelay.value);
     
     showToast("Encoder settings saved successfully", "success");
 };
