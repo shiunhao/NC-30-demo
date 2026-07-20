@@ -29,18 +29,11 @@
     <div id="app-shell" class="app-layout">
         <div class="top-bar">
             <div class="header-left-group">
-                <div class="mode-badge" id="current-mode-badge">ENCODER MODE</div>
-                <div class="vertical-divider"></div>
-                <div class="status-group">
-                    <div class="status-text-badge">NDI <span style="color:#4CAF50">●</span></div>
-                    <div class="status-text-badge">NET <span style="color:#4CAF50">1Gbps</span></div>
-                </div>
             </div>
             
             <div class="header-right-group">
-                <div class="settings-container">
-                    <div id="btn-onboarding-trigger" class="settings-btn" onclick="startOnboarding()" title="Feature Tour">❓</div>
-                </div>
+                <div class="mode-badge" id="current-mode-badge">ENCODER MODE</div>
+
 
                 <div class="settings-container">
                     <div id="btn-account-avatar" class="account-pill" onclick="toggleAccountMenu()">
@@ -124,7 +117,7 @@
                     <div class="dec-right-col">
                         <div class="source-list-panel">
                             <div class="list-toolbar">
-                                <span style="font-weight:bold; font-size:14px; color:#ddd;">Sources</span>
+                                <span style="font-weight:bold; font-size:14px; color:#ddd;">Device List <span style="font-size:11px; color:#777; font-weight:normal; margin-left:6px;">(H: 50% / Ratio: 5.0)</span></span>
                                 <div style="display:flex; gap:5px;">
                                     <button class="btn btn-outline btn-sm" id="btn-refresh-list" onclick="refreshSourceList()">↻</button>
                                 </div>
@@ -133,9 +126,10 @@
                                 <table class="source-list-table" id="right-panel-table">
                                     <thead class="source-list-header">
                                         <tr>
-                                            <th style="width:40px;"></th>
-                                            <th>Source Name</th>
-                                            <th style="width:50px; text-align:right;">Act</th>
+                                            <th style="width:30px; text-align:center;"></th>
+                                            <th style="width:88px; padding-left:10px;">Preview</th>
+                                            <th style="padding-left:10px;">Details</th>
+                                            <th style="text-align:right; padding-right:20px; width:120px;">Status</th>
                                         </tr>
                                     </thead>
                                     <tbody id="source-list-body"></tbody>
@@ -146,11 +140,10 @@
                         <div class="embedded-ptz-panel">
                             <div class="ptz-header">
                                 <div class="ptz-drag-handle" style="opacity:0;"></div> 
-                                <div class="ptz-title">PTZ Control Panel</div>
+                                <div class="ptz-title">PTZ Control Panel <span style="font-size:11px; color:#777; font-weight:normal; margin-left:6px;">(H: 50% / Ratio: 5.0)</span></div>
                                 <div style="width:20px;"></div> 
                             </div>
                             <div class="ptz-body">
-                                <div id="ptz-target-info" class="ptz-target-info">Target: None</div>
                                 <div class="ptz-pad-container">
                                     <button class="ptz-btn" style="border-top-left-radius: 4px;">↖</button><button class="ptz-btn">▲</button><button class="ptz-btn" style="border-top-right-radius: 4px;">↗</button>
                                     <button class="ptz-btn">◀</button><button class="ptz-btn ptz-home">🏠</button><button class="ptz-btn">▶</button>
@@ -286,16 +279,18 @@
         </div>
     </div>
 
-    <div id="modal-auto-search" class="modal-overlay" onclick="if(event.target===this) closeAutoSearch()">
-        <div class="modal-box" style="width:400px; height:500px; display:flex; flex-direction:column; padding:0;">
-            <div class="modal-header-row" style="margin:0; padding:15px 20px; border-bottom:1px solid #333;">
-                <h3 style="margin:0; color:#fff; font-size:16px;">Auto Search</h3>
-                <span class="modal-close-x" onclick="closeAutoSearch()">✕</span>
+    <div id="modal-auto-search" class="modal-overlay" onclick="if(event.target===this) closeAutoSearch()" style="display:none; z-index:3500; align-items:center; justify-content:center;">
+        <div class="modal-box" style="width:550px; height:550px; display:flex; flex-direction:column; padding:25px; background:#2a2a2a; border:1px solid #3c3c3c; border-radius:10px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); position:relative;">
+            <span class="modal-close-x" style="position:absolute; right:20px; top:20px; font-size:18px; color:#aaa; cursor:pointer;" onclick="closeAutoSearch()">✕</span>
+            <h3 style="margin:0 0 20px 0; color:#fff; font-size:22px; font-weight:normal; text-align:center;" id="auto-search-title">Auto Search</h3>
+            
+            <div id="search-list-content" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; background:#1e1e1e; border-radius:6px; border:1px solid #3c3c3c; padding:0;">
+                <!-- Scanning spinner or table will be rendered here -->
             </div>
-            <div class="search-list-body" id="search-list-content" style="flex:1; overflow-y:auto; padding:10px;"></div>
-            <div class="modal-footer" style="padding:15px 20px; border-top:1px solid #333; margin-top:auto; display:flex; justify-content:flex-end; gap:10px;">
-                <button class="modal-footer-btn" onclick="closeAutoSearch()">Cancel</button>
-                <button class="modal-footer-btn" onclick="confirmAutoSearch()">Confirm</button>
+            
+            <div style="display:flex; justify-content:center; gap:20px; margin-top:25px;">
+                <button class="btn" style="width:140px; padding:12px; background:#4a4a4a; color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:14px;" onclick="closeAutoSearch()">Back</button>
+                <button class="btn" id="btn-done-search" style="width:140px; padding:12px; background:#333; color:#777; border:none; border-radius:6px; cursor:not-allowed; font-size:14px;" onclick="confirmAutoSearch()" disabled>Done</button>
             </div>
         </div>
     </div>
@@ -303,10 +298,12 @@
     <div id="modal-large-settings" style="display:none;" class="modal-overlay" onclick="closeSpecificModal('modal-large-settings')">
         <div class="modal-box" onclick="event.stopPropagation()">
             <div class="settings-sidebar">
-                <div class="sidebar-item" onclick="switchSettingsTab('source')" id="tab-source">Source</div>
+                <div class="sidebar-item" onclick="switchSettingsTab('source')" id="tab-source">Device</div>
                 <div class="sidebar-item" onclick="switchSettingsTab('av-settings')" id="tab-av-settings">Video & Audio</div>
                 <div class="sidebar-item" onclick="switchSettingsTab('network')" id="tab-network">Network</div>
+                <div class="sidebar-item" onclick="switchSettingsTab('ndi')" id="tab-ndi">NDI</div>
                 <div class="sidebar-item" onclick="switchSettingsTab('system')" id="tab-system">System</div>
+                <div class="sidebar-item" onclick="switchSettingsTab('help')" id="tab-help">Help</div>
             </div>
             <div class="settings-content-area">
                 <div class="settings-header">
