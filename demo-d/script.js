@@ -1025,7 +1025,15 @@ function switchSettingsTab(tabId) {
         <div class="settings-subsection" style="margin-bottom:0; border-bottom:none;">
             <div class="settings-group-title" style="font-size:16px; color:#aaa; margin-bottom:20px; font-weight:normal;">Export/Import Settings</div>
 
-            <!-- Import Settings & Export Settings hidden for now -->
+            <div style="display:flex; justify-content:space-between; align-items:center; background:#1e1e1e; border:1px solid #333; border-radius:6px; padding:12px 20px; margin-bottom:12px;">
+                <span style="color:#fff; font-size:14px;">Import Settings</span>
+                <button class="btn" style="background:#4a4a4a; color:#fff; padding:8px 24px; border-radius:4px; font-size:13px; cursor:pointer; border:none;" onclick="importSettings()">Import</button>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; background:#1e1e1e; border:1px solid #333; border-radius:6px; padding:12px 20px; margin-bottom:12px;">
+                <span style="color:#fff; font-size:14px;">Export Settings</span>
+                <button class="btn" style="background:#4a4a4a; color:#fff; padding:8px 24px; border-radius:4px; font-size:13px; cursor:pointer; border:none;" onclick="exportSettings()">Export</button>
+            </div>
 
             <div style="display:flex; justify-content:space-between; align-items:center; background:#1e1e1e; border:1px solid #333; border-radius:6px; padding:12px 20px;">
                 <span style="color:#fff; font-size:14px;">Save debug files</span>
@@ -1673,6 +1681,47 @@ window.downloadDebugFiles = function() {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
         showToast("Debug files saved successfully", "success");
+    }, 1000);
+};
+
+window.importSettings = function() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json,.bin,.txt';
+    input.onchange = function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        showToast("Uploading configuration file...", "info");
+        setTimeout(() => {
+            showToast("Settings imported successfully. System rebooting...", "success");
+            setTimeout(() => {
+                location.reload();
+            }, 1500);
+        }, 1500);
+    };
+    input.click();
+};
+
+window.exportSettings = function() {
+    showToast("Generating configuration file...", "info");
+    setTimeout(() => {
+        const config = {
+            version: "NC30_V1.0",
+            timestamp: new Date().toISOString(),
+            systemConfig: typeof systemConfig !== 'undefined' ? systemConfig : {},
+            decoderSettings: typeof decoderSettings !== 'undefined' ? decoderSettings : {},
+            encoderSettings: typeof encoderSettings !== 'undefined' ? encoderSettings : {}
+        };
+        const blob = new Blob([JSON.stringify(config, null, 4)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `NC30_config_${Math.floor(Date.now() / 1000)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast("Settings exported successfully", "success");
     }, 1000);
 };
 
