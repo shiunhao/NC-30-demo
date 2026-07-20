@@ -475,6 +475,8 @@ function switchSettingsTab(tabId) {
                         </select>
                     </div>
                     
+                    <hr style="border:none; border-top:1px solid #2a2a2a; margin: 20px 0;">
+                    
                     <div class="form-group" style="margin-bottom:15px;">
                         <label class="form-label" style="display:block; margin-bottom:6px; color:#888; font-size:12px;">Framerate</label>
                         <select id="enc-framerate" class="form-select" style="width:100%; box-sizing:border-box; background:#0e0e0e; border:1px solid #333; color:#fff; padding:10px 12px; border-radius:4px; height:40px;">
