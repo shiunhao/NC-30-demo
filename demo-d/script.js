@@ -326,14 +326,15 @@ function renderSourceList() {
         let thumbHtml = '';
         if (src.status === 'online' && src.thumb) {
             thumbHtml = `
-            <div class="thumb-box" style="width: 78px; height: 44px; border-radius: 4px; border: 1px solid #333; overflow: hidden; background: #000;">
+            <div class="thumb-box" style="width: 78px; height: 44px; border-radius: 4px; border: 1px solid #333; overflow: hidden; background: #000; position: relative;">
                 <img src="${src.thumb}" style="width:100%; height:100%; object-fit:cover;">
+                <span style="position: absolute; left: 4px; top: 4px; background: ${src.type === 'rtsp' ? '#007aff' : '#ff9500'}; color: ${src.type === 'rtsp' ? '#fff' : '#000'}; font-size: 8px; font-weight: 800; padding: 1px 3px; border-radius: 2px; text-transform: uppercase; line-height: 1; z-index: 1; pointer-events: none; letter-spacing: 0.5px;">${(src.type || 'ndi').toUpperCase()}</span>
             </div>`;
         } else {
             // Draw stylized camera icon matching user's crop
             const showWarning = src.status === 'unsupported_ndi' || src.status === 'unsupported_res';
             thumbHtml = `
-            <div class="thumb-box" style="width: 78px; height: 44px; border-radius: 4px; border: 1px solid #222; overflow: hidden; background: #141414; opacity: ${src.status==='offline'?0.4:1};">
+            <div class="thumb-box" style="width: 78px; height: 44px; border-radius: 4px; border: 1px solid #222; overflow: hidden; background: #141414; opacity: ${src.status==='offline'?0.4:1}; position: relative;">
                 <svg viewBox="0 0 100 56" style="width:100%; height:100%; display:block;" fill="none">
                     <!-- Camera Base Rounded Rect -->
                     <rect x="25" y="25" width="28" height="15" rx="3" stroke="#555" stroke-width="1.5" fill="none"></rect>
@@ -353,6 +354,7 @@ function renderSourceList() {
                     <circle cx="69" cy="34" r="0.8" fill="#d48a04"></circle>
                     ` : ''}
                 </svg>
+                <span style="position: absolute; left: 4px; top: 4px; background: ${src.type === 'rtsp' ? '#007aff' : '#ff9500'}; color: ${src.type === 'rtsp' ? '#fff' : '#000'}; font-size: 8px; font-weight: 800; padding: 1px 3px; border-radius: 2px; text-transform: uppercase; line-height: 1; z-index: 1; pointer-events: none; letter-spacing: 0.5px;">${(src.type || 'ndi').toUpperCase()}</span>
             </div>`;
         }
 
