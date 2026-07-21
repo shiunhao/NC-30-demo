@@ -1137,8 +1137,8 @@ function renderSourceModal(t,n,i,g,r){
         
         <!-- IP Address (both) -->
         <div class="form-group" style="margin-bottom:15px; position:relative; display:flex;">
-            <input type="text" id="inputSrcIP" class="form-input" value="${i}" placeholder="IP Address" style="width:100%; box-sizing:border-box; padding-right:${type==='ndi'?'100px':'15px'}; background:#111113;" oninput="validateSourceForm()">
-            <button id="btnAutoSearch" class="btn" style="position:absolute; right:5px; top:5px; bottom:5px; background:#4a4a4a; color:#ddd; border:none; border-radius:4px; padding:0 15px; font-size:12px; cursor:pointer; display:${type==='ndi'?'block':'none'};" onclick="openAutoSearch()">Auto Search</button>
+            <input type="text" id="inputSrcIP" class="form-input" value="${i}" placeholder="IP Address" style="width:100%; box-sizing:border-box; padding-right:100px; background:#111113;" oninput="validateSourceForm()">
+            <button id="btnAutoSearch" class="btn" style="position:absolute; right:5px; top:5px; bottom:5px; background:#4a4a4a; color:#ddd; border:none; border-radius:4px; padding:0 15px; font-size:12px; cursor:pointer; display:block;" onclick="openAutoSearch()">Auto Search</button>
         </div>
         
         <!-- Device Channel (NDI only) -->
@@ -1201,8 +1201,8 @@ window.switchSourceTab = function(tab) {
     if (userField) userField.style.display = tab === 'rtsp' ? 'block' : 'none';
     if (passField) passField.style.display = tab === 'rtsp' ? 'block' : 'none';
     
-    if (searchBtn) searchBtn.style.display = tab === 'ndi' ? 'block' : 'none';
-    if (ipInput) ipInput.style.paddingRight = tab === 'ndi' ? '100px' : '15px';
+    if (searchBtn) searchBtn.style.display = 'block';
+    if (ipInput) ipInput.style.paddingRight = '100px';
     
     if (nameIcon) nameIcon.style.display = tab === 'rtsp' ? 'block' : 'none';
     if (nameInput) nameInput.style.paddingRight = tab === 'rtsp' ? '45px' : '15px';
